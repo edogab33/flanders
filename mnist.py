@@ -54,22 +54,6 @@ class LitAutoEncoder(pl.LightningModule):
         y_hat = self(x)
         return y_hat
 
-    #def validation_step(self, batch, batch_idx):
-    #    self._evaluate(batch, "val")
-
-    #def test_step(self, batch, batch_idx):
-    #    self._evaluate(batch, "test")
-
-    #def _evaluate(self, batch, stage=None):
-    #    x, y = batch
-    #    x = x.view(x.size(0), -1)
-    #    z = self.encoder(x)
-    #    x_hat = self.decoder(z)
-    #    loss = F.mse_loss(x_hat, x)
-    #    if stage:
-    #        self.log(f"{stage}_loss", loss, prog_bar=True)
-
-
 def load_data():
     # Training / validation set
     trainset = MNIST("", train=True, download=True, transform=transforms.ToTensor())

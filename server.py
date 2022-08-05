@@ -13,13 +13,12 @@ def main() -> None:
     strategy = MaliciousFedAvg(
         fraction_fit=0.2,
         fraction_evaluate=0.2,
-        fraction_malicious=0.5
+        fraction_malicious=0.5                          # computed from the number of available clients
     )
 
-    # Start Flower server for three rounds of federated learning
     fl.server.start_server(
         server_address="0.0.0.0:8080",
-        config=fl.server.ServerConfig(num_rounds=2),
+        config=fl.server.ServerConfig(num_rounds=5),
         strategy=strategy
     )
 

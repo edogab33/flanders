@@ -25,10 +25,18 @@ class FlowerClient(fl.client.NumPyClient):
     def fit(self, parameters, config):
         self.set_parameters(parameters)
 
-        trainer = pl.Trainer(max_epochs=1, progress_bar_refresh_rate=0)
+        trainer = pl.Trainer(max_epochs=1, progress_bar_refresh_rate=10)
         trainer.fit(self.model, self.train_loader, self.val_loader)
 
-        return self.get_parameters(config={}), 55000, {}
+        new_parameters = self.get_parameters(config={})
+
+        np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/params.npy", new_parameters[0])
+        if config["malicious"]:
+            magnitude = config["magnitude"]
+            perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
+            new_parameters[0] = np.apply_along_axis(perturbate, 0, new_parameters[0])
+
+        return new_parameters, 55000, {}
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
