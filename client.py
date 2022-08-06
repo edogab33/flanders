@@ -30,7 +30,7 @@ class FlowerClient(fl.client.NumPyClient):
 
         new_parameters = self.get_parameters(config={})
 
-        np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/params.npy", new_parameters[0])
+        #np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/params.npy", new_parameters[0])
         if config["malicious"]:
             magnitude = config["magnitude"]
             perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))

@@ -120,7 +120,7 @@ class FedMedian(fl.server.strategy.FedAvg):
 
         return [(client, fit_ins_array[idx]) for idx,client in enumerate(clients)]
 
-    def aggregate_dit(
+    def aggregate_fit(
         self,
         server_round: int,
         results: List[Tuple[ClientProxy, FitRes]],
