@@ -12,8 +12,8 @@ def fit_config(server_round: int):
 def main() -> None:
     # Define strategy
     strategy = FedMedian(
-        fraction_fit=0.2,
-        fraction_evaluate=0.2,
+        fraction_fit=0.4,
+        fraction_evaluate=0.4,
         fraction_malicious=0.5,                          # computed from the number of available clients
         magnitude=3
     )

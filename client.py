@@ -30,12 +30,16 @@ class FlowerClient(fl.client.NumPyClient):
 
         new_parameters = self.get_parameters(config={})
 
+        print("CLIENT CONFIG "+str(config))
+
         #np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/params.npy", new_parameters[0])
         if config["malicious"]:
             magnitude = config["magnitude"]
             perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
             new_parameters[0] = np.apply_along_axis(perturbate, 0, new_parameters[0])
-
+        # TODO: check if malicious users actually perturbate their parameters because it's strange that loss is 
+        # always the same among all clients (but it might be because data is iid)
+        print(new_parameters[0])
         return new_parameters, 55000, {}
 
     def evaluate(self, parameters, config):
@@ -44,7 +48,7 @@ class FlowerClient(fl.client.NumPyClient):
         trainer = pl.Trainer(progress_bar_refresh_rate=0)
         results = trainer.test(self.model, self.test_loader)
         loss = results[0]["test_loss"]
-
+        print("---- CLIENT LOSS: "+str(loss))
         return loss, 10000, {"loss": loss}
 
 

@@ -2,6 +2,7 @@ from random import sample
 from functools import reduce
 import flwr as fl
 import numpy as np
+import statistics
 
 
 from logging import WARNING
@@ -115,7 +116,7 @@ class FedMedian(fl.server.strategy.FedAvg):
         print("num m: "+str(m))
 
         fit_ins_array = [
-            FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude}) if idx < m else dict(config, **{"malicious": False}))
+            FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude, "id": idx}) if idx < m else dict(config, **{"malicious": False, "id": idx}))
             for idx,_ in enumerate(clients)]
 
         return [(client, fit_ins_array[idx]) for idx,client in enumerate(clients)]
@@ -139,7 +140,7 @@ class FedMedian(fl.server.strategy.FedAvg):
             (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
             for _, fit_res in results
         ]
-        parameters_aggregated = ndarrays_to_parameters(aggregate(weights_results))
+        parameters_aggregated = ndarrays_to_parameters(self._aggregate_weights(weights_results))
 
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
@@ -148,6 +149,12 @@ class FedMedian(fl.server.strategy.FedAvg):
             metrics_aggregated = self.fit_metrics_aggregation_fn(fit_metrics)
         elif server_round == 1:  # Only log this warning once
             log(WARNING, "No fit_metrics_aggregation_fn provided")
+
+        # TODO: test that:
+        #if parameters_aggregated is not None:
+        #    # Save weights
+        #    print(f"Saving round "+ str(server_round) +" weights...")
+        #    np.save(f"round-"+str(server_round)+"-weights.npy", *parameters_aggregated)
 
         return parameters_aggregated, metrics_aggregated
 
@@ -190,13 +197,8 @@ class FedMedian(fl.server.strategy.FedAvg):
         losses = [loss for _, loss in results]
         return np.median(losses)
     
-    def _aggregate_weights(self, results: List[Tuple[int, float]]) -> float:
+    def _aggregate_weights(self, results: List[Tuple[int, float]]) -> NDArrays:
         """Compute median of weights."""
         weights = [weights for weights, _ in results]   # list of weights
-
-        # Compute the median of each layer
-        median: NDArrays = [
-            reduce(np.median, layer_updates)
-            for layer_updates in zip(*weights)
-        ]
+        median = [[np.apply_along_axis(np.median, 0, l2) for l2 in zip(*l)] for l in zip(*weights)]
         return median
