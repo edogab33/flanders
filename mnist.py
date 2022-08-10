@@ -11,48 +11,80 @@ from torchvision import transforms
 from torchvision.datasets import MNIST
 import pytorch_lightning as pl
 from torchmetrics.functional import accuracy
+from torchmetrics import Accuracy
 
 
-class LitAutoEncoder(pl.LightningModule):
-    def __init__(self):
+class LitMNIST(pl.LightningModule):
+    def __init__(self, hidden_size=64, learning_rate=2e-4):
+
         super().__init__()
-        self.l1 = torch.nn.Linear(28 * 28, 10)
+
+        # Set our init args as class attributes
+        self.hidden_size = hidden_size
+        self.learning_rate = learning_rate
         self.params = []
 
-    def forward(self, x):
-        return torch.relu(self.l1(x.view(x.size(0), -1)))
+        # Hardcode some dataset specific attributes
+        self.num_classes = 10
+        self.dims = (1, 28, 28)
+        channels, width, height = self.dims
+        self.transform = transforms.Compose(
+            [
+                transforms.ToTensor(),
+                transforms.Normalize((0.1307,), (0.3081,)),
+            ]
+        )
 
-    def training_step(self, batch, batch_nb):
+        # Define PyTorch model
+        self.model = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(channels * width * height, hidden_size),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_size, hidden_size),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Linear(hidden_size, self.num_classes),
+        )
+
+        self.val_accuracy = Accuracy()
+        self.test_accuracy = Accuracy()
+
+    def forward(self, x):
+        x = self.model(x)
+        return F.log_softmax(x, dim=1)
+
+    def training_step(self, batch, batch_idx):
         x, y = batch
-        loss = F.cross_entropy(self(x), y)
+        logits = self(x)
+        loss = F.nll_loss(logits, y)
         return loss
 
-    def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=0.02)
-
     def validation_step(self, batch, batch_idx):
-        loss, acc = self._shared_eval_step(batch, batch_idx)
-        metrics = {"val_acc": acc, "val_loss": loss}
-        self.log_dict(metrics)
-        return metrics
+        x, y = batch
+        logits = self(x)
+        loss = F.nll_loss(logits, y)
+        preds = torch.argmax(logits, dim=1)
+        self.val_accuracy.update(preds, y)
+
+        # Calling self.log will surface up scalars for you in TensorBoard
+        self.log("val_loss", loss, prog_bar=True)
+        self.log("val_acc", self.val_accuracy, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
-        loss, acc = self._shared_eval_step(batch, batch_idx)
-        metrics = {"test_acc": acc, "test_loss": loss}
-        self.log_dict(metrics)
-        return metrics
-
-    def _shared_eval_step(self, batch, batch_idx):
         x, y = batch
-        y_hat = self(x)
-        loss = F.cross_entropy(y_hat, y)
-        acc = accuracy(y_hat, y)
-        return loss, acc
+        logits = self(x)
+        loss = F.nll_loss(logits, y)
+        preds = torch.argmax(logits, dim=1)
+        self.test_accuracy.update(preds, y)
 
-    def predict_step(self, batch, batch_idx, dataloader_idx=0):
-        x, y = batch
-        y_hat = self(x)
-        return y_hat
+        # Calling self.log will surface up scalars for you in TensorBoard
+        self.log("test_loss", loss, prog_bar=True)
+        self.log("test_acc", self.test_accuracy, prog_bar=True)
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
+        return optimizer
 
 def load_data():
     # Training / validation set
@@ -75,7 +107,7 @@ def main() -> None:
     train_loader, val_loader, test_loader = load_data()
 
     # Load model
-    model = LitAutoEncoder()
+    model = LitMNIST()
 
     # Train
     trainer = pl.Trainer(max_epochs=1, progress_bar_refresh_rate=0)
