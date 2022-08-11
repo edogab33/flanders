@@ -1,6 +1,7 @@
 import flwr as fl
 from strategy.malicious_fedavg import MaliciousFedAvg
 from strategy.fedmedian import FedMedian
+from strategy.fedmscred import FedMSCRED
 
 def fit_config(server_round: int):
     config = {
@@ -15,7 +16,8 @@ def main() -> None:
         fraction_fit=0.2,
         fraction_evaluate=0.2,
         fraction_malicious=0.5,                          # computed from the number of available clients
-        magnitude=0.5,
+        magnitude=2.0,
+        #threshold=0.005,
     )
 
     fl.server.start_server(

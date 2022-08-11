@@ -24,6 +24,8 @@ from flwr.server.client_proxy import ClientProxy
 from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
 from flwr.server.strategy.strategy import Strategy
 
+import strategy.utilities as utils
+
 WARNING_MIN_AVAILABLE_CLIENTS_TOO_LOW = """
 Setting `min_available_clients` lower than `min_fit_clients` or
 `min_evaluate_clients` can cause the server to fail when there are too few clients
@@ -146,15 +148,7 @@ class FedMedian(fl.server.strategy.FedAvg):
         elif server_round == 1:  # Only log this warning once
             log(WARNING, "No fit_metrics_aggregation_fn provided")
 
-        # TODO: test that:
-        if parameters_aggregated is not None:
-            # Save weights
-            print("Loading previous weights...")
-            old_params = np.load("weights.npy")
-            print(f"Saving round "+ str(server_round) +" weights...")
-            new_params = np.vstack((old_params, parameters_aggregated[0]))
-            print("new param: "+str(new_params.shape))
-            np.save(f"round-"+str(server_round)+"-weights.npy", new_params)
+        utils.save_params(parameters_aggregated, server_round)
 
         return parameters_aggregated, metrics_aggregated
 

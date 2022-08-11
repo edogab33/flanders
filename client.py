@@ -25,7 +25,7 @@ class FlowerClient(fl.client.NumPyClient):
     def fit(self, parameters, config):
         self.set_parameters(parameters)
 
-        trainer = pl.Trainer(max_epochs=1, progress_bar_refresh_rate=10)
+        trainer = pl.Trainer(max_epochs=1)
         trainer.fit(self.model, self.train_loader, self.val_loader)
 
         new_parameters = self.get_parameters(config={})
@@ -42,9 +42,10 @@ class FlowerClient(fl.client.NumPyClient):
             #return tensor
             perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
             new_parameters[0] = np.apply_along_axis(perturbate, 0, new_parameters[0])
+            print(new_parameters[0].shape)
         # TODO: check if malicious users actually perturbate their parameters because it's strange that loss is 
         # always the same among all clients (but it might be because data is iid)
-        print(new_parameters)
+
         return new_parameters, 55000, {}
 
     def evaluate(self, parameters, config):

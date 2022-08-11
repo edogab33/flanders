@@ -1,6 +1,6 @@
 import flwr as fl
 import numpy as np
-
+import os
 
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
@@ -23,6 +23,10 @@ from flwr.server.client_proxy import ClientProxy
 
 from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
 from flwr.server.strategy.strategy import Strategy
+
+import strategy.mscred.evaluate as eval
+import strategy.mscred.matrix_generator as mg
+import strategy.utilities as utils
 
 WARNING_MIN_AVAILABLE_CLIENTS_TOO_LOW = """
 Setting `min_available_clients` lower than `min_fit_clients` or
@@ -127,22 +131,51 @@ class FedMSCRED(fl.server.strategy.FedAvg):
         failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
         """Apply MSCRED to exclude malicious clients from the average."""
-
+        print("round: "+str(server_round))
         if not results:
             return None, {}
         # Do not aggregate if there are failures and failures are not accepted
         if not self.accept_failures and failures:
             return None, {}
 
-        # Load MSCRED trained model
+        weights_results = {
+            proxy.cid: parameters_to_ndarrays(fit_res.parameters)
+            for proxy, fit_res in results
+        }
+        print(weights_results[0].shape)
+        
+        for cid in weights_results:
+            print("weights of " + str(cid)+ " " + str(weights_results[cid].shape))
+            weights_results[cid] = weights_results[cid].reshape((*weights_results.shape[:-2], -1))
+            print("weights of " + str(cid)+ " " + str(weights_results[cid].shape))
+            # Select first 200 weights
+            # weights_results[cid] = weights_results[cid][:, :, :200]
+            weights_results[cid] = self._select_weights(weights_results[cid], 200)
+            print("weights of " + str(cid)+ " " + str(weights_results[cid].shape))
+            # Load weight histories of each client (discrimanted by proxy.cid)
+            # check if file exists
+            if os.path.isfile("./weights_"+str(cid)+"_history.npy"):
+                weights_history = np.load("./weights_"+str(cid)+"_history.npy")
+                # Append weights of the current round to the weight history without flattening
+                weights_history = np.vstack((weights_history, weights_results[cid]))
+            else:
+                # Create new weight history if it does not exist
+                weights_history = weights_results[cid]
+            print("weights of " + str(cid)+ " " + str(weights_results[cid].shape))
+            # Save weight history of each client (discrimanted by proxy.cid)
+            np.save("./weights_"+str(cid)+"_history.npy", weights_history)
 
-        # Select first 200 weights of the first layer for each client
+            # For each client, make signature test matrices
+            # TODO: don't build again previously built matrices if they already exist
+            mg.generate_train_test_data(params_time_seires=weights_history, test_end=weights_history.shape[0])
 
-        # For each client, make signature test matrices
+            # Load MSCRED trained model and generate reconstructed matrices
+            mg.generate_reconstructed_matrices(test_end_id=weights_history.shape[0], sensor_n=weights_history.shape[1])
 
-        # Test signatures against the model
+            # Check if reconstucted matrices have errors above the threshold
+            eval.evaluate(test_end_point=weights_history.shape[0], treshold=self.treshold)
 
-        # If any signature is malicious, exclude the client from the average
+            # TODO: If any signature is malicious, exclude the client from the average
 
         parameters_aggregated, metrics_aggregated = super.aggregate_fit(server_round, results, failures)
 
@@ -167,3 +200,15 @@ class FedMSCRED(fl.server.strategy.FedAvg):
         np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/results/aggregated_losses.npy", self.aggr_losses)
 
         return loss_aggregated, metrics_aggregated
+
+    # over-complicated way to select weights
+    def _select_weights(self, data: np.array, n: int):
+        '''
+            :data       : (numpy arrays) the dataset
+            :n          : (int) number of weights to keep
+        '''
+        # keep only the last n elements of data
+        n = len(data[1]) - n
+        data = np.delete(data, np.s_[:n], 1)
+
+        return data
