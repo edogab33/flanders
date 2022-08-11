@@ -33,16 +33,17 @@ class FlowerClient(fl.client.NumPyClient):
         print("CLIENT CONFIG "+str(config))
 
         #np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/params.npy", new_parameters[0])
-        if config["malicious"]:
-            magnitude = config["magnitude"]
-            # given a list of tensors of variable shape, return the first tensor with shape (64, 768) and add a random perturbation to it.
-            #for tensor in tensors:
-            #    if tensor.shape == (64, 768):
-            #        return tensor + np.random.normal(loc=0, scale=magnitude, size=len(tensor))
-            #return tensor
-            perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
-            new_parameters[0] = np.apply_along_axis(perturbate, 0, new_parameters[0])
-            print(new_parameters[0].shape)
+        if "malicious" in config:
+            if config["malicious"]:
+                magnitude = config["magnitude"]
+                # given a list of tensors of variable shape, return the first tensor with shape (64, 768) and add a random perturbation to it.
+                #for tensor in tensors:
+                #    if tensor.shape == (64, 768):
+                #        return tensor + np.random.normal(loc=0, scale=magnitude, size=len(tensor))
+                #return tensor
+                perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
+                new_parameters[0] = np.apply_along_axis(perturbate, 0, new_parameters[0])
+                print(new_parameters[0].shape)
         # TODO: check if malicious users actually perturbate their parameters because it's strange that loss is 
         # always the same among all clients (but it might be because data is iid)
 
@@ -51,7 +52,7 @@ class FlowerClient(fl.client.NumPyClient):
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
         
-        trainer = pl.Trainer(progress_bar_refresh_rate=0)
+        trainer = pl.Trainer()
         results = trainer.test(self.model, self.test_loader)
         loss = results[0]["test_loss"]
 

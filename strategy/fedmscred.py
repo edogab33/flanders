@@ -139,45 +139,46 @@ class FedMSCRED(fl.server.strategy.FedAvg):
             return None, {}
 
         weights_results = {
-            proxy.cid: parameters_to_ndarrays(fit_res.parameters)
+            proxy: np.asarray(fit_res)
             for proxy, fit_res in results
         }
-        print(weights_results[0].shape)
-        
+
         for cid in weights_results:
-            print("weights of " + str(cid)+ " " + str(weights_results[cid].shape))
-            weights_results[cid] = weights_results[cid].reshape((*weights_results.shape[:-2], -1))
-            print("weights of " + str(cid)+ " " + str(weights_results[cid].shape))
-            # Select first 200 weights
-            # weights_results[cid] = weights_results[cid][:, :, :200]
-            weights_results[cid] = self._select_weights(weights_results[cid], 200)
-            print("weights of " + str(cid)+ " " + str(weights_results[cid].shape))
+            weights = weights_results[cid][0].reshape((*weights_results[cid][0].shape[:-2], -1))
+            
+            # Select last 200 weights
+            weights = weights[:200]
+
             # Load weight histories of each client (discrimanted by proxy.cid)
-            # check if file exists
             if os.path.isfile("./weights_"+str(cid)+"_history.npy"):
-                weights_history = np.load("./weights_"+str(cid)+"_history.npy")
+                weights_history = np.load("./weights_"+str(cid)+"_history.npy", allow_pickle=True)
+
                 # Append weights of the current round to the weight history without flattening
-                weights_history = np.vstack((weights_history, weights_results[cid]))
+                weights_history = np.vstack((weights_history, weights))
+                print("weights of " + str(cid)+ " " + str(weights_history.shape))
+
+                # Save weight history of each client (discrimanted by proxy.cid)
+                np.save("histories/weights_"+str(cid)+"_history.npy", weights_history)
             else:
                 # Create new weight history if it does not exist
-                weights_history = weights_results[cid]
-            print("weights of " + str(cid)+ " " + str(weights_results[cid].shape))
-            # Save weight history of each client (discrimanted by proxy.cid)
-            np.save("./weights_"+str(cid)+"_history.npy", weights_history)
+                weights_history = weights
+                np.save("histories/weights_"+str(cid)+"_history.npy", [weights_history])
+            
+            weights_history = np.load("histories/weights_"+str(cid)+"_history.npy", allow_pickle=True)
 
             # For each client, make signature test matrices
             # TODO: don't build again previously built matrices if they already exist
-            mg.generate_train_test_data(params_time_seires=weights_history, test_end=weights_history.shape[0])
+            mg.generate_train_test_data(params_time_series=np.transpose(weights_history), test_end=weights_history.shape[0], step_max=1)
 
             # Load MSCRED trained model and generate reconstructed matrices
-            mg.generate_reconstructed_matrices(test_end_id=weights_history.shape[0], sensor_n=weights_history.shape[1])
+            mg.generate_reconstructed_matrices(test_end_id=weights_history.shape[0], sensor_n=weights_history.shape[1], step_max=1)
 
             # Check if reconstucted matrices have errors above the threshold
-            eval.evaluate(test_end_point=weights_history.shape[0], treshold=self.treshold)
+            eval.evaluate(test_end_point=weights_history.shape[0], threshold=self.threshold)
 
             # TODO: If any signature is malicious, exclude the client from the average
 
-        parameters_aggregated, metrics_aggregated = super.aggregate_fit(server_round, results, failures)
+        parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
         return parameters_aggregated, metrics_aggregated
 
@@ -201,14 +202,9 @@ class FedMSCRED(fl.server.strategy.FedAvg):
 
         return loss_aggregated, metrics_aggregated
 
-    # over-complicated way to select weights
     def _select_weights(self, data: np.array, n: int):
         '''
             :data       : (numpy arrays) the dataset
             :n          : (int) number of weights to keep
         '''
-        # keep only the last n elements of data
-        n = len(data[1]) - n
-        data = np.delete(data, np.s_[:n], 1)
-
-        return data
+        return data[:, :n]

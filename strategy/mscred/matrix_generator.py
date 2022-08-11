@@ -45,6 +45,9 @@ def generate_train_test_data(
 
         path_temp = matrix_data_path + "matrix_win_" + str(win)
 
+        # Check if the path exists, if not, create it:
+        if not os.path.exists(matrix_data_path):
+            os.makedirs(matrix_data_path)
         np.save(path_temp, matrix_all)
         del matrix_all[:]
 
@@ -93,7 +96,7 @@ def generate_train_test_data(
 
 def generate_reconstructed_matrices(
     model_path="model_ckpt/",
-    test_data_path="test_data/",
+    test_data_path="matrix_data/test_data/",
     restore_idx=6,
     test_start_id=0,
     test_end_id=0,
@@ -101,6 +104,7 @@ def generate_reconstructed_matrices(
     sensor_n=0,
     scale_n=9,
 ):
+    matrix_data_path = "matrix_data/"
     data_input = tf.placeholder(tf.float32, [step_max, sensor_n, sensor_n, scale_n])
 
     # parameters: adding bias weight get similar performance
@@ -119,10 +123,10 @@ def generate_reconstructed_matrices(
     conv3_out = tf.reshape(conv3_out, [-1, step_max, int(math.ceil(float(sensor_n)/4)), int(math.ceil(float(sensor_n)/4)), 128])
     conv4_out = tf.reshape(conv4_out, [-1, step_max, int(math.ceil(float(sensor_n)/8)), int(math.ceil(float(sensor_n)/8)), 256])
 
-    conv1_lstm_attention_out, _, _ = conv1_lstm(conv1_out, sensor_n=sensor_n)
-    conv2_lstm_attention_out, _, _ = conv2_lstm(conv2_out, sensor_n=sensor_n)
-    conv3_lstm_attention_out, _, _ = conv3_lstm(conv3_out, sensor_n=sensor_n)
-    conv4_lstm_attention_out, _, _ = conv4_lstm(conv4_out, sensor_n=sensor_n)
+    conv1_lstm_attention_out, _, _ = conv1_lstm(conv1_out, sensor_n=sensor_n, step_max=step_max)
+    conv2_lstm_attention_out, _, _ = conv2_lstm(conv2_out, sensor_n=sensor_n, step_max=step_max)
+    conv3_lstm_attention_out, _, _ = conv3_lstm(conv3_out, sensor_n=sensor_n, step_max=step_max)
+    conv4_lstm_attention_out, _, _ = conv4_lstm(conv4_out, sensor_n=sensor_n, step_max=step_max)
 
     deconv_out = cnn_decoder(conv1_lstm_attention_out, conv2_lstm_attention_out, conv3_lstm_attention_out, conv4_lstm_attention_out, sensor_n=sensor_n)
     saver = tf.train.Saver(max_to_keep = 10)
@@ -143,5 +147,6 @@ def generate_reconstructed_matrices(
             
             path_temp = os.path.join(reconstructed_data_path, 'reconstructed_data_' + str(test_id) + ".npy")
             np.save(path_temp, np.asarray(reconstructed_matrix))
-            
+        
         print ("reconstructed matrices generation finish.")
+    tf.reset_default_graph()

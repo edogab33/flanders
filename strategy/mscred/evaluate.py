@@ -34,7 +34,7 @@ def evaluate(
         reconstructed_matrix_temp = np.transpose(reconstructed_matrix_temp[0], [0, 3, 1, 2])
 
         #first (short) duration scale for evaluation  
-        select_gt_matrix = np.array(gt_matrix_temp)[4][0] #get last step matrix
+        select_gt_matrix = np.array(gt_matrix_temp)[-1][0] #get last step matrix
 
         select_reconstructed_matrix = np.array(reconstructed_matrix_temp)[0][0]
 
@@ -50,15 +50,12 @@ def evaluate(
             valid_anomaly_score[i - valid_start] = num_broken
         else:
             test_anomaly_score[i - test_start] = num_broken
-
-    valid_anomaly_max = np.max(valid_anomaly_score.ravel())
+    if len(valid_anomaly_score) > 0:
+        valid_anomaly_max = np.max(valid_anomaly_score.ravel())
+    else:
+        valid_anomaly_max = 0
     test_anomaly_score = test_anomaly_score.ravel()
     print(len(test_anomaly_score))
-    anomaly_pos = np.zeros(5)
-    root_cause_gt = np.zeros((5, 3))
-    anomaly_span = [10, 30, 90]
-    root_cause_f = open("/Users/eddie/Documents/Università/ComputerScience/Thesis/MSCRED/data/test_anomaly.csv", "r")
-    row_index = 0
 
     fig, axes = plt.subplots()
     test_num = test_end - test_start
