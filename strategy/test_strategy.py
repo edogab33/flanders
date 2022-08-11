@@ -13,7 +13,13 @@ from flwr.common import (
     parameters_to_ndarrays,
 )
 
-params = np.load("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/strategy/results.npy", allow_pickle=True)
+'''
+Run this script to debug code errors inside new strategies without calculating the weights of 
+the clients.
+'''
+
+params = np.load("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/strategy/results.npy", 
+    allow_pickle=True)
 print(params.shape)
 
 strat = FedMSCRED()
