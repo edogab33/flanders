@@ -7,7 +7,7 @@ from .cnn import *
 
 def generate_train_test_data(
     params_time_series=None,
-    matrix_data_path="strategy/matrix_data/",
+    matrix_data_path="strategy/mscred/matrix_data/",
     train_start=0,
     train_end=0,
     test_start=0,
@@ -96,7 +96,8 @@ def generate_train_test_data(
 
 def generate_reconstructed_matrices(
     model_path="strategy/mscred/model_ckpt/",
-    test_data_path="strategy/matrix_data/test_data/",
+    test_data_path="strategy/mscred/matrix_data/test_data/",
+    matrix_data_path = "strategy/mscred/matrix_data/",
     restore_idx=6,
     test_start_id=0,
     test_end_id=0,
@@ -104,7 +105,6 @@ def generate_reconstructed_matrices(
     sensor_n=0,
     scale_n=9,
 ):
-    matrix_data_path = "matrix_data/"
     data_input = tf.placeholder(tf.float32, [step_max, sensor_n, sensor_n, scale_n])
 
     # parameters: adding bias weight get similar performance
