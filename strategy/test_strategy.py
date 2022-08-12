@@ -18,7 +18,7 @@ Run this script to debug code errors inside new strategies without calculating t
 the clients.
 '''
 
-params = np.load("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/strategy/results.npy", 
+params = np.load("strategy/results.npy", 
     allow_pickle=True)
 print(params.shape)
 

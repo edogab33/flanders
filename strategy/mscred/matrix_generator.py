@@ -7,7 +7,7 @@ from .cnn import *
 
 def generate_train_test_data(
     params_time_series=None,
-    matrix_data_path="matrix_data/",
+    matrix_data_path="strategy/matrix_data/",
     train_start=0,
     train_end=0,
     test_start=0,
@@ -95,8 +95,8 @@ def generate_train_test_data(
     print ("train/test data generation finish!")
 
 def generate_reconstructed_matrices(
-    model_path="model_ckpt/",
-    test_data_path="matrix_data/test_data/",
+    model_path="strategy/mscred/model_ckpt/",
+    test_data_path="strategy/matrix_data/test_data/",
     restore_idx=6,
     test_start_id=0,
     test_end_id=0,

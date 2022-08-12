@@ -10,7 +10,7 @@ def evaluate(
     valid_end_point=0,
     test_start_point=0,
     test_end_point=0,
-    matrix_data_path='matrix_data/'):
+    matrix_data_path='strategy/mscred/matrix_data/'):
 
     thred_b = threshold
     valid_start = int(valid_start_point/gap_time)
@@ -23,7 +23,6 @@ def evaluate(
 
     test_data_path = matrix_data_path + "test_data/"
     reconstructed_data_path = matrix_data_path + "reconstructed_data/"
-    #reconstructed_data_path = matrix_data_path + "matrix_pred_data/"
 
     for i in range(valid_start, test_end):
         path_temp_1 = os.path.join(test_data_path, "test_data_" + str(i) + '.npy')
@@ -42,10 +41,6 @@ def evaluate(
         select_matrix_error = np.square(np.subtract(select_gt_matrix, select_reconstructed_matrix))
         num_broken = len(select_matrix_error[select_matrix_error > thred_b])
 
-        if i==800:
-            print(num_broken)
-
-        #print(num_broken)
         if i < valid_end:
             valid_anomaly_score[i - valid_start] = num_broken
         else:

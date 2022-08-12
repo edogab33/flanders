@@ -150,21 +150,21 @@ class FedMSCRED(fl.server.strategy.FedAvg):
             weights = weights[:200]
 
             # Load weight histories of each client (discrimanted by proxy.cid)
-            if os.path.isfile("./weights_"+str(cid)+"_history.npy"):
-                weights_history = np.load("./weights_"+str(cid)+"_history.npy", allow_pickle=True)
+            if os.path.isfile("mscred/histories/weights_"+str(cid)+"_history.npy"):
+                weights_history = np.load("mscred/histories/weights_"+str(cid)+"_history.npy", allow_pickle=True)
 
                 # Append weights of the current round to the weight history without flattening
                 weights_history = np.vstack((weights_history, weights))
                 print("weights of " + str(cid)+ " " + str(weights_history.shape))
 
                 # Save weight history of each client (discrimanted by proxy.cid)
-                np.save("histories/weights_"+str(cid)+"_history.npy", weights_history)
+                np.save("strategy/mscred/histories/weights_"+str(cid)+"_history.npy", weights_history)
             else:
                 # Create new weight history if it does not exist
                 weights_history = weights
-                np.save("histories/weights_"+str(cid)+"_history.npy", [weights_history])
+                np.save("strategy/mscred/histories/weights_"+str(cid)+"_history.npy", [weights_history])
             
-            weights_history = np.load("histories/weights_"+str(cid)+"_history.npy", allow_pickle=True)
+            weights_history = np.load("strategy/mscred/histories/weights_"+str(cid)+"_history.npy", allow_pickle=True)
 
             # For each client, make signature test matrices
             # TODO: don't build again previously built matrices if they already exist
@@ -198,7 +198,7 @@ class FedMSCRED(fl.server.strategy.FedAvg):
         loss_aggregated, metrics_aggregated = super.aggregate_evaluate(server_round, results, failures)
 
         self.aggr_losses = np.append(loss_aggregated, self.aggr_losses)
-        np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/results/aggregated_losses.npy", self.aggr_losses)
+        np.save("results/aggregated_losses.npy", self.aggr_losses)
 
         return loss_aggregated, metrics_aggregated
 
