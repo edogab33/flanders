@@ -139,13 +139,14 @@ class FedMSCRED(fl.server.strategy.FedAvg):
             return None, {}
 
         weights_results = {
-            proxy: np.asarray(fit_res)
+            proxy.cid: np.asarray(parameters_to_ndarrays(fit_res.parameters))
             for proxy, fit_res in results
         }
-
+        
         for cid in weights_results:
+            print("weights of " + str(cid)+ " " + str(weights_results[cid].shape))
             weights = weights_results[cid][0].reshape((*weights_results[cid][0].shape[:-2], -1))
-            
+
             # Select last 200 weights
             weights = weights[:200]
 

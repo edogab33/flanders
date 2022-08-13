@@ -111,6 +111,8 @@ def main() -> None:
 
     # Train
     trainer = pl.Trainer(max_epochs=1, progress_bar_refresh_rate=0)
+    if torch.cuda.is_available():
+        trainer = pl.Trainer(accelerator="gpu", devices=1, max_epochs=1)
     trainer.fit(model, train_loader, val_loader)
 
     # Test

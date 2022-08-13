@@ -26,6 +26,9 @@ class FlowerClient(fl.client.NumPyClient):
         self.set_parameters(parameters)
 
         trainer = pl.Trainer(max_epochs=1)
+        if torch.cuda.is_available():
+            trainer = pl.Trainer(accelerator="gpu", devices=1, max_epochs=1)
+
         trainer.fit(self.model, self.train_loader, self.val_loader)
 
         new_parameters = self.get_parameters(config={})
@@ -47,12 +50,18 @@ class FlowerClient(fl.client.NumPyClient):
         # TODO: check if malicious users actually perturbate their parameters because it's strange that loss is 
         # always the same among all clients (but it might be because data is iid)
 
+        # TODO: clients should be distinguished by their id (or something else): 
+        # Save the weights in a file called "client_[x]_weights.npy" inside "strategy/clients_weights/".
+        # Then the strategy can load the weights of all clients and append them in "histories/weights_[x]_history.npy".
+
         return new_parameters, 55000, {}
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
         
-        trainer = pl.Trainer()
+        trainer = pl.Trainer(max_epochs=1)
+        if torch.cuda.is_available():
+            trainer = pl.Trainer(accelerator="gpu", devices=1, max_epochs=1)
         results = trainer.test(self.model, self.test_loader)
         loss = results[0]["test_loss"]
 
