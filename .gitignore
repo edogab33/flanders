@@ -1,3 +1,5 @@
 lightning_logs
 MNIST
 explore_params.py
+strategy/histories
+strategy/matrix_data

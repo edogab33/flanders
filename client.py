@@ -5,6 +5,7 @@ import pytorch_lightning as pl
 from collections import OrderedDict
 import numpy as np
 import torch
+import os
 
 
 class FlowerClient(fl.client.NumPyClient):
@@ -53,6 +54,14 @@ class FlowerClient(fl.client.NumPyClient):
         # TODO: clients should be distinguished by their id (or something else): 
         # Save the weights in a file called "client_[x]_weights.npy" inside "strategy/clients_weights/".
         # Then the strategy can load the weights of all clients and append them in "histories/weights_[x]_history.npy".
+        # check if strategy/clients_weights/ exists
+        # --> NOT GOOD: in our threat model we cannot distinguish clients (they're malicious). 
+        # Probably the best solution is to aggregate on the server, append to the aggregated history
+        # and test against the trained model. If something is wrong, repeat the round.
+        
+        #if not os.path.exists("strategy/clients_weights"):
+        #    os.makedirs("strategy/clients_weights")
+        
 
         return new_parameters, 55000, {}
 
