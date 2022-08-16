@@ -196,7 +196,7 @@ class FedMSCRED(fl.server.strategy.FedAvg):
         if not self.accept_failures and failures:
             return None, {}
 
-        loss_aggregated, metrics_aggregated = super.aggregate_evaluate(server_round, results, failures)
+        loss_aggregated, metrics_aggregated = super().aggregate_evaluate(server_round, results, failures)
 
         self.aggr_losses = np.append(loss_aggregated, self.aggr_losses)
         np.save("results/aggregated_losses.npy", self.aggr_losses)
