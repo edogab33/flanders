@@ -36,7 +36,7 @@ than or equal to the values of `min_fit_clients` and `min_evaluate_clients`.
 """
 
 
-class FedMSCRED(fl.server.strategy.FedAvg):
+class FedMSCRED2(fl.server.strategy.FedAvg):
     """Configurable MaliciousFedAvg strategy implementation."""
 
     # pylint: disable=too-many-arguments,too-many-instance-attributes
@@ -140,7 +140,50 @@ class FedMSCRED(fl.server.strategy.FedAvg):
 
         parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
-        parameters_aggregated = parameters_to_ndarrays(parameters_aggregated)
+        parameters_aggregated = np.asarray(parameters_to_ndarrays(parameters_aggregated))
+
+        print(str(parameters_aggregated.shape))
+
+        # Flatten the first layer
+        layer1 = parameters_aggregated[0].reshape((*parameters_aggregated[0].shape[:-2], -1))[:200]
+
+        print(layer1.shape)
+
+        if os.path.isfile("strategy/mscred2/histories/weights_history.npy"):
+            weights_history = np.load("strategy/mscred2/histories/weights_history.npy", allow_pickle=True)
+            print("weights1 " + str(weights_history.shape))
+
+            # Append weights of the current round to the weight history without flattening
+            weights_history = np.vstack((weights_history, layer1))
+            print("weights2 " + str(weights_history.shape))
+
+            # Save weight history of each client (discrimanted by proxy.cid)
+            np.save("strategy/mscred2/histories/weights_history.npy", weights_history)
+        else:
+            # Create new weight history if it does not exist
+            weights_history = layer1
+            np.save("strategy/mscred2/histories/weights_history.npy", [weights_history])
+
+        weights_history = np.load("strategy/mscred2/histories/weights_history.npy", allow_pickle=True)
+        print("weights " + str(weights_history.shape))
+
+        # TODO: don't build again previously built matrices if they already exist
+        mg.generate_train_test_data(params_time_series=np.transpose(weights_history), test_end=weights_history.shape[0], step_max=1, matrix_data_path="strategy/mscred2/matrix_data/")
+
+        # Load MSCRED trained model and generate reconstructed matrices
+        mg.generate_reconstructed_matrices(test_end_id=weights_history.shape[0], sensor_n=weights_history.shape[1], step_max=1, 
+            test_data_path="strategy/mscred2/matrix_data/test_data/", matrix_data_path="strategy/mscred2/matrix_data/")
+
+        # Check if reconstucted matrices have errors above the threshold
+        anomaly = eval.evaluate(test_end_point=weights_history.shape[0], threshold=self.threshold, matrix_data_path="strategy/mscred2/matrix_data/")
+
+        # TODO: If any signature is malicious, exclude the client from the average
+        if anomaly:
+            # new round
+            print("ANOMALY FOUND")
+            parameters_aggregated = ndarrays_to_parameters(parameters_aggregated)
+        else:
+            parameters_aggregated = ndarrays_to_parameters(parameters_aggregated)
 
         return parameters_aggregated, metrics_aggregated
 

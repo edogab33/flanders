@@ -76,6 +76,10 @@ def evaluate(
     plt.title("MSCRED", size = 25)
     plt.show()
 
+    for score in test_anomaly_score:
+        if score >= threshold:
+            return True
+    return False
 
 
 

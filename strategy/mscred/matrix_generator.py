@@ -14,7 +14,7 @@ def generate_train_test_data(
     test_end=0,
     gap_time=1,
     step_max=5,
-    win_size=[1, 10, 20]):
+    win_size=[1, 2, 3]):
 
     data = params_time_series.copy()
     print(data.shape)
@@ -36,7 +36,7 @@ def generate_train_test_data(
         print ("generating signature with window " + str(win) + "...")
         for t in range(test_start, test_end, gap_time):
             matrix_t = np.zeros((sensor_n, sensor_n))
-            if t >= 60:
+            if t >= 3:
                 for i in range(sensor_n):
                     for j in range(i, sensor_n):
                         matrix_t[i][j] = np.inner(data[i, t - win:t], data[j, t - win:t])/(win) # rescale by win
