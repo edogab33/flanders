@@ -143,41 +143,32 @@ class FedMSCRED(fl.server.strategy.FedAvg):
             for proxy, fit_res in results
         }
         
+        params = np.asarray([])
         for cid in weights_results:
             print("weights of " + str(cid)+ " " + str(weights_results[cid].shape))
-            weights = weights_results[cid][0].reshape((*weights_results[cid][0].shape[:-2], -1))
-
-            # Select last 200 weights
-            weights = weights[:200]
-
-            # Load weight histories of each client (discrimanted by proxy.cid)
-            if os.path.isfile("mscred/histories/weights_"+str(cid)+"_history.npy"):
-                weights_history = np.load("mscred/histories/weights_"+str(cid)+"_history.npy", allow_pickle=True)
-
-                # Append weights of the current round to the weight history without flattening
-                weights_history = np.vstack((weights_history, weights))
-                print("weights of " + str(cid)+ " " + str(weights_history.shape))
-
-                # Save weight history of each client (discrimanted by proxy.cid)
-                np.save("strategy/mscred/histories/weights_"+str(cid)+"_history.npy", weights_history)
-            else:
-                # Create new weight history if it does not exist
-                weights_history = weights
-                np.save("strategy/mscred/histories/weights_"+str(cid)+"_history.npy", [weights_history])
+            weights = weights_results[cid][0].reshape((*weights_results[cid][0].shape[:-2], -1))[:200]
             
-            weights_history = np.load("strategy/mscred/histories/weights_"+str(cid)+"_history.npy", allow_pickle=True)
+            # Instead of making time series of TxN make them CxN where C is the number of clients
+            params = np.vstack((params, weights)) if params.size else weights
+            print("params at " + str(cid)+ " " + str(params.shape))
 
-            # For each client, make signature test matrices
-            # TODO: don't build again previously built matrices if they already exist
-            mg.generate_train_test_data(params_time_series=np.transpose(weights_history), test_end=weights_history.shape[0], step_max=1)
+        # For each client, make signature test matrices
+        # TODO: don't build again previously built matrices if they already exist
+        mg.generate_train_test_data(params_time_series=np.transpose(params), test_end=params.shape[0], step_max=1)
 
-            # Load MSCRED trained model and generate reconstructed matrices
-            mg.generate_reconstructed_matrices(test_end_id=weights_history.shape[0], sensor_n=weights_history.shape[1], step_max=1)
+        # Load MSCRED trained model and generate reconstructed matrices
+        mg.generate_reconstructed_matrices(test_end_id=params.shape[0], sensor_n=params.shape[1], step_max=1)
 
-            # Check if reconstucted matrices have errors above the threshold
-            eval.evaluate(test_end_point=weights_history.shape[0], threshold=self.threshold)
+        # Check if reconstucted matrices have errors above the threshold
+        anomaly = eval.evaluate(test_end_point=params.shape[0], threshold=self.threshold)
 
-            # TODO: If any signature is malicious, exclude the client from the average
+        # TODO: If any signature is malicious, exclude the client from the average
+        if anomaly:
+            # new round
+            print("ANOMALY FOUND")
+            #parameters_aggregated = ndarrays_to_parameters(parameters_aggregated)
+        #else:
+        #    parameters_aggregated = ndarrays_to_parameters(parameters_aggregated)
 
         parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
