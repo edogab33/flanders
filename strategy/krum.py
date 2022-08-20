@@ -32,7 +32,7 @@ than or equal to the values of `min_fit_clients` and `min_evaluate_clients`.
 """
 
 
-class MaliciousFedAvg(fl.server.strategy.FedAvg):
+class Krum(fl.server.strategy.FedAvg):
     """Configurable MaliciousFedAvg strategy implementation."""
 
     # pylint: disable=too-many-arguments,too-many-instance-attributes
@@ -90,6 +90,7 @@ class MaliciousFedAvg(fl.server.strategy.FedAvg):
         self.fraction_malicious = fraction_malicious
         self.magnitude = magnitude
         self.aggr_losses = np.array([])
+        self.f = 0
     
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
@@ -107,16 +108,53 @@ class MaliciousFedAvg(fl.server.strategy.FedAvg):
             num_clients=sample_size, min_num_clients=min_num_clients
         )
 
-        m = int(sample_size * self.fraction_malicious)
+        self.f = int(sample_size * self.fraction_malicious)
 
         print("sample size: "+str(sample_size))
-        print("num m: "+str(m))
+        print("num m: "+str(self.f))
 
         fit_ins_array = [
             FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude}) if idx < m else dict(config, **{"malicious": False}))
             for idx,_ in enumerate(clients)]
 
         return [(client, fit_ins_array[idx]) for idx,client in enumerate(clients)]
+
+    def aggregate_fit(
+        self,
+        server_round: int,
+        results: List[Tuple[ClientProxy, FitRes]],
+        failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
+    ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
+        """Aggregate fit results using median on weights."""
+
+        if not results:
+            return None, {}
+        # Do not aggregate if there are failures and failures are not accepted
+        if not self.accept_failures and failures:
+            return None, {}
+
+        # For test_strategy
+        #weights_results = [
+        #    (params, num) for num, params in results
+        #]
+
+        # Convert results
+        weights_results = [
+            (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
+            for _, fit_res in results
+        ]
+        parameters_aggregated = ndarrays_to_parameters(self._aggregate_weights(weights_results))
+        np.save("strategy/krum_parameters_aggregated.npy", parameters_aggregated)
+        # Aggregate custom metrics if aggregation fn was provided
+        metrics_aggregated = {}
+        if self.fit_metrics_aggregation_fn:
+            fit_metrics = [(res.num_examples, res.metrics) for _, res in results]
+            metrics_aggregated = self.fit_metrics_aggregation_fn(fit_metrics)
+        elif server_round == 1:  # Only log this warning once
+            log(WARNING, "No fit_metrics_aggregation_fn provided")
+
+        return parameters_aggregated, metrics_aggregated
+
 
     def aggregate_evaluate(
         self,
@@ -151,3 +189,41 @@ class MaliciousFedAvg(fl.server.strategy.FedAvg):
             log(WARNING, "No evaluate_metrics_aggregation_fn provided")
 
         return loss_aggregated, metrics_aggregated
+
+    def _aggregate_weights(self, results: List[Tuple[int, float]]) -> NDArrays:
+        """Get the best parameters vector according to the Krum function."""
+        weights = [weights for weights, _ in results]                   # list of weights
+        M = self._compute_distances(weights)                            # matrix of distances
+        num_closest = len(weights) - self.f - 2                         # number of closest points to use
+        closest_indices = self._get_closest_indices(M, num_closest)     # indices of closest points
+        scores = [np.sum(d) for d in closest_indices]                   # scores i->j for each i
+        best_index = np.argmin(scores)                                  # index of the best score
+        return weights[best_index]                                      # best weights vector
+
+    def _compute_distances(self, weights: NDArrays) -> NDArrays:
+        """
+        Compute the distance between the vectors.
+
+        Input: weights - list of weights vectors
+        Output: distances - matrix M of squared distances between the vectors
+        """
+        M = np.zeros((len(weights), len(weights)))
+        for i in range(len(weights)):
+            for j in range(len(weights)):
+                M[i, j] = np.linalg.norm(weights[i] - weights[j], ord=1)**2
+        return M
+
+    def _get_closest_indices(M, num_closest: int) -> List[int]:
+        """
+        Get the indices of the closest points.
+
+        Input: 
+            M - matrix of squared distances between the vectors
+            num_closest - number of closest points to get for each parameter vector
+        Output:
+            closest_indices - list of lists of indices of the closest points for each parameter vector 
+        """
+        closest_indices = []
+        for i in range(len(M)):
+            closest_indices.append(np.argpartition(M[i], num_closest)[:num_closest])
+        return closest_indices

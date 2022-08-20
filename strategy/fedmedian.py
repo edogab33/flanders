@@ -179,7 +179,6 @@ class FedMedian(fl.server.strategy.FedAvg):
     
     def _aggregate_weights(self, results: List[Tuple[int, float]]) -> NDArrays:
         """Compute median of weights."""
-        # TODO: weights must be ordered somehow
         weights = [weights for weights, _ in results]   # list of weights
         median = [[np.apply_along_axis(np.median, 0, sorted(l2)) for l2 in zip(*l)] for l in zip(*weights)]
         return median
