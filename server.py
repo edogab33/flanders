@@ -14,17 +14,17 @@ def fit_config(server_round: int):
 
 def main() -> None:
     # Define strategy
-    strategy = FedMSCRED2(
+    strategy = FedMedian(
         fraction_fit=0.2,
         fraction_evaluate=0.2,
         fraction_malicious=0.5,                          # computed from the number of available clients
-        magnitude=2.0,
-        threshold=0.005,
+        magnitude=20.0,
+        #threshold=0.005,
     )
 
     fl.server.start_server(
         server_address="0.0.0.0:8080",
-        config=fl.server.ServerConfig(num_rounds=6),
+        config=fl.server.ServerConfig(num_rounds=2),
         strategy=strategy
     )
 

@@ -144,7 +144,7 @@ class FedMedian(fl.server.strategy.FedAvg):
             for _, fit_res in results
         ]
         parameters_aggregated = ndarrays_to_parameters(self._aggregate_weights(weights_results))
-
+        np.save("strategy/parameters_aggregated.npy", parameters_aggregated)
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
         if self.fit_metrics_aggregation_fn:
@@ -198,7 +198,7 @@ class FedMedian(fl.server.strategy.FedAvg):
     
     def _aggregate_weights(self, results: List[Tuple[int, float]]) -> NDArrays:
         """Compute median of weights."""
+        # TODO: weights must be ordered somehow
         weights = [weights for weights, _ in results]   # list of weights
-        print(weights)
-        median = [[np.apply_along_axis(np.median, 0, l2) for l2 in zip(*l)] for l in zip(*weights)]
+        median = [[np.apply_along_axis(np.median, 0, sorted(l2)) for l2 in zip(*l)] for l in zip(*weights)]
         return median
