@@ -32,9 +32,9 @@ than or equal to the values of `min_fit_clients` and `min_evaluate_clients`.
 """
 
 
-class Krum(fl.server.strategy.FedAvg):
+class MultiKrum(fl.server.strategy.FedAvg):
     """
-    Configurable Krum strategy.
+    Configurable Multi-Krum strategy.
 
     Implementation of P.Blanchard et al. (2017) "Machine Learning with Adversaries: Byzantine Tolerant Gradient Descent"
     """
@@ -50,6 +50,7 @@ class Krum(fl.server.strategy.FedAvg):
         min_fit_clients: int = 2,
         min_evaluate_clients: int = 2,
         min_available_clients: int = 2,
+        best_scores_to_keep: int = 1,
         evaluate_fn: Optional[
             Callable[
                 [int, NDArrays, Dict[str, Scalar]],
@@ -93,6 +94,7 @@ class Krum(fl.server.strategy.FedAvg):
 
         self.fraction_malicious = fraction_malicious
         self.magnitude = magnitude
+        self.best_scores_to_keep = best_scores_to_keep
         self.aggr_losses = np.array([])
         self.f = 0
     
@@ -147,8 +149,13 @@ class Krum(fl.server.strategy.FedAvg):
             (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
             for _, fit_res in results
         ]
-        parameters_aggregated = ndarrays_to_parameters(self._aggregate_weights(weights_results))
-        np.save("strategy/krum_parameters_aggregated.npy", parameters_aggregated)
+
+        # Take the m best parameters vectors and average them
+        parameters_aggregated = ndarrays_to_parameters(
+            aggregate(self._get_best_parameters(weights_results))
+            )
+        np.save("strategy/multikrum_parameters_aggregated.npy", parameters_aggregated)
+        
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
         if self.fit_metrics_aggregation_fn:
@@ -194,19 +201,19 @@ class Krum(fl.server.strategy.FedAvg):
 
         return loss_aggregated, metrics_aggregated
 
-    def _aggregate_weights(self, results: List[Tuple[int, float]]) -> NDArrays:
+    def _get_best_parameters(self, results: List[Tuple[int, float]]) -> NDArrays:
         """
-        Get the best parameters vector according to the Krum function.
+        Get the best parameters vectors according to the Multi-Krum function.
 
-        Output: the best parameters vector.
+        Output: the m best parameters vectors.
         """
-        weights = [weights for weights, _ in results]                   # list of weights
-        M = self._compute_distances(weights)                            # matrix of distances
-        num_closest = len(weights) - self.f - 2                         # number of closest points to use
-        closest_indices = self._get_closest_indices(M, num_closest)     # indices of closest points
-        scores = [np.sum(d) for d in closest_indices]                   # scores i->j for each i
-        best_index = np.argmin(scores)                                  # index of the best score
-        return weights[best_index]                                      # best weights vector
+        weights = [weights for weights, _ in results]                                   # list of weights
+        M = self._compute_distances(weights)                                            # matrix of distances
+        num_closest = len(weights) - self.f - 2                                         # number of closest points to use
+        closest_indices = self._get_closest_indices(M, num_closest)                     # indices of closest points
+        scores = [np.sum(d) for d in closest_indices]                                   # scores i->j for each i
+        best_indices = np.argsort(scores)[::-1][len(scores)-self.best_scores_to_keep:]  # indices of best scores
+        return [weights[i] for i in best_indices]                                       # best parameters vectors
 
     def _compute_distances(self, weights: NDArrays) -> NDArrays:
         """
