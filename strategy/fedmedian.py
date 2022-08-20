@@ -170,31 +170,12 @@ class FedMedian(fl.server.strategy.FedAvg):
         if not self.accept_failures and failures:
             return None, {}
 
-        # Aggregate loss
-        loss_aggregated = self._median_loss(
-            [
-                (evaluate_res.num_examples, evaluate_res.loss)
-                for _, evaluate_res in results
-            ]
-        )
+        loss_aggregated, metrics_aggregated = super().aggregate_evaluate(server_round, results, failures)
 
         self.aggr_losses = np.append(loss_aggregated, self.aggr_losses)
         np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/results/aggregated_losses.npy", self.aggr_losses)
 
-        # Aggregate custom metrics if aggregation fn was provided
-        metrics_aggregated = {}
-        if self.evaluate_metrics_aggregation_fn:
-            eval_metrics = [(res.num_examples, res.metrics) for _, res in results]
-            metrics_aggregated = self.evaluate_metrics_aggregation_fn(eval_metrics)
-        elif server_round == 1:  # Only log this warning once
-            log(WARNING, "No evaluate_metrics_aggregation_fn provided")
-
         return loss_aggregated, metrics_aggregated
-    
-    def _median_loss (self, results: List[Tuple[int, float]]) -> float:
-        """Aggregate evaluation results obtained from multiple clients."""
-        losses = [loss for _, loss in results]
-        return np.median(losses)
     
     def _aggregate_weights(self, results: List[Tuple[int, float]]) -> NDArrays:
         """Compute median of weights."""
