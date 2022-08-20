@@ -1,5 +1,6 @@
 import numpy as np
 from strategy.fedmscred import FedMSCRED
+from strategy.fedmedian import FedMedian
 from flwr.common import (
     EvaluateIns,
     EvaluateRes,
@@ -22,6 +23,6 @@ params = np.load("strategy/results.npy",
     allow_pickle=True)
 print(params.shape)
 
-strat = FedMSCRED()
+strat = FedMedian()
 
 strat.aggregate_fit(1, [(0, params[0]), (1, params[1])], [])

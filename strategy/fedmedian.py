@@ -133,6 +133,11 @@ class FedMedian(fl.server.strategy.FedAvg):
         if not self.accept_failures and failures:
             return None, {}
 
+        # For test_strategy
+        #weights_results = [
+        #    (params, num) for num, params in results
+        #]
+
         # Convert results
         weights_results = [
             (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
@@ -194,5 +199,6 @@ class FedMedian(fl.server.strategy.FedAvg):
     def _aggregate_weights(self, results: List[Tuple[int, float]]) -> NDArrays:
         """Compute median of weights."""
         weights = [weights for weights, _ in results]   # list of weights
+        print(weights)
         median = [[np.apply_along_axis(np.median, 0, l2) for l2 in zip(*l)] for l in zip(*weights)]
         return median
