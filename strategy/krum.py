@@ -222,6 +222,7 @@ class Krum(fl.server.strategy.FedAvg):
         Input: weights - list of weights vectors
         Output: distances - matrix M of squared distances between the vectors
         """
+        weights = np.array(weights)
         M = np.zeros((len(weights), len(weights)))
         for i in range(len(weights)):
             for j in range(len(weights)):

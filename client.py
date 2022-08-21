@@ -48,8 +48,6 @@ class FlowerClient(fl.client.NumPyClient):
                 perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
                 new_parameters[0] = np.apply_along_axis(perturbate, 0, new_parameters[0])
                 print(new_parameters[0].shape)
-        # TODO: check if malicious users actually perturbate their parameters because it's strange that loss is 
-        # always the same among all clients (but it might be because data is iid)
 
         # TODO: clients should be distinguished by their id (or something else): 
         # Save the weights in a file called "client_[x]_weights.npy" inside "strategy/clients_weights/".
