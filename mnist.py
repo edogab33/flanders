@@ -15,13 +15,14 @@ from torchmetrics import Accuracy
 
 
 class LitMNIST(pl.LightningModule):
-    def __init__(self, hidden_size=64, learning_rate=2e-4):
+    def __init__(self, hidden_size=64, learning_rate=2e-4, client=True):
 
         super().__init__()
 
         # Set our init args as class attributes
         self.hidden_size = hidden_size
         self.learning_rate = learning_rate
+        self.client = client
         self.params = []
 
         # Hardcode some dataset specific attributes
@@ -68,8 +69,8 @@ class LitMNIST(pl.LightningModule):
         self.val_accuracy.update(preds, y)
 
         # Calling self.log will surface up scalars for you in TensorBoard
-        self.log("val_loss", loss, prog_bar=True)
-        self.log("val_acc", self.val_accuracy, prog_bar=True)
+        #self.log("val_loss", loss, prog_bar=True)
+        #self.log("val_acc", self.val_accuracy, prog_bar=True)
 
     def test_step(self, batch, batch_idx):
         x, y = batch
@@ -77,24 +78,27 @@ class LitMNIST(pl.LightningModule):
         loss = F.cross_entropy(logits, y)
         preds = torch.argmax(logits, dim=1)
         self.test_accuracy.update(preds, y)
-
         # Calling self.log will surface up scalars for you in TensorBoard
-        self.log("test_loss", loss, prog_bar=True)
-        self.log("test_acc", self.test_accuracy, prog_bar=True)
+        if self.client==False:
+            self.log("test_loss", loss, prog_bar=True)
+            self.log("test_acc", self.test_accuracy, prog_bar=True)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
         return optimizer
 
-def load_data():
+def load_data(client=True):
     # Training / validation set
     trainset = MNIST("", train=True, download=True, transform=transforms.ToTensor())
 
-    # Take a random subset of 600 samples
-    ts = torch.randperm(len(trainset))[:600]
-    trainset = torch.utils.data.Subset(trainset, ts)
-    
-    mnist_train, mnist_val = random_split(trainset, [500, 100])
+    if client:
+        # Take a random subset of 600 samples
+        ts = torch.randperm(len(trainset))[:600]
+        trainset = torch.utils.data.Subset(trainset, ts)
+        mnist_train, mnist_val = random_split(trainset, [500, 100])
+    else:
+        mnist_train, mnist_val = random_split(trainset, [55000, 5000])
+        
     train_loader = DataLoader(mnist_train, batch_size=24, shuffle=True)
     val_loader = DataLoader(mnist_val, batch_size=24, shuffle=False)
 
