@@ -1,3 +1,4 @@
+from unittest import result
 import flwr as fl
 from client import FlowerClient
 from strategy.malicious_fedavg import MaliciousFedAvg
@@ -10,6 +11,8 @@ import torch
 import pytorch_lightning as pl
 import mnist
 from collections import OrderedDict
+import numpy as np
+import os
 
 def fit_config(server_round: int):
     config = {
@@ -38,6 +41,21 @@ def evaluate_fn(server_round, parameters, config):
     results = trainer.test(model, test_loader)
     print("RESULTS:")
     print(results)
+
+    # Save results as npy file
+    dirs = os.listdir("results/")
+    highest_number = str(max([int(x[-1]) for x in dirs if x[-1].isdigit()]))
+    loss_series = []
+    acc_series = []
+    loss_path = "results/run_"+highest_number+"/loss.npy"
+    acc_path = "results/run_"+highest_number+"/acc.npy"
+    if os.path.exists(loss_path):
+       loss_series = np.load(loss_path)
+    if os.path.exists(acc_path):
+       acc_series = np.load(acc_path)
+    loss_series = np.save(loss_path, np.append(loss_series, results[0]["test_loss"]))
+    acc_series = np.save(acc_path, np.append(acc_series, results[0]["test_acc"]))
+
     return [results[0]["test_loss"], {"accuracy": results[0]["test_acc"]}]
 
 def main() -> None:
@@ -50,9 +68,16 @@ def main() -> None:
         magnitude=20.0,
         #threshold=0.005,
     )
+
+    # Prepare directory for logs
+    dirs = os.listdir("results/")
+    # find the highest number in a list composed by strings that have a number as final char
+    highest_number = max([int(x[-1]) for x in dirs if x[-1].isdigit()])
+    os.makedirs("results/run_"+str(highest_number+1), exist_ok=True)
+
     fl.simulation.start_simulation(
         client_fn=client_fn,
-        num_clients=5,
+        num_clients=2,
         config=fl.server.ServerConfig(num_rounds=10),
         strategy=strategy,
     )
