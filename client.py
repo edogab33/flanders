@@ -62,7 +62,6 @@ class FlowerClient(fl.client.NumPyClient):
         #if not os.path.exists("strategy/clients_weights"):
         #    os.makedirs("strategy/clients_weights")
         
-
         return new_parameters, 55000, {}
 
     def evaluate(self, parameters, config):

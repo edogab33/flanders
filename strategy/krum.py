@@ -1,5 +1,7 @@
 import flwr as fl
 import numpy as np
+import json
+import pandas as pd
 
 
 from logging import WARNING
@@ -115,10 +117,10 @@ class Krum(fl.server.strategy.FedAvg):
         self.f = int(sample_size * self.fraction_malicious)
 
         print("sample size: "+str(sample_size))
-        print("num m: "+str(self.f))
+        print("num f: "+str(self.f))
 
         fit_ins_array = [
-            FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude}) if idx < m else dict(config, **{"malicious": False}))
+            FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude}) if idx < self.f else dict(config, **{"malicious": False}))
             for idx,_ in enumerate(clients)]
 
         return [(client, fit_ins_array[idx]) for idx,client in enumerate(clients)]
@@ -139,7 +141,8 @@ class Krum(fl.server.strategy.FedAvg):
 
         # For test_strategy
         #weights_results = [
-        #    (params, num) for num, params in results
+        #    (fit_res.parameters, fit_res.num_examples)
+        #    for _, fit_res in results
         #]
 
         # Convert results
@@ -147,8 +150,12 @@ class Krum(fl.server.strategy.FedAvg):
             (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
             for _, fit_res in results
         ]
+
+        #with open("weights_results.pkl", "w") as fp:
+        #    json.dump(pd.Series(weights_results).to_json(orient='split'), fp)
+
         parameters_aggregated = ndarrays_to_parameters(self._aggregate_weights(weights_results))
-        np.save("strategy/krum_parameters_aggregated.npy", parameters_aggregated)
+        np.save("strategy/krum_parameters_aggregated.npy", parameters_to_ndarrays(parameters_aggregated))
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
         if self.fit_metrics_aggregation_fn:
@@ -194,7 +201,7 @@ class Krum(fl.server.strategy.FedAvg):
 
         return loss_aggregated, metrics_aggregated
 
-    def _aggregate_weights(self, results: List[Tuple[int, float]]) -> NDArrays:
+    def _aggregate_weights(self, results: List[Tuple[List, int]]) -> NDArrays:
         """
         Get the best parameters vector according to the Krum function.
 
@@ -218,10 +225,14 @@ class Krum(fl.server.strategy.FedAvg):
         M = np.zeros((len(weights), len(weights)))
         for i in range(len(weights)):
             for j in range(len(weights)):
-                M[i, j] = np.linalg.norm(weights[i] - weights[j], ord=1)**2
+                d = weights[i] - weights[j]
+                norm_sums = 0
+                for k in d:
+                    norm_sums += np.linalg.norm(k, ord=1)**2
+                M[i, j] = norm_sums
         return M
 
-    def _get_closest_indices(M, num_closest: int) -> List[int]:
+    def _get_closest_indices(self, M, num_closest: int) -> List[int]:
         """
         Get the indices of the closest points.
 

@@ -141,7 +141,8 @@ class MultiKrum(fl.server.strategy.FedAvg):
 
         # For test_strategy
         #weights_results = [
-        #    (params, num) for num, params in results
+        #    (fit_res.parameters, fit_res.num_examples)
+        #    for _, fit_res in results
         #]
 
         # Convert results
@@ -154,8 +155,8 @@ class MultiKrum(fl.server.strategy.FedAvg):
         parameters_aggregated = ndarrays_to_parameters(
             aggregate(self._get_best_parameters(weights_results))
             )
-        np.save("strategy/multikrum_parameters_aggregated.npy", parameters_aggregated)
-        
+        np.save("strategy/multikrum_parameters_aggregated.npy", parameters_to_ndarrays(parameters_aggregated))
+
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
         if self.fit_metrics_aggregation_fn:
@@ -225,7 +226,11 @@ class MultiKrum(fl.server.strategy.FedAvg):
         M = np.zeros((len(weights), len(weights)))
         for i in range(len(weights)):
             for j in range(len(weights)):
-                M[i, j] = np.linalg.norm(weights[i] - weights[j], ord=1)**2
+                d = weights[i] - weights[j]
+                norm_sums = 0
+                for k in d:
+                    norm_sums += np.linalg.norm(k, ord=1)**2
+                M[i, j] = norm_sums
         return M
 
     def _get_closest_indices(M, num_closest: int) -> List[int]:
