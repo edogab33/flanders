@@ -206,10 +206,3 @@ class FedMSCRED2(fl.server.strategy.FedAvg):
         np.save("results/aggregated_losses.npy", self.aggr_losses)
 
         return loss_aggregated, metrics_aggregated
-
-    def _select_weights(self, data: np.array, n: int):
-        '''
-            :data       : (numpy arrays) the dataset
-            :n          : (int) number of weights to keep
-        '''
-        return data[:, :n]

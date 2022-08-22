@@ -77,14 +77,14 @@ def main() -> None:
 
     fl.simulation.start_simulation(
         client_fn=client_fn,
-        num_clients=2,
-        config=fl.server.ServerConfig(num_rounds=10),
-        strategy=strategy,
+        num_clients=5,
+        config=fl.server.ServerConfig(num_rounds=2),
+        #strategy=strategy,
     )
     #fl.server.start_server(
     #    server_address="0.0.0.0:8080",
     #    config=fl.server.ServerConfig(num_rounds=2),
-    #    strategy=strategy
+    #    #strategy=strategy
     #)
 
 if __name__ == "__main__":

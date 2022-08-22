@@ -1,8 +1,5 @@
 import flwr as fl
 import numpy as np
-import json
-import pandas as pd
-
 
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
@@ -150,9 +147,6 @@ class Krum(fl.server.strategy.FedAvg):
             (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
             for _, fit_res in results
         ]
-
-        #with open("weights_results.pkl", "w") as fp:
-        #    json.dump(pd.Series(weights_results).to_json(orient='split'), fp)
 
         parameters_aggregated = ndarrays_to_parameters(self._aggregate_weights(weights_results))
         np.save("strategy/krum_parameters_aggregated.npy", parameters_to_ndarrays(parameters_aggregated))

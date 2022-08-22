@@ -41,21 +41,8 @@ class FlowerClient(fl.client.NumPyClient):
             if config["malicious"]:
                 magnitude = config["magnitude"]
                 # given a list of tensors of variable shape, return the first tensor with shape (64, 768) and add a random perturbation to it.
-                #for tensor in tensors:
-                #    if tensor.shape == (64, 768):
-                #        return tensor + np.random.normal(loc=0, scale=magnitude, size=len(tensor))
-                #return tensor
                 perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
                 new_parameters[0] = np.apply_along_axis(perturbate, 0, new_parameters[0])
-                print(new_parameters[0].shape)
-
-        # TODO: clients should be distinguished by their id (or something else): 
-        # Save the weights in a file called "client_[x]_weights.npy" inside "strategy/clients_weights/".
-        # Then the strategy can load the weights of all clients and append them in "histories/weights_[x]_history.npy".
-        # check if strategy/clients_weights/ exists
-        # --> NOT GOOD: in our threat model we cannot distinguish clients (they're malicious). 
-        # Probably the best solution is to aggregate on the server, append to the aggregated history
-        # and test against the trained model. If something is wrong, repeat the round.
         
         #if not os.path.exists("strategy/clients_weights"):
         #    os.makedirs("strategy/clients_weights")
@@ -69,6 +56,8 @@ class FlowerClient(fl.client.NumPyClient):
         if torch.cuda.is_available():
             trainer = pl.Trainer(accelerator="gpu", devices=1, max_epochs=1)
         results = trainer.test(self.model, self.test_loader)
+        print("RESULTS:")
+        print(results)
         loss = results[0]["test_loss"]
 
         print("Loss "+str(loss))
