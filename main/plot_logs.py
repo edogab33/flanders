@@ -3,9 +3,13 @@ import os
 import matplotlib.pyplot as plt
 import json
 
-dirs = os.listdir("results/")
+dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
 
-highest_number = str(max([int(x[-1]) for x in dirs if x[-1].isdigit()]))
+# find the highest number in a list composed by strings that have a number as final char
+longest_string = len(max(dirs, key=len))
+idx = -2 if longest_string > 5 else -1
+highest_number = str(max([int(x[idx:]) for x in dirs if x[idx:].isdigit()]))
+
 loss_path = "results/run_"+highest_number+"/loss.npy"
 acc_path = "results/run_"+highest_number+"/acc.npy"
 config_path = "results/run_"+highest_number+"/config.json"
@@ -21,6 +25,7 @@ with open(config_path) as json_file:
     config = {key: val for key, val in data.items()}
 config["num_clients"].insert(0, 0)  # first round is empty
 config["num_malicious"].insert(0, 0.0)  # first round is empty
+
 
 # Create a figure with two sub plots, where the first one plots the loss and the second one the accuracy
 plt.rcParams["figure.figsize"] = (10,5)

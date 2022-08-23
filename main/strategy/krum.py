@@ -170,7 +170,7 @@ class Krum(fl.server.strategy.FedAvg):
         if self.evaluate_fn is None:
             # No evaluation function provided
             return None
-        config = {"strategy": "FedAvg", "fraction_mal": self.fraction_malicious, "magnitude": self.magnitude, 
+        config = {"strategy": "Krum", "fraction_mal": self.fraction_malicious, "magnitude": self.magnitude, 
             "frac_fit": self.fraction_fit, "frac_eval": self.fraction_evaluate, "min_fit_clients": self.min_fit_clients,
             "min_eval_clients": self.min_evaluate_clients, "min_available_clients": self.min_available_clients,
             "num_clients": self.sample_size, "num_malicious": self.m}

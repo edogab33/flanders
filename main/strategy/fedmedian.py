@@ -4,6 +4,7 @@ import numpy as np
 
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
+from strategy.utilities import evaluate_aggregated
 
 from flwr.common import (
     EvaluateIns,
@@ -159,6 +160,24 @@ class FedMedian(fl.server.strategy.FedAvg):
         utils.save_params(parameters_aggregated, server_round)
 
         return parameters_aggregated, metrics_aggregated
+
+    def evaluate(
+        self, server_round: int, parameters: Parameters
+    ) -> Optional[Tuple[float, Dict[str, Scalar]]]:
+        """Evaluate model parameters using an evaluation function."""
+        if self.evaluate_fn is None:
+            # No evaluation function provided
+            return None
+        config = {"strategy": "FedMedian", "fraction_mal": self.fraction_malicious, "magnitude": self.magnitude, 
+            "frac_fit": self.fraction_fit, "frac_eval": self.fraction_evaluate, "min_fit_clients": self.min_fit_clients,
+            "min_eval_clients": self.min_evaluate_clients, "min_available_clients": self.min_available_clients,
+            "num_clients": self.sample_size, "num_malicious": self.m}
+        eval_res = evaluate_aggregated(self.evaluate_fn, server_round, parameters, config)
+        if eval_res is None:
+            return None
+        loss, metrics = eval_res
+        return loss, metrics
+
 
     def aggregate_evaluate(
         self,

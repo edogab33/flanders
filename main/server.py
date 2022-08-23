@@ -46,7 +46,7 @@ def evaluate_fn(server_round, parameters, config):
     longest_string = len(max(dirs, key=len))
     idx = -2 if longest_string > 5 else -1
 
-    highest_number = str(max([int(x[idx]) for x in dirs if x[idx].isdigit()]))
+    highest_number = str(max([int(x[idx:]) for x in dirs if x[idx:].isdigit()]))
     loss_series = []
     acc_series = []
     loss_path = "results/run_"+highest_number+"/loss.npy"
@@ -69,10 +69,13 @@ def main() -> None:
     # Define strategy
     strategy = Krum(
         fraction_fit=1.0,
-        fraction_evaluate=1.0,
+        fraction_evaluate=0.0,                           # set 0 to disable client evaluation
         evaluate_fn=evaluate_fn,
         fraction_malicious=0.4,                          # computed from the number of available clients
         magnitude=20.0,
+        min_available_clients=5,
+        min_fit_clients=5,
+        min_evaluate_clients=5,
         #threshold=0.005,
     )
 
@@ -82,20 +85,20 @@ def main() -> None:
     # find the highest number in a list composed by strings that have a number as final char
     longest_string = len(max(dirs, key=len))
     idx = -2 if longest_string > 5 else -1
-    highest_number = max([int(x[idx]) for x in dirs if x[idx].isdigit()])
+    highest_number = max([int(x[idx:]) for x in dirs if x[idx:].isdigit()])
     os.makedirs("results/run_"+str(highest_number+1), exist_ok=True)
 
-    fl.simulation.start_simulation(
-        client_fn=client_fn,
-        num_clients=10,
-        config=fl.server.ServerConfig(num_rounds=50),
+    #fl.simulation.start_simulation(
+    #    client_fn=client_fn,
+    #    num_clients=10,
+    #    config=fl.server.ServerConfig(num_rounds=50),
+    #    strategy=strategy,
+    #)
+    fl.server.start_server(
+        server_address="0.0.0.0:8080",
+        config=fl.server.ServerConfig(num_rounds=100),
         strategy=strategy,
     )
-    #fl.server.start_server(
-    #    server_address="0.0.0.0:8080",
-    #    config=fl.server.ServerConfig(num_rounds=100),
-    #    strategy=strategy
-    #)
 
 if __name__ == "__main__":
     main()
