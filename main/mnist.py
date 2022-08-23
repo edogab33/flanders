@@ -82,6 +82,9 @@ class LitMNIST(pl.LightningModule):
         if self.client==False:
             self.log("test_loss", loss, prog_bar=True)
             self.log("test_acc", self.test_accuracy, prog_bar=True)
+        else:
+            self.log("cl_test_loss", loss, prog_bar=True)
+            self.log("cl_test_acc", self.test_accuracy, prog_bar=True)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.learning_rate)
@@ -99,12 +102,12 @@ def load_data(client=True):
     else:
         mnist_train, mnist_val = random_split(trainset, [55000, 5000])
         
-    train_loader = DataLoader(mnist_train, batch_size=24, shuffle=True)
-    val_loader = DataLoader(mnist_val, batch_size=24, shuffle=False)
+    train_loader = DataLoader(mnist_train, batch_size=32, shuffle=True)
+    val_loader = DataLoader(mnist_val, batch_size=32, shuffle=False)
 
     # Test set
     testset = MNIST("", train=False, download=True, transform=transforms.ToTensor())
-    test_loader = DataLoader(testset, batch_size=24, shuffle=False)
+    test_loader = DataLoader(testset, batch_size=32, shuffle=False)
 
     return train_loader, val_loader, test_loader
 

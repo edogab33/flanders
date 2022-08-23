@@ -75,17 +75,17 @@ def main() -> None:
     highest_number = max([int(x[-1]) for x in dirs if x[-1].isdigit()])
     os.makedirs("results/run_"+str(highest_number+1), exist_ok=True)
 
-    fl.simulation.start_simulation(
-        client_fn=client_fn,
-        num_clients=5,
-        config=fl.server.ServerConfig(num_rounds=2),
-        #strategy=strategy,
-    )
-    #fl.server.start_server(
-    #    server_address="0.0.0.0:8080",
+    #fl.simulation.start_simulation(
+    #    client_fn=client_fn,
+    #    num_clients=10,
     #    config=fl.server.ServerConfig(num_rounds=2),
-    #    #strategy=strategy
+    #    strategy=strategy,
     #)
-
+    fl.server.start_server(
+        server_address="0.0.0.0:8080",
+        config=fl.server.ServerConfig(num_rounds=2),
+        strategy=strategy
+    )
+    
 if __name__ == "__main__":
     main()

@@ -7,7 +7,6 @@ import numpy as np
 import torch
 import os
 
-
 class FlowerClient(fl.client.NumPyClient):
     def __init__(self, model, train_loader, val_loader, test_loader):
         self.model = model
@@ -20,16 +19,13 @@ class FlowerClient(fl.client.NumPyClient):
 
     def set_parameters(self, parameters):
         params_dict = zip(self.model.state_dict().keys(), parameters)
-        state_dict = OrderedDict({k: torch.Tensor(v) for k, v in params_dict})
+        state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         self.model.load_state_dict(state_dict, strict=True)
 
     def fit(self, parameters, config):
         self.set_parameters(parameters)
 
         trainer = pl.Trainer(max_epochs=1)
-        if torch.cuda.is_available():
-            trainer = pl.Trainer(accelerator="gpu", devices=1, max_epochs=1)
-
         trainer.fit(self.model, self.train_loader, self.val_loader)
 
         new_parameters = self.get_parameters(config={})
@@ -46,21 +42,21 @@ class FlowerClient(fl.client.NumPyClient):
         
         #if not os.path.exists("strategy/clients_weights"):
         #    os.makedirs("strategy/clients_weights")
-        
+
         return new_parameters, 55000, {}
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
         
-        trainer = pl.Trainer(max_epochs=1)
+        trainer = pl.Trainer()
         if torch.cuda.is_available():
-            trainer = pl.Trainer(accelerator="gpu", devices=1, max_epochs=1)
+            trainer = pl.Trainer(accelerator="gpu", devices=1)
         results = trainer.test(self.model, self.test_loader)
-        print("RESULTS:")
-        print(results)
-        loss = results[0]["test_loss"]
+        #print("RESULTS:")
+        #print(results)
+        loss = results[0]["cl_test_loss"]
 
-        print("Loss "+str(loss))
+        print("Client loss "+str(loss))
 
         return loss, 10000, {"loss": loss}
 
