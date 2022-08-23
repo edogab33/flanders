@@ -91,6 +91,8 @@ class FedMedian(fl.server.strategy.FedAvg):
         self.fraction_malicious = fraction_malicious
         self.magnitude = magnitude
         self.aggr_losses = np.array([])
+        self.m = []                         # number of malicious clients in each round
+        self.sample_size = []               # sample size for each round
     
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
@@ -104,17 +106,18 @@ class FedMedian(fl.server.strategy.FedAvg):
         sample_size, min_num_clients = self.num_fit_clients(
             client_manager.num_available()
         )
+        self.sample_size.append(sample_size)
         clients = client_manager.sample(
             num_clients=sample_size, min_num_clients=min_num_clients
         )
 
-        m = int(sample_size * self.fraction_malicious)
+        self.m.append(int(sample_size * self.fraction_malicious))
 
         print("sample size: "+str(sample_size))
-        print("num m: "+str(m))
+        print("num m: "+str(self.m[-1]))
 
         fit_ins_array = [
-            FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude, "id": idx}) if idx < m else dict(config, **{"malicious": False, "id": idx}))
+            FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude, "id": idx}) if idx < self.m[-1] else dict(config, **{"malicious": False, "id": idx}))
             for idx,_ in enumerate(clients)]
 
         return [(client, fit_ins_array[idx]) for idx,client in enumerate(clients)]

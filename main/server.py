@@ -13,6 +13,7 @@ import mnist
 from collections import OrderedDict
 import numpy as np
 import os
+import json
 
 def fit_config(server_round: int):
     config = {
@@ -39,12 +40,13 @@ def evaluate_fn(server_round, parameters, config):
         trainer = pl.Trainer(accelerator="gpu", devices=1, max_epochs=1)
 
     results = trainer.test(model, test_loader)
-    print("RESULTS:")
-    print(results)
 
     # Save results as npy file
-    dirs = os.listdir("results/")
-    highest_number = str(max([int(x[-1]) for x in dirs if x[-1].isdigit()]))
+    dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
+    longest_string = len(max(dirs, key=len))
+    idx = -2 if longest_string > 5 else -1
+
+    highest_number = str(max([int(x[idx]) for x in dirs if x[idx].isdigit()]))
     loss_series = []
     acc_series = []
     loss_path = "results/run_"+highest_number+"/loss.npy"
@@ -56,6 +58,11 @@ def evaluate_fn(server_round, parameters, config):
     loss_series = np.save(loss_path, np.append(loss_series, results[0]["test_loss"]))
     acc_series = np.save(acc_path, np.append(acc_series, results[0]["test_acc"]))
 
+    # Save config
+    config_path = "results/run_"+highest_number+"/config.json"
+    with open(config_path, "w") as f:
+        json.dump(config, f)
+
     return [results[0]["test_loss"], {"accuracy": results[0]["test_acc"]}]
 
 def main() -> None:
@@ -64,28 +71,31 @@ def main() -> None:
         fraction_fit=1.0,
         fraction_evaluate=1.0,
         evaluate_fn=evaluate_fn,
-        fraction_malicious=0.0,                          # computed from the number of available clients
+        fraction_malicious=0.4,                          # computed from the number of available clients
         magnitude=20.0,
         #threshold=0.005,
     )
 
     # Prepare directory for logs
-    dirs = os.listdir("results/")
+    dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
+
     # find the highest number in a list composed by strings that have a number as final char
-    highest_number = max([int(x[-1]) for x in dirs if x[-1].isdigit()])
+    longest_string = len(max(dirs, key=len))
+    idx = -2 if longest_string > 5 else -1
+    highest_number = max([int(x[idx]) for x in dirs if x[idx].isdigit()])
     os.makedirs("results/run_"+str(highest_number+1), exist_ok=True)
 
-    #fl.simulation.start_simulation(
-    #    client_fn=client_fn,
-    #    num_clients=10,
-    #    config=fl.server.ServerConfig(num_rounds=2),
-    #    strategy=strategy,
-    #)
-    fl.server.start_server(
-        server_address="0.0.0.0:8080",
-        config=fl.server.ServerConfig(num_rounds=2),
-        strategy=strategy
+    fl.simulation.start_simulation(
+        client_fn=client_fn,
+        num_clients=10,
+        config=fl.server.ServerConfig(num_rounds=50),
+        strategy=strategy,
     )
-    
+    #fl.server.start_server(
+    #    server_address="0.0.0.0:8080",
+    #    config=fl.server.ServerConfig(num_rounds=100),
+    #    strategy=strategy
+    #)
+
 if __name__ == "__main__":
     main()

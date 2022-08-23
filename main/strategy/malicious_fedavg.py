@@ -1,9 +1,10 @@
+from random import sample
 import flwr as fl
 import numpy as np
 
-
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
+from strategy.utilities import evaluate_aggregated
 
 from flwr.common import (
     EvaluateIns,
@@ -90,6 +91,8 @@ class MaliciousFedAvg(fl.server.strategy.FedAvg):
         self.fraction_malicious = fraction_malicious
         self.magnitude = magnitude
         self.aggr_losses = np.array([])
+        self.m = []                                              # number of malicious clients (updates each round)
+        self.sample_size = []                                    # number of clients available (updates each round)
     
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
@@ -103,20 +106,40 @@ class MaliciousFedAvg(fl.server.strategy.FedAvg):
         sample_size, min_num_clients = self.num_fit_clients(
             client_manager.num_available()
         )
+        self.sample_size.append(sample_size)
         clients = client_manager.sample(
             num_clients=sample_size, min_num_clients=min_num_clients
         )
 
-        m = int(sample_size * self.fraction_malicious)
+        self.m.append(int(sample_size * self.fraction_malicious))
 
         print("sample size: "+str(sample_size))
-        print("num m: "+str(m))
+        print("num m: "+str(self.m[-1]))
 
         fit_ins_array = [
-            FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude}) if idx < m else dict(config, **{"malicious": False}))
-            for idx,_ in enumerate(clients)]
+            FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude}) 
+            if idx < self.m[-1] else dict(config, **{"malicious": False}))
+            for idx,_ in enumerate(clients)
+        ]
 
         return [(client, fit_ins_array[idx]) for idx,client in enumerate(clients)]
+
+    def evaluate(
+        self, server_round: int, parameters: Parameters
+    ) -> Optional[Tuple[float, Dict[str, Scalar]]]:
+        """Evaluate model parameters using an evaluation function."""
+        if self.evaluate_fn is None:
+            # No evaluation function provided
+            return None
+        config = {"strategy": "FedAvg", "fraction_mal": self.fraction_malicious, "magnitude": self.magnitude, 
+            "frac_fit": self.fraction_fit, "frac_eval": self.fraction_evaluate, "min_fit_clients": self.min_fit_clients,
+            "min_eval_clients": self.min_evaluate_clients, "min_available_clients": self.min_available_clients,
+            "num_clients": self.sample_size, "num_malicious": self.m}
+        eval_res = evaluate_aggregated(self.evaluate_fn, server_round, parameters, config)
+        if eval_res is None:
+            return None
+        loss, metrics = eval_res
+        return loss, metrics
 
     def aggregate_evaluate(
         self,
@@ -140,7 +163,7 @@ class MaliciousFedAvg(fl.server.strategy.FedAvg):
         )
 
         self.aggr_losses = np.append(loss_aggregated, self.aggr_losses)
-        np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/results/aggregated_losses.npy", self.aggr_losses)
+        #np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/results/aggregated_losses.npy", self.aggr_losses)
 
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
