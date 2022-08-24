@@ -1,3 +1,4 @@
+from cgi import test
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -52,32 +53,34 @@ def evaluate(
     test_anomaly_score = test_anomaly_score.ravel()
     print(len(test_anomaly_score))
 
-    fig, axes = plt.subplots()
-    test_num = test_end - test_start
-    plt.ylim((min(test_anomaly_score), max(test_anomaly_score)+10))
-    plt.yticks(np.arange(min(test_anomaly_score), max(test_anomaly_score)+1, 10), fontsize = 10)
-    plt.plot(test_anomaly_score, 'b', linewidth = 2)
-    threshold = np.full((test_num), valid_anomaly_max * alpha)
-    axes.plot(threshold, color = 'black', linestyle = '--',linewidth = 2)
-    val = test_start
-    labels = []
-    for i in range(0, len(test_anomaly_score), gap_time):
-        labels.append(str(int(val+i)))
-    plt.xticks(np.arange(0, len(test_anomaly_score), gap_time), fontsize = 10)
-    axes.set_xticklabels(labels, rotation = 25, fontsize = 10)
-    plt.xlabel('Test Time', fontsize = 25)
-    plt.ylabel('Anomaly Score', fontsize = 25)
-    axes.spines['right'].set_visible(False)
-    axes.spines['top'].set_visible(False)
-    axes.yaxis.set_ticks_position('left')
-    axes.xaxis.set_ticks_position('bottom')
-    fig.subplots_adjust(bottom=0.25)
-    fig.subplots_adjust(left=0.25)
-    plt.title("MSCRED", size = 25)
-    plt.show()
-
+    #fig, axes = plt.subplots()
+    #test_num = test_end - test_start
+    #plt.ylim((min(test_anomaly_score), max(test_anomaly_score)+10))
+    #plt.yticks(np.arange(min(test_anomaly_score), max(test_anomaly_score)+1, 10), fontsize = 10)
+    #plt.plot(test_anomaly_score, 'b', linewidth = 2)
+    #threshold = np.full((test_num), valid_anomaly_max * alpha)
+    #axes.plot(threshold, color = 'black', linestyle = '--',linewidth = 2)
+    #val = test_start
+    #labels = []
+    #for i in range(0, len(test_anomaly_score), gap_time):
+    #    labels.append(str(int(val+i)))
+    #plt.xticks(np.arange(0, len(test_anomaly_score), gap_time), fontsize = 10)
+    #axes.set_xticklabels(labels, rotation = 25, fontsize = 10)
+    #plt.xlabel('Test Time', fontsize = 25)
+    #plt.ylabel('Anomaly Score', fontsize = 25)
+    #axes.spines['right'].set_visible(False)
+    #axes.spines['top'].set_visible(False)
+    #axes.yaxis.set_ticks_position('left')
+    #axes.xaxis.set_ticks_position('bottom')
+    #fig.subplots_adjust(bottom=0.25)
+    #fig.subplots_adjust(left=0.25)
+    #plt.title("MSCRED", size = 25)
+    #plt.show()
+    threshold = 0.5
+    print(threshold)
     for score in test_anomaly_score:
-        if score >= threshold:
+        print(score/(200*200))
+        if score/(200*200) >= threshold:
             return True
     return False
 

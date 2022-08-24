@@ -23,7 +23,7 @@ from flwr.common import (
 Run this script to debug code errors inside new strategies without calculating the weights of 
 the clients.
 '''
-params = np.load("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/weights_results.npy", allow_pickle=True)
+params = np.load("strategy/test_params/weights_results.npy", allow_pickle=True)
 
 print(params.shape)
 

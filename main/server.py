@@ -67,12 +67,12 @@ def evaluate_fn(server_round, parameters, config):
 
 def main() -> None:
     # Define strategy
-    strategy = Krum(
-        fraction_fit=1.0,
+    strategy = FedMSCRED(
+        fraction_fit=0.5,
         fraction_evaluate=0.0,                           # set 0 to disable client evaluation
         evaluate_fn=evaluate_fn,
         fraction_malicious=0.4,                          # computed from the number of available clients
-        magnitude=20.0,
+        magnitude=10.0,
         min_available_clients=5,
         min_fit_clients=5,
         min_evaluate_clients=5,
@@ -96,7 +96,7 @@ def main() -> None:
     #)
     fl.server.start_server(
         server_address="0.0.0.0:8080",
-        config=fl.server.ServerConfig(num_rounds=100),
+        config=fl.server.ServerConfig(num_rounds=50),
         strategy=strategy,
     )
 
