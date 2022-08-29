@@ -1,1 +1,0 @@
-{"strategy": "FedAvg", "fraction_mal": 0.4, "magnitude": 20.0, "frac_fit": 1.0, "frac_eval": 1.0, "min_fit_clients": 2, "min_eval_clients": 2, "min_available_clients": 2, "num_clients": [], "num_malicious": []}

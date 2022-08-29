@@ -96,18 +96,18 @@ def load_data(client=True):
 
     if client:
         # Take a random subset of 600 samples
-        ts = torch.randperm(len(trainset))[:600]
+        ts = torch.randperm(len(trainset))[:1200]
         trainset = torch.utils.data.Subset(trainset, ts)
-        mnist_train, mnist_val = random_split(trainset, [500, 100])
+        mnist_train, mnist_val = random_split(trainset, [1000, 200])
     else:
         mnist_train, mnist_val = random_split(trainset, [55000, 5000])
         
-    train_loader = DataLoader(mnist_train, batch_size=32, shuffle=True)
-    val_loader = DataLoader(mnist_val, batch_size=32, shuffle=False)
+    train_loader = DataLoader(mnist_train, batch_size=32, shuffle=True, num_workers=4)
+    val_loader = DataLoader(mnist_val, batch_size=32, shuffle=False, num_workers=4)
 
     # Test set
     testset = MNIST("", train=False, download=True, transform=transforms.ToTensor())
-    test_loader = DataLoader(testset, batch_size=32, shuffle=False)
+    test_loader = DataLoader(testset, batch_size=32, shuffle=False, num_workers=4)
 
     return train_loader, val_loader, test_loader
 

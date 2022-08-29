@@ -123,6 +123,9 @@ class Krum(fl.server.strategy.FedAvg):
             FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude}) if idx < self.m[-1] else dict(config, **{"malicious": False}))
             for idx,_ in enumerate(clients)]
 
+        for fit_ins in fit_ins_array:
+            print("fit_ins: "+str(fit_ins.config))
+
         return [(client, fit_ins_array[idx]) for idx,client in enumerate(clients)]
 
     def aggregate_fit(
@@ -132,7 +135,8 @@ class Krum(fl.server.strategy.FedAvg):
         failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
         """Aggregate fit results using median on weights."""
-
+        print("FAILURES: ")
+        print(failures)
         if not results:
             return None, {}
         # Do not aggregate if there are failures and failures are not accepted
@@ -152,7 +156,7 @@ class Krum(fl.server.strategy.FedAvg):
         ]
 
         parameters_aggregated = ndarrays_to_parameters(self._aggregate_weights(weights_results))
-        np.save("strategy/krum_parameters_aggregated.npy", parameters_to_ndarrays(parameters_aggregated))
+        #np.save("strategy/krum_parameters_aggregated.npy", parameters_to_ndarrays(parameters_aggregated))
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
         if self.fit_metrics_aggregation_fn:
@@ -186,13 +190,13 @@ class Krum(fl.server.strategy.FedAvg):
 
         Output: the best parameters vector.
         """
-        weights = [weights for weights, _ in results]                   # list of weights
-        M = self._compute_distances(weights)                            # matrix of distances
-        num_closest = len(weights) - self.m[-1] - 2                     # number of closest points to use
-        closest_indices = self._get_closest_indices(M, num_closest)     # indices of closest points
-        scores = [np.sum(d) for d in closest_indices]                   # scores i->j for each i
-        best_index = np.argmin(scores)                                  # index of the best score
-        return weights[best_index]                                      # best weights vector
+        weights = [weights for weights, _ in results]                       # list of weights
+        M = self._compute_distances(weights)                                # matrix of distances
+        num_closest = len(weights) - self.m[-1] - 2                         # number of closest points to use
+        closest_indices = self._get_closest_indices(M, num_closest)         # indices of closest points
+        scores = [np.sum(M[i,closest_indices[i]]) for i in range(len(M))]   # scores i->j for each i
+        best_index = np.argmin(scores)                                      # index of the best score
+        return weights[best_index]                                          # best weights vector
 
     def _compute_distances(self, weights: NDArrays) -> NDArrays:
         """
@@ -224,5 +228,5 @@ class Krum(fl.server.strategy.FedAvg):
         """
         closest_indices = []
         for i in range(len(M)):
-            closest_indices.append(np.argpartition(M[i], num_closest)[:num_closest])
+            closest_indices.append(np.argsort(M[i])[1:num_closest+1].tolist())
         return closest_indices

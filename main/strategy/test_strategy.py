@@ -27,6 +27,6 @@ params = np.load("strategy/test_params/weights_results.npy", allow_pickle=True)
 
 print(params.shape)
 
-strat = Krum()
+strat = MultiKrum()
 params = [FitRes(parameters=params[i], num_examples=i, status=Status(code=Code.OK, message=''), metrics={}) for i in range(params.shape[0])]
 strat.aggregate_fit(1, [(0, params[0]), (1, params[1])], [])

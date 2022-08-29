@@ -1,5 +1,6 @@
 import flwr as fl
 import numpy as np
+from functools import reduce
 
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
@@ -154,9 +155,9 @@ class MultiKrum(fl.server.strategy.FedAvg):
         ]
 
         # Take the m best parameters vectors and average them
-        parameters_aggregated = ndarrays_to_parameters(
-            aggregate(self._get_best_parameters(weights_results))
-            )
+        best_indices = self._get_best_parameters(weights_results)
+        weights_results = [weights_results[idx] for idx in best_indices]
+        parameters_aggregated = ndarrays_to_parameters(aggregate(weights_results))
         np.save("strategy/multikrum_parameters_aggregated.npy", parameters_to_ndarrays(parameters_aggregated))
 
         # Aggregate custom metrics if aggregation fn was provided
@@ -230,9 +231,9 @@ class MultiKrum(fl.server.strategy.FedAvg):
         M = self._compute_distances(weights)                                            # matrix of distances
         num_closest = len(weights) - self.m[-1] - 2                                     # number of closest points to use
         closest_indices = self._get_closest_indices(M, num_closest)                     # indices of closest points
-        scores = [np.sum(d) for d in closest_indices]                                   # scores i->j for each i
+        scores = [np.sum(M[i,closest_indices[i]]) for i in range(len(M))]               # scores i->j for each i
         best_indices = np.argsort(scores)[::-1][len(scores)-self.best_scores_to_keep:]  # indices of best scores
-        return [weights[i] for i in best_indices]                                       # best parameters vectors
+        return best_indices
 
     def _compute_distances(self, weights: NDArrays) -> NDArrays:
         """
@@ -241,6 +242,7 @@ class MultiKrum(fl.server.strategy.FedAvg):
         Input: weights - list of weights vectors
         Output: distances - matrix M of squared distances between the vectors
         """
+        weights = np.array(weights)
         M = np.zeros((len(weights), len(weights)))
         for i in range(len(weights)):
             for j in range(len(weights)):
@@ -251,7 +253,7 @@ class MultiKrum(fl.server.strategy.FedAvg):
                 M[i, j] = norm_sums
         return M
 
-    def _get_closest_indices(M, num_closest: int) -> List[int]:
+    def _get_closest_indices(self, M, num_closest: int) -> List[int]:
         """
         Get the indices of the closest points.
 
@@ -263,5 +265,22 @@ class MultiKrum(fl.server.strategy.FedAvg):
         """
         closest_indices = []
         for i in range(len(M)):
-            closest_indices.append(np.argpartition(M[i], num_closest)[:num_closest])
+            closest_indices.append(np.argsort(M[i])[1:num_closest+1].tolist())
         return closest_indices
+
+    def _aggregate(self, results: List[Tuple[NDArrays, int]]) -> NDArrays:
+        """Compute weighted average."""
+        # Calculate the total number of examples used during training
+        num_examples_total = sum([num_examples for _, num_examples in results])
+
+        # Create a list of weights, each multiplied by the related number of examples
+        weighted_weights = [
+            [layer * num_examples for layer in weights] for weights, num_examples in results
+        ]
+
+        # Compute average weights of each layer
+        weights_prime: NDArrays = [
+            reduce(np.add, layer_updates) / num_examples_total
+            for layer_updates in zip(*weighted_weights)
+        ]
+        return weights_prime

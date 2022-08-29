@@ -23,9 +23,12 @@ class FlowerClient(fl.client.NumPyClient):
         self.model.load_state_dict(state_dict, strict=True)
 
     def fit(self, parameters, config):
+        print("I AM HERE - FIT")
         self.set_parameters(parameters)
 
-        trainer = pl.Trainer(max_epochs=1)
+        trainer = pl.Trainer(logger=False, enable_progress_bar=False, max_epochs=1)
+        if torch.cuda.is_available():
+            trainer = pl.Trainer(accelerator="gpu", devices=1, logger=False, enable_progress_bar=False, max_epochs=1)
         trainer.fit(self.model, self.train_loader, self.val_loader)
 
         new_parameters = self.get_parameters(config={})
@@ -38,19 +41,16 @@ class FlowerClient(fl.client.NumPyClient):
                 magnitude = config["magnitude"]
                 # given a list of tensors of variable shape, return the first tensor with shape (64, 768) and add a random perturbation to it.
                 perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
-                new_parameters[0] = np.apply_along_axis(perturbate, 0, new_parameters[0])
-        
-        #if not os.path.exists("strategy/clients_weights"):
-        #    os.makedirs("strategy/clients_weights")
+                new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
 
-        return new_parameters, 55000, {}
+        return new_parameters, 1000, {}
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
         
-        trainer = pl.Trainer()
+        trainer = pl.Trainer(logger=False, enable_progress_bar=False)
         if torch.cuda.is_available():
-            trainer = pl.Trainer(accelerator="gpu", devices=1)
+            trainer = pl.Trainer(accelerator="gpu", devices=1, logger=False, enable_progress_bar=False)
         results = trainer.test(self.model, self.test_loader)
         #print("RESULTS:")
         #print(results)
@@ -68,7 +68,7 @@ def main() -> None:
 
     # Flower client
     client = FlowerClient(model, train_loader, val_loader, test_loader)
-    fl.client.start_numpy_client(server_address="127.0.0.1:8080", client=client)
+    fl.client.start_numpy_client(server_address="[::]:8080", client=client)
 
 
 if __name__ == "__main__":
