@@ -157,8 +157,6 @@ class FedMedian(fl.server.strategy.FedAvg):
         elif server_round == 1:  # Only log this warning once
             log(WARNING, "No fit_metrics_aggregation_fn provided")
 
-        utils.save_params(parameters_aggregated, server_round)
-
         return parameters_aggregated, metrics_aggregated
 
     def evaluate(
@@ -202,5 +200,5 @@ class FedMedian(fl.server.strategy.FedAvg):
     def _aggregate_weights(self, results: List[Tuple[int, float]]) -> NDArrays:
         """Compute median of weights."""
         weights = [weights for weights, _ in results]   # list of weights
-        median = [[np.apply_along_axis(np.median, 0, sorted(l2)) for l2 in zip(*l)] for l in zip(*weights)]
+        median = [[np.apply_along_axis(np.median, 0, l2) for l2 in zip(*l)] for l in zip(*weights)]
         return median

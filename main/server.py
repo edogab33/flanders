@@ -68,7 +68,7 @@ def evaluate_fn(server_round, parameters, config):
 
 def main() -> None:
     # Define strategy
-    strategy = MultiKrum(
+    strategy = FedMedian(
         fraction_fit=1.0,
         fraction_evaluate=0.0,                           # set 0 to disable client evaluation
         evaluate_fn=evaluate_fn,
@@ -78,7 +78,7 @@ def main() -> None:
         min_fit_clients=10,
         min_evaluate_clients=0,
         accept_failures=False,
-        best_scores_to_keep=6,
+        #best_scores_to_keep=6,
         #threshold=0.005,
     )
 
