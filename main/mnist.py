@@ -12,6 +12,7 @@ from torchvision.datasets import MNIST
 import pytorch_lightning as pl
 from torchmetrics.functional import accuracy
 from torchmetrics import Accuracy
+import numpy as np
 
 
 class LitMNIST(pl.LightningModule):
@@ -24,7 +25,7 @@ class LitMNIST(pl.LightningModule):
         self.learning_rate = learning_rate
         self.client = client
         self.params = []
-
+        
         # Hardcode some dataset specific attributes
         self.num_classes = 10
         self.dims = (1, 28, 28)

@@ -1,0 +1,18 @@
+[build-system]
+requires = [
+    "poetry==1.1.14",
+]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "flwr_mscred"
+version = "0.1.0"
+description = "Federated Learning with Flower and PyTorch Lightning"
+authors = ["Edoardo Gabrielli <gabrielli.1693726@studenti.uniroma1.it>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+flwr = "^1.0.0"
+# flwr = { path = "../../", develop = true }  # Development
+pytorch-lightning = "^1.4.7"
+torchvision = "^0.10.0"

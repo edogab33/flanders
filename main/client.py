@@ -13,11 +13,14 @@ class FlowerClient(fl.client.NumPyClient):
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.test_loader = test_loader
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     def get_parameters(self, config):
+        print("GET PARAMETERS")
         return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
 
     def set_parameters(self, parameters):
+        print("SET PARAMETERS")
         params_dict = zip(self.model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         self.model.load_state_dict(state_dict, strict=True)
@@ -25,7 +28,7 @@ class FlowerClient(fl.client.NumPyClient):
     def fit(self, parameters, config):
         print("I AM HERE - FIT")
         self.set_parameters(parameters)
-
+        self.model.to(self.device)
         trainer = pl.Trainer(logger=False, enable_progress_bar=False, max_epochs=1)
         if torch.cuda.is_available():
             trainer = pl.Trainer(accelerator="gpu", devices=1, logger=False, enable_progress_bar=False, max_epochs=1)
@@ -43,7 +46,7 @@ class FlowerClient(fl.client.NumPyClient):
                 perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
                 new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
 
-        return new_parameters, 1000, {}
+        return new_parameters, len(self.train_loader.dataset), {}
 
     def evaluate(self, parameters, config):
         self.set_parameters(parameters)
