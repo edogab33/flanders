@@ -10,9 +10,7 @@ from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 from torchvision.datasets import MNIST
 import pytorch_lightning as pl
-from torchmetrics.functional import accuracy
 from torchmetrics import Accuracy
-import numpy as np
 
 
 class LitMNIST(pl.LightningModule):
@@ -115,7 +113,6 @@ def load_data(client=True):
 
 def main() -> None:
     """Centralized training."""
-
     # Load data
     train_loader, val_loader, test_loader = load_data()
 

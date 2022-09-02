@@ -43,15 +43,15 @@ def evaluate_fn(server_round, parameters, config):
     results = trainer.test(model, test_loader)
 
     # Save results as npy file
-    dirs = [f for f in os.listdir("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/results/") if not f.startswith('.')]
+    dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
     longest_string = len(max(dirs, key=len))
     idx = -2 if longest_string > 5 else -1
 
     highest_number = str(max([int(x[idx:]) for x in dirs if x[idx:].isdigit()]))
     loss_series = []
     acc_series = []
-    loss_path = "/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/results/run_"+highest_number+"/loss.npy"
-    acc_path = "/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/results/run_"+highest_number+"/acc.npy"
+    loss_path = "results/run_"+highest_number+"/loss.npy"
+    acc_path = "results/run_"+highest_number+"/acc.npy"
     if os.path.exists(loss_path):
        loss_series = np.load(loss_path)
     if os.path.exists(acc_path):
@@ -60,7 +60,7 @@ def evaluate_fn(server_round, parameters, config):
     acc_series = np.save(acc_path, np.append(acc_series, results[0]["test_acc"]))
 
     # Save config
-    config_path = "/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/results/run_"+highest_number+"/config.json"
+    config_path = "results/run_"+highest_number+"/config.json"
     with open(config_path, "w") as f:
         json.dump(config, f)
 
@@ -85,13 +85,13 @@ def main() -> None:
     )
 
     # Prepare directory for logs
-    dirs = [f for f in os.listdir("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/results") if not f.startswith('.')]
+    dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
 
     # find the highest number in a list composed by strings that have a number as final char
     longest_string = len(max(dirs, key=len))
     idx = -2 if longest_string > 5 else -1
     highest_number = max([int(x[idx:]) for x in dirs if x[idx:].isdigit()])
-    os.makedirs("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/results/run_"+str(highest_number+1), exist_ok=True)
+    os.makedirs("results/run_"+str(highest_number+1), exist_ok=True)
 
     #fl.simulation.start_simulation(
     #    client_fn=client_fn,

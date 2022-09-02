@@ -16,11 +16,9 @@ class FlowerClient(fl.client.NumPyClient):
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     def get_parameters(self, config):
-        print("GET PARAMETERS")
         return [val.cpu().numpy() for _, val in self.model.state_dict().items()]
 
     def set_parameters(self, parameters):
-        print("SET PARAMETERS")
         params_dict = zip(self.model.state_dict().keys(), parameters)
         state_dict = OrderedDict({k: torch.tensor(v) for k, v in params_dict})
         self.model.load_state_dict(state_dict, strict=True)
@@ -58,8 +56,6 @@ class FlowerClient(fl.client.NumPyClient):
         #print("RESULTS:")
         #print(results)
         loss = results[0]["cl_test_loss"]
-
-        print("Client loss "+str(loss))
 
         return loss, 10000, {"loss": loss}
 
