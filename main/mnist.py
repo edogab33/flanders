@@ -25,7 +25,7 @@ class LitMNIST(pl.LightningModule):
         self.learning_rate = learning_rate
         self.client = client
         self.params = []
-        
+
         # Hardcode some dataset specific attributes
         self.num_classes = 10
         self.dims = (1, 28, 28)
@@ -103,12 +103,12 @@ def load_data(client=True):
     else:
         mnist_train, mnist_val = random_split(trainset, [55000, 5000])
         
-    train_loader = DataLoader(mnist_train, batch_size=32, shuffle=True, num_workers=4)
-    val_loader = DataLoader(mnist_val, batch_size=32, shuffle=False, num_workers=4)
+    train_loader = DataLoader(mnist_train, batch_size=32, shuffle=True, num_workers=1)
+    val_loader = DataLoader(mnist_val, batch_size=32, shuffle=False, num_workers=1)
 
     # Test set
     testset = MNIST("", train=False, download=True, transform=transforms.ToTensor())
-    test_loader = DataLoader(testset, batch_size=32, shuffle=False, num_workers=4)
+    test_loader = DataLoader(testset, batch_size=32, shuffle=False, num_workers=1)
 
     return train_loader, val_loader, test_loader
 

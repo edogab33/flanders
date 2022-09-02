@@ -3,8 +3,8 @@ import flwr as fl
 from client import FlowerClient
 from strategy.malicious_fedavg import MaliciousFedAvg
 from strategy.fedmedian import FedMedian
-from strategy.fedmscred import FedMSCRED
-from strategy.fedmscred2 import FedMSCRED2
+from strategy.flanders_local import LocalFlanders
+from strategy.flanders_global import GlobalFlanders
 from strategy.krum import Krum
 from strategy.multikrum import MultiKrum
 from flwr.server.strategy.fedavg import FedAvg
@@ -68,12 +68,14 @@ def evaluate_fn(server_round, parameters, config):
 
 def main() -> None:
     # Define strategy
-    strategy = FedAvg(
+    strategy = GlobalFlanders(
         fraction_fit=1.0,
         fraction_evaluate=0.0,                           # set 0 to disable client evaluation
         evaluate_fn=evaluate_fn,
-        #fraction_malicious=0.4,                          # computed from the number of available clients
-        #magnitude=10.0,
+        fraction_malicious=0.4,                          # computed from the number of available clients
+        magnitude=10.0,
+        to_keep=6,
+        warmup_rounds=1,
         min_available_clients=10,
         min_fit_clients=10,
         min_evaluate_clients=0,
@@ -91,18 +93,18 @@ def main() -> None:
     highest_number = max([int(x[idx:]) for x in dirs if x[idx:].isdigit()])
     os.makedirs("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/results/run_"+str(highest_number+1), exist_ok=True)
 
-    fl.simulation.start_simulation(
-        client_fn=client_fn,
-        num_clients=10,
-        config=fl.server.ServerConfig(num_rounds=30),
-        strategy=strategy,
-        client_resources= {"num_cpus":4, "num_gpus":0},
-    )
-    #fl.server.start_server(
-    #    server_address="0.0.0.0:8080",
-    #    config=fl.server.ServerConfig(num_rounds=50),
+    #fl.simulation.start_simulation(
+    #    client_fn=client_fn,
+    #    num_clients=10,
+    #    config=fl.server.ServerConfig(num_rounds=30),
     #    strategy=strategy,
+    #    client_resources= {"num_cpus":4, "num_gpus":0},
     #)
+    fl.server.start_server(
+        server_address="0.0.0.0:8080",
+        config=fl.server.ServerConfig(num_rounds=50),
+        strategy=strategy,
+    )
 
 if __name__ == "__main__":
     main()

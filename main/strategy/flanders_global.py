@@ -1,6 +1,7 @@
 import flwr as fl
 import numpy as np
 import os
+import pandas as pd
 
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
@@ -37,8 +38,12 @@ than or equal to the values of `min_fit_clients` and `min_evaluate_clients`.
 """
 
 
-class FedMSCRED2(fl.server.strategy.FedAvg):
-    """Configurable MaliciousFedAvg strategy implementation."""
+class GlobalFlanders(fl.server.strategy.FedAvg):
+    """
+    Aggregation function based on MSCRED anomaly detection.
+    This is the Global Approach, where parameters trained by 
+    each client are analyzed to detect anomalies within the client itself.
+    """
 
     # pylint: disable=too-many-arguments,too-many-instance-attributes
     def __init__(
@@ -49,6 +54,8 @@ class FedMSCRED2(fl.server.strategy.FedAvg):
         fraction_malicious: float = 0.0,
         magnitude: float = 1.0,
         threshold: float = 0.005,
+        warmup_rounds: int = 1,
+        to_keep: int = 1,
         min_fit_clients: int = 2,
         min_evaluate_clients: int = 2,
         min_available_clients: int = 2,
@@ -96,9 +103,11 @@ class FedMSCRED2(fl.server.strategy.FedAvg):
         self.fraction_malicious = fraction_malicious
         self.magnitude = magnitude
         self.threshold = threshold
+        self.warmup_rounds = warmup_rounds                          # number of rounds needed to prepare the time series
+        self.to_keep = to_keep                                      # number of clients to keep in the aggregation
         self.aggr_losses = np.array([])
-        self.m = []                                              # number of malicious clients (updates each round)
-        self.sample_size = []                                    # number of clients available (updates each round)
+        self.m = []                                                 # number of malicious clients (updates each round)
+        self.sample_size = []                                       # number of clients available (updates each round)
     
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
@@ -114,7 +123,7 @@ class FedMSCRED2(fl.server.strategy.FedAvg):
         )
         self.sample_size.append(sample_size)
         clients = client_manager.sample(
-            num_clients=self.sample_size, min_num_clients=min_num_clients
+            num_clients=sample_size, min_num_clients=min_num_clients
         )
 
         self.m.append(int(sample_size * self.fraction_malicious))
@@ -134,7 +143,7 @@ class FedMSCRED2(fl.server.strategy.FedAvg):
         results: List[Tuple[ClientProxy, FitRes]],
         failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
-        """Apply MSCRED after FedAvg."""
+        """Apply MSCRED to exclude malicious clients from the average."""
         print("round: "+str(server_round))
         if not results:
             return None, {}
@@ -142,52 +151,43 @@ class FedMSCRED2(fl.server.strategy.FedAvg):
         if not self.accept_failures and failures:
             return None, {}
 
+        weights_results = {
+            proxy.cid: np.asarray(parameters_to_ndarrays(fit_res.parameters))
+            for proxy, fit_res in results
+        }
+        
+        params = np.asarray([])
+        for cid in weights_results:
+            flattened_params = np.concatenate([w.flatten() for w in weights_results[cid]])
+            print(np.mean(flattened_params))
+            params = np.append(params, np.mean(flattened_params))
+
+        np.save("params_ts.npy", params)
+
+        # check that strategy/histoies directory exists and load history if it does
+        history = np.load("strategy/histories/history.npy") if os.path.exists("strategy/histories/history.npy") else np.array([])
+        history = np.vstack((history, params)) if history.size else params
+        np.save("strategy/histories/history.npy", history)
+        
+        # TODO: at this point MSCRED can be trained in an online fashion before testing it
+        if server_round >= self.warmup_rounds:
+            df = pd.DataFrame(history.T)
+            df.to_csv("strategy/histories/history.csv", index=False, header=False)
+
+            # For each client, make signature test matrices
+            mg.generate_train_test_data(test_end=history.shape[0], step_max=5, win_size=[1], params_time_series="strategy/histories/history.csv")
+
+            # Load MSCRED trained model and generate reconstructed matrices
+            mg.generate_reconstructed_matrices(test_end_id=history.shape[0], sensor_n=history.shape[1], step_max=5)
+
+            # Compute anomaly scores
+            anomaly_scores = np.array(eval.evaluate(test_end_point=history.shape[0], threshold=self.threshold))
+
+            # Keep only the 'to_keep' clients with lower socres
+            results = np.array(results)[sorted(np.argsort(anomaly_scores)[:self.to_keep])]
+            print(results)
+
         parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
-
-        parameters_aggregated = np.asarray(parameters_to_ndarrays(parameters_aggregated))
-
-        print(str(parameters_aggregated.shape))
-
-        # Flatten the first layer
-        layer1 = parameters_aggregated[0].reshape((*parameters_aggregated[0].shape[:-2], -1))[:200]
-
-        print(layer1.shape)
-
-        if os.path.isfile("strategy/mscred2/histories/weights_history.npy"):
-            weights_history = np.load("strategy/mscred2/histories/weights_history.npy", allow_pickle=True)
-            print("weights1 " + str(weights_history.shape))
-
-            # Append weights of the current round to the weight history without flattening
-            weights_history = np.vstack((weights_history, layer1))
-            print("weights2 " + str(weights_history.shape))
-
-            # Save weight history of each client (discrimanted by proxy.cid)
-            np.save("strategy/mscred2/histories/weights_history.npy", weights_history)
-        else:
-            # Create new weight history if it does not exist
-            weights_history = layer1
-            np.save("strategy/mscred2/histories/weights_history.npy", [weights_history])
-
-        weights_history = np.load("strategy/mscred2/histories/weights_history.npy", allow_pickle=True)
-        print("weights " + str(weights_history.shape))
-
-        # TODO: don't build again previously built matrices if they already exist
-        mg.generate_train_test_data(params_time_series=np.transpose(weights_history), test_end=weights_history.shape[0], step_max=1, matrix_data_path="strategy/mscred2/matrix_data/")
-
-        # Load MSCRED trained model and generate reconstructed matrices
-        mg.generate_reconstructed_matrices(test_end_id=weights_history.shape[0], sensor_n=weights_history.shape[1], step_max=1, 
-            test_data_path="strategy/mscred2/matrix_data/test_data/", matrix_data_path="strategy/mscred2/matrix_data/")
-
-        # Check if reconstucted matrices have errors above the threshold
-        anomaly = eval.evaluate(test_end_point=weights_history.shape[0], threshold=self.threshold, matrix_data_path="strategy/mscred2/matrix_data/")
-
-        # TODO: If any signature is malicious, exclude the client from the average
-        if anomaly:
-            # new round
-            print("ANOMALY FOUND")
-            parameters_aggregated = ndarrays_to_parameters(parameters_aggregated)
-        else:
-            parameters_aggregated = ndarrays_to_parameters(parameters_aggregated)
 
         return parameters_aggregated, metrics_aggregated
 
@@ -198,7 +198,7 @@ class FedMSCRED2(fl.server.strategy.FedAvg):
         if self.evaluate_fn is None:
             # No evaluation function provided
             return None
-        config = {"strategy": "FedMSCRED2", "fraction_mal": self.fraction_malicious, "magnitude": self.magnitude, 
+        config = {"strategy": "FedMSCRED", "fraction_mal": self.fraction_malicious, "magnitude": self.magnitude, 
             "frac_fit": self.fraction_fit, "frac_eval": self.fraction_evaluate, "min_fit_clients": self.min_fit_clients,
             "min_eval_clients": self.min_evaluate_clients, "min_available_clients": self.min_available_clients,
             "num_clients": self.sample_size, "num_malicious": self.m}

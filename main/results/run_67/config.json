@@ -1,0 +1,1 @@
+{"strategy": "FedMSCRED", "fraction_mal": 0.4, "magnitude": 10.0, "frac_fit": 1.0, "frac_eval": 0.0, "min_fit_clients": 10, "min_eval_clients": 0, "min_available_clients": 10, "num_clients": [10], "num_malicious": [4]}

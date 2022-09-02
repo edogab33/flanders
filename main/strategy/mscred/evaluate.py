@@ -51,7 +51,6 @@ def evaluate(
     else:
         valid_anomaly_max = 0
     test_anomaly_score = test_anomaly_score.ravel()
-    print(len(test_anomaly_score))
 
     #fig, axes = plt.subplots()
     #test_num = test_end - test_start
@@ -77,12 +76,8 @@ def evaluate(
     #plt.title("MSCRED", size = 25)
     #plt.show()
     threshold = 0.5
-    print(threshold)
-    for score in test_anomaly_score:
-        print(score/(200*200))
-        if score/(200*200) >= threshold:
-            return True
-    return False
+    anomaly_scores = [test_anomaly_score[i] for i in range(len(test_anomaly_score))]
+    return anomaly_scores
 
 
 

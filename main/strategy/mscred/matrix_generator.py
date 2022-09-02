@@ -2,11 +2,13 @@ import os
 import numpy as np
 import tensorflow as tf
 import math
+import shutil
+import pandas as pd
 
 from .cnn import *
 
 def generate_train_test_data(
-    params_time_series=None,
+    params_time_series="",
     matrix_data_path="strategy/mscred/matrix_data/",
     train_start=0,
     train_end=0,
@@ -14,10 +16,12 @@ def generate_train_test_data(
     test_end=0,
     gap_time=1,
     step_max=5,
-    win_size=[1, 2, 3]):
+    win_size=[1]):
 
-    data = params_time_series.copy()
+    # load params_time_series and transform it into a csv
+    data = np.array(pd.read_csv(params_time_series, header = None), dtype=np.float64)
     print(data.shape)
+
     sensor_n = data.shape[0]
 
     # min-max normalization
@@ -28,6 +32,13 @@ def generate_train_test_data(
 
     data = np.transpose(data)
     print(data.shape)
+
+    # Check if the path exists, if not, create it:
+    if not os.path.exists(matrix_data_path):
+        os.makedirs(matrix_data_path)
+    else:
+        shutil.rmtree(matrix_data_path)
+        os.makedirs(matrix_data_path)
 
     #multi-scale signature matix generation
     for w in range(len(win_size)):
@@ -45,9 +56,6 @@ def generate_train_test_data(
 
         path_temp = matrix_data_path + "matrix_win_" + str(win)
 
-        # Check if the path exists, if not, create it:
-        if not os.path.exists(matrix_data_path):
-            os.makedirs(matrix_data_path)
         np.save(path_temp, matrix_all)
         del matrix_all[:]
 
@@ -95,16 +103,17 @@ def generate_train_test_data(
     print ("train/test data generation finish!")
 
 def generate_reconstructed_matrices(
-    model_path="strategy/mscred/model_ckpt/",
+    model_path="strategy/mscred/model_ckpt/3/",
     test_data_path="strategy/mscred/matrix_data/test_data/",
     matrix_data_path = "strategy/mscred/matrix_data/",
-    restore_idx=6,
+    restore_idx=9,
     test_start_id=0,
     test_end_id=0,
     step_max=5,
     sensor_n=0,
-    scale_n=9,
+    scale_n=3,
 ):
+    tf.reset_default_graph()
     data_input = tf.placeholder(tf.float32, [step_max, sensor_n, sensor_n, scale_n])
 
     # parameters: adding bias weight get similar performance
@@ -128,7 +137,8 @@ def generate_reconstructed_matrices(
     conv3_lstm_attention_out, _, _ = conv3_lstm(conv3_out, sensor_n=sensor_n, step_max=step_max)
     conv4_lstm_attention_out, _, _ = conv4_lstm(conv4_out, sensor_n=sensor_n, step_max=step_max)
 
-    deconv_out = cnn_decoder(conv1_lstm_attention_out, conv2_lstm_attention_out, conv3_lstm_attention_out, conv4_lstm_attention_out, sensor_n=sensor_n)
+    deconv_out = cnn_decoder(conv1_lstm_attention_out, conv2_lstm_attention_out, conv3_lstm_attention_out, 
+        conv4_lstm_attention_out, sensor_n=sensor_n, scale_n=scale_n)
     saver = tf.train.Saver(max_to_keep = 10)
 
     with tf.Session(config=tf.ConfigProto(inter_op_parallelism_threads=20, intra_op_parallelism_threads=20)) as sess:

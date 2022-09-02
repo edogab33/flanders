@@ -1,0 +1,1 @@
+{"strategy": "FedAvg", "fraction_mal": 0, "magnitude": 10.0, "frac_fit": 1.0, "frac_eval": 0.0, "min_fit_clients": 15, "min_eval_clients": 0, "min_available_clients": 15, "num_clients": [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15], "num_malicious": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}

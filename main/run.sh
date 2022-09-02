@@ -4,7 +4,7 @@ echo "Starting server"
 python server.py &
 sleep 5 # Sleep for 3s to give the server enough time to start
 
-for i in `seq 0 9`; do
+for i in `seq 0 11`; do
     echo "Starting client $i"
     python client.py &
 done
