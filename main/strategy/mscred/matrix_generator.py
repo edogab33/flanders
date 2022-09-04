@@ -47,7 +47,7 @@ def generate_train_test_data(
         print ("generating signature with window " + str(win) + "...")
         for t in range(test_start, test_end, gap_time):
             matrix_t = np.zeros((sensor_n, sensor_n))
-            if t >= 0:
+            if t >= win_size[-1]:
                 for i in range(sensor_n):
                     for j in range(i, sensor_n):
                         matrix_t[i][j] = np.inner(data[i, t - win:t], data[j, t - win:t])/(win) # rescale by win
@@ -79,24 +79,20 @@ def generate_train_test_data(
             path_temp = matrix_data_path + "matrix_win_" + str(win_size[w]) + ".npy"
             data_all.append(np.load(path_temp))
 
-    train_test_time = [[train_start, train_end], [test_start, test_end]]
+    #train_test_time = [[train_start, train_end], [test_start, test_end]]
+    train_test_time = [[train_start, train_end], [test_start-test_start, test_end-test_start]]
     for i in range(len(train_test_time)):
         for data_id in range(int(train_test_time[i][0]/gap_time), int(train_test_time[i][1]/gap_time)):
             step_multi_matrix = []
             for step_id in range(step_max, 0, -1):
                 multi_matrix = []
                 for k in range(len(value_colnames)):
-                    for i in range(len(win_size)):
-                        multi_matrix.append(data_all[k*len(win_size) + i][data_id - step_id])
+                    for j in range(len(win_size)):
+                        multi_matrix.append(data_all[k*len(win_size) + j][data_id - step_id])
                 step_multi_matrix.append(multi_matrix)
 
-            # Discriminate train and test data:
-            if data_id >= (train_start/gap_time + win_size[-1]/gap_time + step_max) and data_id < (train_end/gap_time): # remove start points with invalid value
-                path_temp = os.path.join(train_data_path, 'train_data_' + str(data_id))
-                np.save(path_temp, step_multi_matrix)
-            elif data_id >= (test_start/gap_time) and data_id < (test_end/gap_time):
-                path_temp = os.path.join(test_data_path, 'test_data_' + str(data_id))
-                np.save(path_temp, step_multi_matrix)
+            path_temp = os.path.join(test_data_path, 'test_data_' + str(data_id+test_start))
+            np.save(path_temp, step_multi_matrix)
 
             del step_multi_matrix[:]
 
@@ -113,7 +109,7 @@ def generate_reconstructed_matrices(
     sensor_n=0,
     scale_n=3,
 ):
-    tf.reset_default_graph()
+    #tf.reset_default_graph()
     data_input = tf.placeholder(tf.float32, [step_max, sensor_n, sensor_n, scale_n])
 
     # parameters: adding bias weight get similar performance

@@ -1,0 +1,512 @@
+Accuracy of the network on the 10000 test images: 0.0646
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+round: 1
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+-0.00070029584
+-0.000712057
+-0.00083876285
+-0.0008604275
+-0.0009154414
+-0.000664428
+-0.00086352293
+-0.000780459
+-0.0009161229
+-0.0008881653
+Accuracy of the network on the 10000 test images: 0.8661
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+round: 2
+-0.00082768494
+-0.0009917547
+-0.0008408676
+-0.0009774691
+-0.00090289424
+-0.001008634
+-0.000803116
+-0.0009351327
+-0.0009664516
+-0.0011559151
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+Accuracy of the network on the 10000 test images: 0.9186
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+round: 3
+-0.0008420349
+-0.00092862564
+-0.0006874457
+-0.00081627775
+-0.000827349
+-0.00069791835
+-0.0008785918
+-0.00092231267
+-0.00069979473
+-0.0010507841
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+Accuracy of the network on the 10000 test images: 0.9453
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+round: 4
+-0.0008229542
+-0.00072781456
+-0.00084099686
+-0.0006287605
+-0.0007912432
+-0.00066746474
+-0.0008561247
+-0.00082154555
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+-0.00080735044
+-0.00046617826
+Accuracy of the network on the 10000 test images: 0.9527
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+round: 5
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+-0.0005027979
+-0.0005851685
+-0.0005821362
+3.652648
+-0.0004094995
+3.6525462
+-0.00059753156
+-0.0005000365
+3.6524189
+3.6525414
+(10, 5)
+(5, 10)
+(10, 5)
+generating signature with window 3...
+0
+1
+2
+3
+4
+generating signature with window 5...
+0
+1
+2
+3
+4
+matrix generation finish!
+generating train/test data samples...
+train/test data generation finish!
+model test: generate recontrucuted matrices...
+reconstructed matrices generation finish.
+[0. 0. 0. 0. 0.]
+Accuracy of the network on the 10000 test images: 0.1032
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+round: 6
+4.384084
+0.73083246
+0.73084396
+4.3842044
+4.3838634
+0.7308351
+0.73083526
+0.73097634
+0.7309366
+4.3839264
+(10, 6)
+(6, 10)
+(10, 6)
+generating signature with window 3...
+1
+2
+3
+4
+5
+generating signature with window 5...
+1
+2
+3
+4
+5
+matrix generation finish!
+generating train/test data samples...
+train/test data generation finish!
+model test: generate recontrucuted matrices...
+reconstructed matrices generation finish.
+[16.  0.  0.  2.  3.]
+Accuracy of the network on the 10000 test images: 0.25
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+round: 7
+2.9232755
+2.9234133
+6.576522
+6.5765715
+2.9233427
+2.9233098
+6.5765824
+6.5766125
+2.9233778
+2.9233906
+(10, 7)
+(7, 10)
+(10, 7)
+generating signature with window 3...
+2
+3
+4
+5
+6
+generating signature with window 5...
+2
+3
+4
+5
+6
+matrix generation finish!
+generating train/test data samples...
+train/test data generation finish!
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+model test: generate recontrucuted matrices...
+reconstructed matrices generation finish.
+[44. 12. 22. 25. 19.]
+Accuracy of the network on the 10000 test images: 0.1571
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+round: 8
+8.038409
+4.385204
+8.038377
+4.38516
+4.385233
+4.3851647
+8.038412
+4.3852253
+4.385208
+8.038245
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+(10, 8)
+(8, 10)
+(10, 8)
+generating signature with window 3...
+3
+4
+5
+6
+7
+generating signature with window 5...
+3
+4
+5
+6
+7
+matrix generation finish!
+generating train/test data samples...
+train/test data generation finish!
+model test: generate recontrucuted matrices...
+reconstructed matrices generation finish.
+[89. 64. 69. 64. 46.]
+Accuracy of the network on the 10000 test images: 0.2819
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+round: 9
+9.500202
+5.8470097
+5.8471518
+5.8471227
+5.847186
+9.500273
+5.8471127
+5.847095
+9.500299
+9.500263
+(10, 9)
+(9, 10)
+(10, 9)
+generating signature with window 3...
+4
+5
+6
+7
+8
+generating signature with window 5...
+4
+5
+6
+7
+8
+matrix generation finish!
+generating train/test data samples...
+train/test data generation finish!
+model test: generate recontrucuted matrices...
+reconstructed matrices generation finish.
+[ 65. 100.  98.  80.  18.]
+Accuracy of the network on the 10000 test images: 0.1962
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+round: 10
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+10.231426
+6.578289
+6.5782413
+6.578276
+6.5782056
+10.231379
+6.5783043
+10.231476
+6.5783024
+10.231438
+(10, 10)
+(10, 10)
+(10, 10)
+generating signature with window 3...
+5
+6
+7
+8
+9
+generating signature with window 5...
+5
+6
+7
+8
+9
+matrix generation finish!
+generating train/test data samples...
+train/test data generation finish!
+model test: generate recontrucuted matrices...
+reconstructed matrices generation finish.
+[ 62. 100. 100.  97.  49.]
+Accuracy of the network on the 10000 test images: 0.3551
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+round: 11
+10.962495
+7.309549
+7.309371
+10.962621
+10.962524
+7.309457
+7.309366
+7.309515
+7.309381
+10.962556
+(10, 11)
+(11, 10)
+(10, 11)
+generating signature with window 3...
+6
+7
+8
+9
+10
+generating signature with window 5...
+6
+7
+8
+9
+10
+matrix generation finish!
+generating train/test data samples...
+train/test data generation finish!
+model test: generate recontrucuted matrices...
+reconstructed matrices generation finish.
+[ 61. 100. 100.  93.  47.]
+Accuracy of the network on the 10000 test images: 0.0983
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+round: 12
+9.501859
+13.154957
+13.154988
+9.5019
+13.155051
+9.501999
+9.501979
+9.501904
+13.155169
+9.501886
+(10, 12)
+(12, 10)
+(10, 12)
+generating signature with window 3...
+7
+8
+9
+10
+11
+generating signature with window 5...
+7
+8
+9
+10
+11
+matrix generation finish!
+generating train/test data samples...
+train/test data generation finish!
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+model test: generate recontrucuted matrices...
+reconstructed matrices generation finish.
+[ 70. 100. 100.  82.  73.]
+Accuracy of the network on the 10000 test images: 0.278
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+round: 13
+15.347443
+11.694478
+11.694426
+15.347461
+15.347358
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+11.69445
+11.694472
+11.694317
+15.347489
+11.694293
+(10, 13)
+(13, 10)
+(10, 13)
+generating signature with window 3...
+8
+9
+10
+11
+12
+generating signature with window 5...
+8
+9
+10
+11
+12
+matrix generation finish!
+generating train/test data samples...
+train/test data generation finish!
+model test: generate recontrucuted matrices...
+reconstructed matrices generation finish.
+[ 51. 100. 100.  86.  78.]
+Accuracy of the network on the 10000 test images: 0.1244
+sample size: 10
+num m: 4
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': True, 'magnitude': 5}
+[2m[36m(launch_and_fit pid=41470)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41472)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41471)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}
+[2m[36m(launch_and_fit pid=41473)[0m CLIENT CONFIG {'epochs': 1, 'batch_size': 64, 'malicious': False}

@@ -132,7 +132,8 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
         print("num m: "+str(self.m[-1]))
 
         fit_ins_array = [
-            FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude}) if idx < self.m[-1] else dict(config, **{"malicious": False}))
+            FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude}) 
+            if idx < self.m[-1] and server_round >= self.warmup_rounds else dict(config, **{"malicious": False}))
             for idx,_ in enumerate(clients)]
 
         return [(client, fit_ins_array[idx]) for idx,client in enumerate(clients)]
@@ -175,16 +176,17 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
             df.to_csv("strategy/histories/history.csv", index=False, header=False)
 
             # For each client, make signature test matrices
-            mg.generate_train_test_data(test_end=history.shape[0], step_max=5, win_size=[1], params_time_series="strategy/histories/history.csv")
+            mg.generate_train_test_data(test_start=server_round-5, test_end=server_round, step_max=5, win_size=[3,5], params_time_series="strategy/histories/history.csv")
 
             # Load MSCRED trained model and generate reconstructed matrices
-            mg.generate_reconstructed_matrices(test_end_id=history.shape[0], sensor_n=history.shape[1], step_max=5)
+            mg.generate_reconstructed_matrices(test_start_id=server_round-5, test_end_id=server_round, sensor_n=history.shape[1], step_max=5, scale_n=6,
+                model_path="strategy/mscred/model_ckpt/4/", restore_idx=7)
 
             # Compute anomaly scores
-            anomaly_scores = np.array(eval.evaluate(test_end_point=history.shape[0], threshold=self.threshold))
-
+            anomaly_scores = np.array(eval.evaluate(test_start_point=server_round-5, test_end_point=server_round, threshold=self.threshold))
+            print(anomaly_scores)
             # Keep only the 'to_keep' clients with lower socres
-            results = np.array(results)[sorted(np.argsort(anomaly_scores)[:self.to_keep])]
+            results = np.array(results)[sorted(np.argsort(anomaly_scores)[:self.to_keep])].tolist()
 
         parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
