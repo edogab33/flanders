@@ -183,7 +183,7 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
                 model_path="strategy/mscred/model_ckpt/4/", restore_idx=7)
 
             # Compute anomaly scores
-            anomaly_scores = np.array(eval.evaluate(test_start_point=server_round-5, test_end_point=server_round, threshold=self.threshold))
+            anomaly_scores = np.array(eval.evaluate(threshold=self.threshold))
             print(anomaly_scores)
             # Keep only the 'to_keep' clients with lower socres
             results = np.array(results)[sorted(np.argsort(anomaly_scores)[:self.to_keep])].tolist()

@@ -36,9 +36,9 @@ def generate_train_test_data(
     # Check if the path exists, if not, create it:
     if not os.path.exists(matrix_data_path):
         os.makedirs(matrix_data_path)
-    else:
-        shutil.rmtree(matrix_data_path)
-        os.makedirs(matrix_data_path)
+    #else:
+    #    shutil.rmtree(matrix_data_path)
+    #    os.makedirs(matrix_data_path)
 
     #multi-scale signature matix generation
     for w in range(len(win_size)):
@@ -47,7 +47,7 @@ def generate_train_test_data(
         print ("generating signature with window " + str(win) + "...")
         for t in range(test_start, test_end, gap_time):
             matrix_t = np.zeros((sensor_n, sensor_n))
-            if t >= win_size[-1]:
+            if t >= win_size[-2]-1:
                 for i in range(sensor_n):
                     for j in range(i, sensor_n):
                         matrix_t[i][j] = np.inner(data[i, t - win:t], data[j, t - win:t])/(win) # rescale by win
@@ -145,6 +145,7 @@ def generate_reconstructed_matrices(
         print ("model test: generate recontrucuted matrices"+ "...")
 
         for test_id in range(test_start_id, test_end_id):
+            print(test_id)
             matrix_data_path = test_data_path + 'test_data_' + str(test_id) + ".npy"
             matrix_gt = np.load(matrix_data_path)
             matrix_gt = np.transpose(matrix_gt, (0, 2, 3, 1))
