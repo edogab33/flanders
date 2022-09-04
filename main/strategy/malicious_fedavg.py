@@ -195,7 +195,6 @@ class MaliciousFedAvg(fl.server.strategy.FedAvg):
         )
 
         self.aggr_losses = np.append(loss_aggregated, self.aggr_losses)
-        #np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/results/aggregated_losses.npy", self.aggr_losses)
 
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}

@@ -210,6 +210,5 @@ class LocalFlanders(fl.server.strategy.FedAvg):
         loss_aggregated, metrics_aggregated = super().aggregate_evaluate(server_round, results, failures)
 
         self.aggr_losses = np.append(loss_aggregated, self.aggr_losses)
-        np.save("results/aggregated_losses.npy", self.aggr_losses)
 
         return loss_aggregated, metrics_aggregated

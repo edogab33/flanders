@@ -185,7 +185,6 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
 
             # Keep only the 'to_keep' clients with lower socres
             results = np.array(results)[sorted(np.argsort(anomaly_scores)[:self.to_keep])]
-            print(results)
 
         parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
@@ -224,6 +223,5 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
         loss_aggregated, metrics_aggregated = super().aggregate_evaluate(server_round, results, failures)
 
         self.aggr_losses = np.append(loss_aggregated, self.aggr_losses)
-        np.save("results/aggregated_losses.npy", self.aggr_losses)
 
         return loss_aggregated, metrics_aggregated

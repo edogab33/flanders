@@ -24,7 +24,6 @@ class FlowerClient(fl.client.NumPyClient):
         self.model.load_state_dict(state_dict, strict=True)
 
     def fit(self, parameters, config):
-        print("I AM HERE - FIT")
         self.set_parameters(parameters)
         self.model.to(self.device)
         trainer = pl.Trainer(logger=False, enable_progress_bar=False, max_epochs=1)
