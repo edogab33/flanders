@@ -6,3 +6,4 @@ strategy/matrix_data
 checkpoints
 results
 ../MSCRED
+cifar_nn/data
