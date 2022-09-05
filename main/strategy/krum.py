@@ -4,6 +4,7 @@ import numpy as np
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
 from strategy.utilities import evaluate_aggregated
+from utilities import save_history_average_diff, save_history_average
 
 from flwr.common import (
     EvaluateIns,
@@ -154,6 +155,8 @@ class Krum(fl.server.strategy.FedAvg):
             (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
             for _, fit_res in results
         ]
+
+        save_history_average(weights_results)
 
         parameters_aggregated = ndarrays_to_parameters(self._aggregate_weights(weights_results))
         #np.save("strategy/krum_parameters_aggregated.npy", parameters_to_ndarrays(parameters_aggregated))

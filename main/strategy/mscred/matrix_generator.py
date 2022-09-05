@@ -5,7 +5,7 @@ import math
 import shutil
 import pandas as pd
 
-from .cnn import *
+#from .cnn import *
 
 def generate_train_test_data(
     params_time_series="",
@@ -47,7 +47,7 @@ def generate_train_test_data(
         print ("generating signature with window " + str(win) + "...")
         for t in range(test_start, test_end, gap_time):
             matrix_t = np.zeros((sensor_n, sensor_n))
-            if t >= win_size[-2]-1:
+            if t >= win_size[-1]-1:
                 for i in range(sensor_n):
                     for j in range(i, sensor_n):
                         matrix_t[i][j] = np.inner(data[i, t - win:t], data[j, t - win:t])/(win) # rescale by win
@@ -157,3 +157,6 @@ def generate_reconstructed_matrices(
         
         print ("reconstructed matrices generation finish.")
     tf.reset_default_graph()
+
+generate_train_test_data(params_time_series="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/strategy/histories_mscred/history_mscred.csv",
+    test_start=0, test_end=480)

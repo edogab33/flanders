@@ -176,16 +176,17 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
             df.to_csv("strategy/histories/history.csv", index=False, header=False)
 
             # For each client, make signature test matrices
-            mg.generate_train_test_data(test_start=server_round-5, test_end=server_round, step_max=5, win_size=[3,5], params_time_series="strategy/histories/history.csv")
+            mg.generate_train_test_data(test_start=server_round-5, test_end=server_round, step_max=5, win_size=[1], params_time_series="strategy/histories/history.csv")
 
             # Load MSCRED trained model and generate reconstructed matrices
-            mg.generate_reconstructed_matrices(test_start_id=server_round-5, test_end_id=server_round, sensor_n=history.shape[1], step_max=5, scale_n=6,
-                model_path="strategy/mscred/model_ckpt/4/", restore_idx=7)
+            mg.generate_reconstructed_matrices(test_start_id=server_round-5, test_end_id=server_round, sensor_n=history.shape[1], step_max=5, scale_n=3,
+                model_path="strategy/mscred/model_ckpt/6/", restore_idx=27)
 
             # Compute anomaly scores
-            anomaly_scores = np.array(eval.evaluate(threshold=self.threshold))
+            anomaly_scores = np.array(eval.evaluate(threshold=self.threshold, test_matrix_id=server_round-1))
             print(anomaly_scores)
             # Keep only the 'to_keep' clients with lower socres
+            print(np.array(anomaly_scores)[sorted(np.argsort(anomaly_scores)[:self.to_keep])].tolist())
             results = np.array(results)[sorted(np.argsort(anomaly_scores)[:self.to_keep])].tolist()
 
         parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)

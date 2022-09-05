@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import pandas as pd
 from typing import Dict, Optional, Tuple
 from flwr.common import (
     EvaluateIns,
@@ -43,3 +44,36 @@ def evaluate_aggregated(
         return None
     loss, metrics = eval_res
     return loss, metrics
+
+def save_history_average(weights_results):
+    params = np.asarray([])
+    for par, _ in weights_results:
+        flattened_params = np.concatenate([w.flatten() for w in par])
+        print(np.mean(flattened_params))
+        params = np.append(params, np.mean(flattened_params))
+
+    # check that strategy/histoies directory exists and load history if it does
+    history = np.load("strategy/histories/history.npy") if os.path.exists("strategy/histories/history.npy") else np.array([])
+    history = np.vstack((history, params)) if history.size else params
+    np.save("strategy/histories/history.npy", history)
+    
+    df = pd.DataFrame(history.T)
+    df.to_csv("strategy/histories/history.csv", index=False, header=False)
+
+def save_history_average_diff(weights_results):
+    params = np.asarray([])
+    for par, _ in weights_results:
+        flattened_params = np.concatenate([w.flatten() for w in par])
+        print("avg:")
+        print(np.mean(flattened_params))
+        params = np.append(params, np.mean(flattened_params))
+
+    # check that strategy/histoies directory exists and load history if it does
+    history = np.load("strategy/histories/history.npy") if os.path.exists("strategy/histories/history.npy") else np.array([])
+    history = np.vstack((history, np.subtract(history[-1], params))) if history.size else params
+    print("difference of avg:")
+    print(history[-1])
+    np.save("strategy/histories/history.npy", history)
+    
+    df = pd.DataFrame(history.T)
+    df.to_csv("strategy/histories/history.csv", index=False, header=False)

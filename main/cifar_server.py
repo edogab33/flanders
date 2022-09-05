@@ -176,16 +176,16 @@ if __name__ == "__main__":
     }  # each client will get allocated 1 CPUs
 
     # configure the strategy
-    strategy = GlobalFlanders(
+    strategy = Krum(
         fraction_fit=1,
         fraction_evaluate=0,
-        fraction_malicious=0.4,
+        fraction_malicious=0.1,
         min_fit_clients=10,
         min_evaluate_clients=0,
-        magnitude=5,
-        warmup_rounds=5,
-        to_keep=6,
-        threshold=0.005,
+        magnitude=0.5,
+        #warmup_rounds=5,
+        #to_keep=6,
+        #threshold=0.005,
         min_available_clients=pool_size,  # All clients should be available
         on_fit_config_fn=fit_config,
         evaluate_fn=evaluate_fn,  # centralised evaluation of global model

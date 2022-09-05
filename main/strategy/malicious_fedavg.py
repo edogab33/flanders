@@ -4,7 +4,7 @@ import numpy as np
 
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
-from strategy.utilities import evaluate_aggregated
+from strategy.utilities import evaluate_aggregated, save_history_average, save_history_average_diff
 
 from flwr.common import (
     EvaluateIns,
@@ -145,6 +145,8 @@ class MaliciousFedAvg(fl.server.strategy.FedAvg):
             for _, fit_res in results
         ]
         parameters_aggregated = ndarrays_to_parameters(aggregate(weights_results))
+
+        save_history_average_diff(weights_results)
 
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
