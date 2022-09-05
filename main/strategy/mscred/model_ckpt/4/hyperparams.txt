@@ -1,0 +1,6 @@
+win=[3,5]
+sensor_n=10
+gap_time=1
+step_max=5
+
+This is for GlobalFlanders
