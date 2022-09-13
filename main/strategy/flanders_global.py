@@ -152,6 +152,14 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
         if not self.accept_failures and failures:
             return None, {}
 
+        # Save params for initial_parameters
+        #weights_results = [
+        #    (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
+        #    for _, fit_res in results
+        #]
+        #parameters_aggregated = aggregate(weights_results)
+        #np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/strategy/histories/aggregated_params.npy", parameters_aggregated)
+
         weights_results = {
             proxy.cid: np.asarray(parameters_to_ndarrays(fit_res.parameters))
             for proxy, fit_res in results
@@ -170,25 +178,26 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
         history = np.vstack((history, params)) if history.size else params
         np.save("strategy/histories/history.npy", history)
         
-        # TODO: at this point MSCRED can be trained in an online fashion before testing it
         if server_round >= self.warmup_rounds:
             df = pd.DataFrame(history.T)
             df.to_csv("strategy/histories/history.csv", index=False, header=False)
 
             # For each client, make signature test matrices
-            mg.generate_train_test_data(test_start=server_round-5, test_end=server_round, step_max=5, win_size=[1], params_time_series="strategy/histories/history.csv")
+            mg.generate_train_test_data(test_start=server_round-10, test_end=server_round, step_max=5, win_size=[10,30,60], params_time_series="strategy/histories/history.csv",
+                gap_time=1)
 
             # Load MSCRED trained model and generate reconstructed matrices
-            mg.generate_reconstructed_matrices(test_start_id=server_round-5, test_end_id=server_round, sensor_n=history.shape[1], step_max=5, scale_n=3,
-                model_path="strategy/mscred/model_ckpt/6/", restore_idx=27)
+            mg.generate_reconstructed_matrices(test_start_id=server_round-10, test_end_id=server_round, sensor_n=history.shape[1], step_max=5, scale_n=9,
+                model_path="strategy/mscred/model_ckpt/8/", restore_idx=18)
 
             # Compute anomaly scores
             anomaly_scores = np.array(eval.evaluate(threshold=self.threshold, test_matrix_id=server_round-1))
             print(anomaly_scores)
             # Keep only the 'to_keep' clients with lower socres
-            print(np.array(anomaly_scores)[sorted(np.argsort(anomaly_scores)[:self.to_keep])].tolist())
+            print(sorted(np.argsort(anomaly_scores)[:self.to_keep]))
             results = np.array(results)[sorted(np.argsort(anomaly_scores)[:self.to_keep])].tolist()
 
+        # TODO: save history without malicious clients (?)
         parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
         return parameters_aggregated, metrics_aggregated
@@ -200,7 +209,7 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
         if self.evaluate_fn is None:
             # No evaluation function provided
             return None
-        config = {"strategy": "FedMSCRED", "fraction_mal": self.fraction_malicious, "magnitude": self.magnitude, 
+        config = {"strategy": "Flanders", "fraction_mal": self.fraction_malicious, "magnitude": self.magnitude, 
             "frac_fit": self.fraction_fit, "frac_eval": self.fraction_evaluate, "min_fit_clients": self.min_fit_clients,
             "min_eval_clients": self.min_evaluate_clients, "min_available_clients": self.min_available_clients,
             "num_clients": self.sample_size, "num_malicious": self.m}

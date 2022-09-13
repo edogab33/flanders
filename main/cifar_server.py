@@ -10,8 +10,8 @@ import json
 from collections import OrderedDict
 from pathlib import Path
 from typing import Dict, Callable, Optional, Tuple, List
-from cifar_nn.dataset_utils import get_mnist, do_fl_partitioning, get_dataloader
-from cifar_nn.utils import Net, train, test
+from cifar_nn.dataset_utils import get_mnist, do_fl_partitioning, get_dataloader, get_circles
+from cifar_nn.utils import MnistNet, ToyNN, test_toy, train_mnist, test_mnist, train_toy
 
 from torch.utils.data import DataLoader
 from torchvision import transforms
@@ -26,6 +26,11 @@ from strategy.multikrum import MultiKrum
 from strategy.generate_dataset_fg import GenerateDataset
 from flwr.server.strategy.fedavg import FedAvg
 
+from flwr.common import (
+    ndarrays_to_parameters,
+    parameters_to_ndarrays,
+)
+
 parser = argparse.ArgumentParser(description="Flower Simulation with PyTorch")
 
 parser.add_argument("--num_client_cpus", type=int, default=1)
@@ -33,15 +38,11 @@ parser.add_argument("--num_rounds", type=int, default=5)
 
 
 # Flower client, adapted from Pytorch quickstart example
-class FlowerClient(fl.client.NumPyClient):
+class MnistClient(fl.client.NumPyClient):
     def __init__(self, cid: str):
         self.cid = cid
         self.properties: Dict[str, Scalar] = {"tensor_type": "numpy.ndarray"}
-
-        # Instantiate model
-        self.net = Net()
-
-        # Determine device
+        self.net = MnistNet()
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     def get_parameters(self, config):
@@ -53,17 +54,15 @@ class FlowerClient(fl.client.NumPyClient):
         # Load data for this client and get trainloader
         num_workers = len(ray.worker.get_resource_ids()["CPU"])
 
-        trainloader = get_mnist("./cifar_nn/data", 64, self.cid, nb_clients=pool_size, is_train=True, workers=num_workers)
+        trainloader = get_mnist("./cifar_nn/data", 32, self.cid, nb_clients=pool_size, is_train=True, workers=num_workers)
 
         # Send model to device
         self.net.to(self.device)
 
         # Train
-        train(self.net, trainloader, epochs=config["epochs"], device=self.device)
+        train_mnist(self.net, trainloader, epochs=config["epochs"], device=self.device)
 
         new_parameters = self.get_parameters(config={})
-
-        print("CLIENT CONFIG "+str(config))
 
         if "malicious" in config:
             if config["malicious"]:
@@ -73,30 +72,80 @@ class FlowerClient(fl.client.NumPyClient):
                 new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
 
         # Return local model and statistics
-        return new_parameters, len(trainloader.dataset), {}
+        return new_parameters, len(trainloader.dataset), {"malicious": config["malicious"]}
 
     def evaluate(self, parameters, config):
         set_params(self.net, parameters)
 
         # Load data for this client and get trainloader
         num_workers = len(ray.worker.get_resource_ids()["CPU"])
-        testloader = get_mnist("./cifar_nn/data", 64, self.cid, nb_clients=pool_size, is_train=False, workers=num_workers)
+        testloader = get_mnist("./cifar_nn/data", 32, self.cid, nb_clients=pool_size, is_train=False, workers=num_workers)
 
         # Send model to device
         self.net.to(self.device)
 
         # Evaluate
-        loss, accuracy = test(self.net, testloader, device=self.device)
+        loss, accuracy = test_mnist(self.net, testloader, device=self.device)
 
         # Return statistics
         return float(loss), len(testloader), {"accuracy": float(accuracy)}
 
+class ToyClient(fl.client.NumPyClient):
+    def __init__(self, cid: str):
+        self.cid = cid
+        self.properties: Dict[str, Scalar] = {"tensor_type": "numpy.ndarray"}
+        self.net = ToyNN()
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    def get_parameters(self, config):
+        return get_params(self.net)
+
+    def fit(self, parameters, config):
+        set_params(self.net, parameters)
+
+        # Load data for this client and get trainloader
+        num_workers = len(ray.worker.get_resource_ids()["CPU"])
+        trainloader = get_circles(32, n_samples=10000, workers=num_workers, is_train=True)
+
+        # Send model to device
+        self.net.to(self.device)
+
+        # Train
+        train_toy(self.net, trainloader, epochs=config["epochs"], device=self.device)
+
+        new_parameters = self.get_parameters(config={})
+
+        if "malicious" in config:
+            if config["malicious"]:
+                magnitude = config["magnitude"]
+                # Add random perturbation.
+                perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
+                new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
+
+        # Return local model and statistics
+        return new_parameters, len(trainloader.dataset), {"malicious": config["malicious"]}
+
+    def evaluate(self, parameters, config):
+        set_params(self.net, parameters)
+
+        # Load data for this client and get trainloader
+        num_workers = len(ray.worker.get_resource_ids()["CPU"])
+        testloader = get_circles(32, n_samples=10000, workers=num_workers, is_train=False)
+
+        # Send model to device
+        self.net.to(self.device)
+
+        # Evaluate
+        loss, accuracy = test_toy(self.net, testloader, device=self.device)
+
+        # Return statistics
+        return float(loss), len(testloader), {"accuracy": float(accuracy)}
 
 def fit_config(server_round: int) -> Dict[str, Scalar]:
     """Return a configuration with static batch size and (local) epochs."""
     config = {
         "epochs": 1,  # number of local epochs
-        "batch_size": 64,
+        "batch_size": 32,
     }
     return config
 
@@ -113,22 +162,51 @@ def set_params(model: torch.nn.ModuleList, params: List[np.ndarray]):
     model.load_state_dict(state_dict, strict=True)
 
 
-def evaluate_fn(
-    erver_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
+def mnist_evaluate_fn(
+    server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
 ):
-    """Use the entire CIFAR-10 test set for evaluation."""
+    """Use the entire MNIST test set for evaluation."""
 
     # determine device
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    model = Net()
+    model = MnistNet()
     set_params(model, parameters)
     model.to(device)
 
     testset = MNIST("", train=False, download=True, transform=transforms.ToTensor())
-    testloader = DataLoader(testset, batch_size=64, shuffle=False, num_workers=1)
-    loss, accuracy = test(model, testloader, device=device)
+    testloader = DataLoader(testset, batch_size=32, shuffle=False, num_workers=1)
+    loss, accuracy = test_mnist(model, testloader, device=device)
 
+    save_results(loss, accuracy, config=config)
+
+    # Save config
+    config_path = "results/run_"+highest_number+"/config.json"
+    with open(config_path, "w") as f:
+        json.dump(config, f)
+
+    # return statistics
+    return loss, {"accuracy": accuracy}
+
+def circles_evaluate_fn(
+    server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
+):
+    # determine device
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    model = ToyNN()
+    set_params(model, parameters)
+    model.to(device)
+
+    testloader = get_circles(32, n_samples=10000, workers=1, is_train=False)
+    loss, accuracy = test_toy(model, testloader, device=device)
+
+    save_results(loss, accuracy, config=config)
+
+    # return statistics
+    return loss, {"accuracy": accuracy}
+
+def save_results(loss, accuracy, config=None):
     # Save results as npy file
     dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
     longest_string = len(max(dirs, key=len))
@@ -151,10 +229,6 @@ def evaluate_fn(
     with open(config_path, "w") as f:
         json.dump(config, f)
 
-    # return statistics
-    return loss, {"accuracy": accuracy}
-
-
 # Start simulation (a _default server_ will be created)
 # This example does:
 # 1. Downloads CIFAR-10
@@ -175,25 +249,29 @@ if __name__ == "__main__":
         "num_cpus": args.num_client_cpus
     }  # each client will get allocated 1 CPUs
 
+    initial_parameters = ndarrays_to_parameters(np.load("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/strategy/histories/aggregated_params.npy", allow_pickle=True))
+
+
     # configure the strategy
-    strategy = Krum(
+    strategy = MaliciousFedAvg(
         fraction_fit=1,
-        fraction_evaluate=0,
-        fraction_malicious=0.1,
+        fraction_evaluate=0,            # no federated evaluation
+        fraction_malicious=0.0,
         min_fit_clients=10,
         min_evaluate_clients=0,
-        magnitude=0.5,
-        #warmup_rounds=5,
-        #to_keep=6,
+        magnitude=0.1,
+        #warmup_rounds=11,
+        #to_keep=5,
         #threshold=0.005,
         min_available_clients=pool_size,  # All clients should be available
         on_fit_config_fn=fit_config,
-        evaluate_fn=evaluate_fn,  # centralised evaluation of global model
+        evaluate_fn=circles_evaluate_fn,  # centralised evaluation of global model
+        #initial_parameters=initial_parameters
     )
 
     def client_fn(cid: int):
         # create a single client instance
-        return FlowerClient(cid)
+        return ToyClient(cid)
 
     # (optional) specify Ray config
     ray_init_args = {"include_dashboard": False}

@@ -4,7 +4,7 @@ import numpy as np
 
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
-from strategy.utilities import evaluate_aggregated, save_history_average, save_history_average_diff
+from strategy.utilities import evaluate_aggregated, save_history_average, save_history_average_diff, save_history_stack, save_history_avergage_normalized
 
 from flwr.common import (
     EvaluateIns,
@@ -141,12 +141,20 @@ class MaliciousFedAvg(fl.server.strategy.FedAvg):
 
         # Convert results
         weights_results = [
-            (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
+            (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples) 
             for _, fit_res in results
         ]
-        parameters_aggregated = ndarrays_to_parameters(aggregate(weights_results))
 
-        save_history_average_diff(weights_results)
+        #save_history_avergage_normalized(weights_results)
+        save_history_stack(weights_results, server_round)
+
+        # Remove malicious clients from the aggregation
+        #weights_results = [
+        #    (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples) 
+        #    for _, fit_res in results  if fit_res.metrics["malicious"] == False
+        #]
+
+        parameters_aggregated = ndarrays_to_parameters(aggregate(weights_results))
 
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}

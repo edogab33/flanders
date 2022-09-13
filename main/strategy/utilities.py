@@ -1,3 +1,4 @@
+from locale import normalize
 import numpy as np
 import os
 import pandas as pd
@@ -46,9 +47,33 @@ def evaluate_aggregated(
     return loss, metrics
 
 def save_history_average(weights_results):
+    """
+    Compress the weights into a single vector by averaging and save it to a file.
+    """
     params = np.asarray([])
     for par, _ in weights_results:
         flattened_params = np.concatenate([w.flatten() for w in par])
+        print(np.mean(flattened_params))
+        params = np.append(params, np.mean(flattened_params))
+
+    # check that strategy/histoies directory exists and load history if it does
+    history = np.load("strategy/histories/history_avg.npy") if os.path.exists("strategy/histories/history_avg.npy") else np.array([])
+    history = np.vstack((history, params)) if history.size else params
+    np.save("strategy/histories/history_avg.npy", history)
+    
+    df = pd.DataFrame(history.T)
+    df.to_csv("strategy/histories/history_avg.csv", index=False, header=False)
+
+def save_history_avergage_normalized(weights_results):
+    """
+    Compress the weights into a single vector by normalizing values 
+    within the same layer averaging and save it to a file.
+    """
+    params = np.asarray([])
+    for par, _ in weights_results:
+        # min-max normalization within the same layer
+        normalized_params = [(layer)/(np.max(layer)) for layer in par]
+        flattened_params = np.concatenate([w.flatten() for w in normalized_params])
         print(np.mean(flattened_params))
         params = np.append(params, np.mean(flattened_params))
 
@@ -77,3 +102,17 @@ def save_history_average_diff(weights_results):
     
     df = pd.DataFrame(history.T)
     df.to_csv("strategy/histories/history.csv", index=False, header=False)
+
+def save_history_stack(weights_results, round):
+    """
+    Stack the weights into a single vector for each client and save it to a file.
+    """
+    params = np.asarray([])
+    for par, _ in weights_results:
+        flattened_params = np.concatenate([w.flatten() for w in par])
+        params = np.vstack((params, flattened_params)) if params.size else flattened_params
+
+    np.save("strategy/histories/history.npy", params)
+    
+    df = pd.DataFrame(params.T)
+    df.to_csv("strategy/histories/history_stack_r"+str(round)+".csv", index=False, header=False)

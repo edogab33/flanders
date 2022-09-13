@@ -8,7 +8,20 @@ from PIL import Image
 from torchvision.datasets import VisionDataset
 from typing import Callable, Optional, Tuple, Any
 from cifar_nn.common import create_lda_partitions
+from sklearn.datasets import make_circles
+from sklearn.model_selection import train_test_split
 
+class Data(torch.utils.data.Dataset):
+    def __init__(self, X, y):
+        self.X = torch.from_numpy(X.astype(np.float32))
+        self.y = torch.from_numpy(y.astype(np.float32))
+        self.len = self.X.shape[0]
+       
+    def __getitem__(self, index):
+        return self.X[index], self.y[index]
+   
+    def __len__(self):
+        return self.len
 
 def get_dataset(path_to_data: Path, cid: str, partition: str):
 
@@ -228,6 +241,29 @@ def get_mnist(
     )
 
     return loader
+
+def get_circles(
+    batch_size: int,
+    n_samples: int = 1000,
+    workers=1,
+    is_train=True
+):
+    # Create a dataset with 10,000 samples.
+    X, y = make_circles(n_samples = n_samples,
+                        noise= 0.05,
+                        random_state=26)
+    if is_train:
+        X_train, _, y_train, _ = train_test_split(X, y, test_size=.33)
+        # Instantiate training and test data
+        train_data = Data(X_train, y_train)
+        dataloader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True, num_workers=workers)
+    else:
+        _, X_test, _, y_test = train_test_split(X, y, test_size=.33)
+        # Instantiate training and test data
+        test_data = Data(X_test, y_test)
+        dataloader = DataLoader(dataset=test_data, batch_size=batch_size, shuffle=True, num_workers=workers)
+    return dataloader
+
 
 def dataset_partitioner(
     dataset: torch.utils.data.Dataset,
