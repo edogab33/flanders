@@ -107,4 +107,4 @@ def test_toy(model, dataloader, device):
             total += y.size(0)
             correct += (predicted == y.numpy()).sum().item()
     # loss, accuracy
-    return 0, correct // total
+    return 0, correct / total

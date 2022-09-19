@@ -24,6 +24,9 @@ from strategy.flanders_global import GlobalFlanders
 from strategy.krum import Krum
 from strategy.multikrum import MultiKrum
 from strategy.generate_dataset_fg import GenerateDataset
+
+from attacks import gaussian_attack, lie_attack
+
 from flwr.server.strategy.fedavg import FedAvg
 
 from flwr.common import (
@@ -123,7 +126,7 @@ class ToyClient(fl.client.NumPyClient):
                 new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
 
         # Return local model and statistics
-        return new_parameters, len(trainloader.dataset), {"malicious": config["malicious"]}
+        return new_parameters, len(trainloader.dataset), {"malicious": config["malicious"], "cid": self.cid}
 
     def evaluate(self, parameters, config):
         set_params(self.net, parameters)
@@ -179,11 +182,6 @@ def mnist_evaluate_fn(
     loss, accuracy = test_mnist(model, testloader, device=device)
 
     save_results(loss, accuracy, config=config)
-
-    # Save config
-    config_path = "results/run_"+highest_number+"/config.json"
-    with open(config_path, "w") as f:
-        json.dump(config, f)
 
     # return statistics
     return loss, {"accuracy": accuracy}
@@ -253,19 +251,20 @@ if __name__ == "__main__":
 
 
     # configure the strategy
-    strategy = MaliciousFedAvg(
+    strategy = GlobalFlanders(
         fraction_fit=1,
         fraction_evaluate=0,            # no federated evaluation
-        fraction_malicious=0.0,
+        fraction_malicious=0.2,
         min_fit_clients=10,
         min_evaluate_clients=0,
-        magnitude=0.1,
-        #warmup_rounds=11,
-        #to_keep=5,
-        #threshold=0.005,
+        magnitude=20,
+        warmup_rounds=40,
+        to_keep=8,
+        threshold=0.005,
         min_available_clients=pool_size,  # All clients should be available
         on_fit_config_fn=fit_config,
         evaluate_fn=circles_evaluate_fn,  # centralised evaluation of global model
+        attack_fn=lie_attack,
         #initial_parameters=initial_parameters
     )
 

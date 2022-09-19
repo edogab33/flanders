@@ -45,7 +45,7 @@ def generate_train_test_data(
         matrix_all = []
         win = win_size[w]
         print ("generating signature with window " + str(win) + "...")
-        for t in range(test_start, test_end, gap_time):
+        for t in range(train_start, test_end, gap_time):
             matrix_t = np.zeros((sensor_n, sensor_n))
             if t >= win_size[-1]:
                 for i in range(sensor_n):
