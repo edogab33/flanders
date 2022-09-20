@@ -1,8 +1,9 @@
 from locale import normalize
+import string
 import numpy as np
 import os
 import pandas as pd
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple, List
 from flwr.common import (
     EvaluateIns,
     EvaluateRes,
@@ -16,20 +17,97 @@ from flwr.common import (
     parameters_to_ndarrays,
 )
 
-def save_params(parameters_aggregated: Parameters, server_round: int):
-    # TODO: test that:
-    if parameters_aggregated is not None:
-        # Save weights
-        print("Loading previous weights...")
-        # check file exists
-        if os.path.isfile("strategy/util_histories/results.npy"):
-            old_params = np.load("strategy/util_histories/weights.npy")
+def save_params(parameters, cid, remove_last=False):
+        new_params = parameters
+        # Save parameters in client_params/cid_params
+        path = f"clients_params/{cid}_params.npy"
+        if os.path.exists(path):
+            # load old parameters
+            old_params = np.load(path, allow_pickle=True)
+            if remove_last:
+                old_params = old_params[:-1]
+            # add new parameters
+            new_params = np.vstack((old_params, new_params))
+        # save parameters
+        np.save(path, new_params)
+
+def load_all_time_series(dir=""):
+        """
+        Load all time series in order to have a tensor of shape (m,T,n)
+        where:
+        - T := time;
+        - m := number of clients;
+        - n := number of parameters
+        """
+        files = os.listdir(dir)
+        files.sort()
+        data = []
+        for file in files:
+            data.append(np.load(os.path.join(dir, file), allow_pickle=True))
+        return np.array(data)
+
+def load_time_series(dir="", cid=0):
+    """
+    Load time series of client cid in order to have a matrix of shape (T,n)
+    where:
+    - T := time;
+    - n := number of parameters
+    """
+    files = os.listdir(dir)
+    files.sort()
+    data = []
+    for file in files:
+        if file == f"{cid}.npy":
+            data.append(np.load(os.path.join(dir, file), allow_pickle=True))
+    return np.array(data)
+
+def flatten_params(params):
+    """
+    Transform a list of parameters into a single vector of shape (n).
+    """
+    params_flattened = []
+    for i in range(len(params)):
+        params_flattened.append([])
+        for j in range(len(params[i])):
+            p = np.hstack(params[i][j])
+            for k in range(len(p)):
+                params_flattened[i].append(p[k])
+    return np.array(params_flattened)
+
+def update_confusion_matrix(
+    cm:List[List[int]], 
+    ground_truth:Dict[str, bool], 
+    predicted_as_false: List[int], 
+    predicted_as_true: List[int]
+) -> List[List[int]]:
+    """
+    cm := [
+        [TP, FP]
+        [FN, TN]
+    ]
+
+    ground_truth := dictonary of {cid:malicious}
+    predicted_as_false := list of cids predicted as false
+    predicted_as_true := list of cids predicted as true
+    """
+    for cid, label in ground_truth.items():
+        if label == True:
+            if int(cid) in predicted_as_true:
+                cm[0][0] += 1                           # TP
+            elif predicted_as_false:
+                cm[1][0] += 1                           # FN
+            else:
+                print("Error: ground truth is true but client is not predicted as true or false")
+        elif label == False:
+            if int(cid) in predicted_as_true:
+                cm[0][1] += 1                           # FP
+            elif predicted_as_false:
+                cm[1][1] += 1                           # TN
+            else:
+                print("Error: ground truth is false but client is not predicted as true or false")
         else:
-            old_params = np.array([])
-        print(f"Saving round "+ str(server_round) +" weights...")
-        new_params = np.vstack((old_params, parameters_aggregated.tensors))
-        print("new param: "+str(new_params.shape))
-        np.save(f"strategy/util_histories/round-"+str(server_round)+"-weights.npy", new_params)
+            print("Error: ground truth is not true or false")
+    return cm
 
 
 def evaluate_aggregated(

@@ -6,7 +6,14 @@ import matplotlib.pyplot as plt
 
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
-from strategy.utilities import evaluate_aggregated
+from strategy.utilities import (
+    evaluate_aggregated, 
+    save_params, 
+    load_all_time_series, 
+    load_time_series, 
+    update_confusion_matrix, 
+    flatten_params
+)
 
 from flwr.common import (
     EvaluateIns,
@@ -162,19 +169,22 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
             cids = np.append(cids, int(fitres.metrics["cid"]))
             clients_state[fitres.metrics['cid']] = fitres.metrics['malicious']
             params = parameters_to_ndarrays(fitres.parameters)
-            self.save_params(params, fitres.metrics['cid'])
+            save_params(params, fitres.metrics['cid'])
             # Re-arrange results in the same order as clients' cids impose
             ordered_results[int(fitres.metrics['cid'])] = (proxy, fitres)
 
         results = self.attack_fn(ordered_results, clients_state, self.magnitude)
 
         if server_round >= self.warmup_rounds:
-            tensor = self.load_all_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params")
-            M = np.zeros((tensor.shape[0], tensor.shape[1], 30))
+            tensor = load_all_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params")
 
             for i in range(len(tensor)):
-                M[i] = self.flatten_params(tensor[i])
+                flattened = flatten_params(tensor[i])
+                if i == 0:
+                    M = np.zeros((tensor.shape[0], tensor.shape[1], flattened.shape[1]))
+                M[i] = flattened
             M = np.transpose(M, (0, 2, 1))
+            print(M.shape)
             M_hat = M[:,:,-1].copy()
             pred_step = 1
             Mr = self.mar(M[:,:,:-1], pred_step)
@@ -190,12 +200,13 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
             good_clients_idx = sorted(np.argsort(anomaly_scores)[:self.to_keep])
             malicious_clients_idx = sorted(np.argsort(anomaly_scores)[self.to_keep:])
             results = np.array(results)[good_clients_idx].tolist()
+
             print("Clients kept: ")
             print(good_clients_idx)
             print("Clients: ")
             print(clients_state)
 
-            self.update_confusion_matrix(clients_state, good_clients_idx, malicious_clients_idx)
+            self.cm = update_confusion_matrix(self.cm, clients_state, good_clients_idx, malicious_clients_idx)
 
             #fig, ax = plt.subplots(1,3, figsize=(10,5))
             #ax[0].matshow(M_hat)
@@ -208,8 +219,8 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
             # For clients detected as malicious, set their parameters to be the averaged ones in their files
             # otherwise the forecasting in next round won't be reliable
             for idx in malicious_clients_idx:
-                params = self.load_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params", cid=idx)
-                self.save_params(parameters_to_ndarrays(parameters_aggregated), idx, remove_last=True)
+                params = load_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params", cid=idx)
+                save_params(parameters_to_ndarrays(parameters_aggregated), idx, remove_last=True)
         else:
             parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
@@ -315,61 +326,6 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
 
         return loss_aggregated, metrics_aggregated
 
-    def flatten_params(self, params):
-        params_flattened = []
-        for i in range(len(params)):
-            params_flattened.append([])
-            for j in range(len(params[i])):
-                if j == 0 or j == 2:
-                    p = np.hstack(params[i][j])
-                    for k in range(len(p)):
-                        params_flattened[i].append(p[k])
-        return params_flattened
-
-    def load_all_time_series(self, dir=""):
-        """
-        Load all time series in order to have a tensor of shape (T,m,n)
-        where:
-        - T := time;
-        - m := number of clients;
-        - n := number of parameters
-        """
-        files = os.listdir(dir)
-        files.sort()
-        data = []
-        for file in files:
-            data.append(np.load(os.path.join(dir, file), allow_pickle=True))
-        return np.array(data)
-
-    def load_time_series(self, dir="", cid=0):
-        """
-        Load time series of client cid in order to have a matrix of shape (T,n)
-        where:
-        - T := time;
-        - n := number of parameters
-        """
-        files = os.listdir(dir)
-        files.sort()
-        data = []
-        for file in files:
-            if file == f"{cid}.npy":
-                data.append(np.load(os.path.join(dir, file), allow_pickle=True))
-        return np.array(data)    
-
-    def save_params(self, parameters, cid, remove_last=False):
-        new_params = parameters
-        # Save parameters in client_params/cid_params
-        path = f"clients_params/{cid}_params.npy"
-        if os.path.exists(path):
-            # load old parameters
-            old_params = np.load(path, allow_pickle=True)
-            if remove_last:
-                old_params = old_params[:-1]
-            # add new parameters
-            new_params = np.vstack((old_params, new_params))
-        # save parameters
-        np.save(path, new_params)
-
     def mar(self, X, pred_step, maxiter = 100):
         m, n, T = X.shape
         B = np.random.randn(n, n)
@@ -392,28 +348,3 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
         for s in range(pred_step):
             tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
         return tensor[:, :, - pred_step :]
-
-    def update_confusion_matrix(self, ground_truth, predicted_as_false, predicted_as_true):
-        """
-        [
-            [TP, FP]
-            [FN, TN]
-        ]
-        """
-        for cid, label in ground_truth.items():
-            if label == True:
-                if int(cid) in predicted_as_true:
-                    self.cm[0][0] += 1                  # TP
-                elif predicted_as_false:
-                    self.cm[1][0] += 1                  # FN
-                else:
-                    print("Error: ground truth is true but client is not predicted as true or false")
-            elif label == False:
-                if int(cid) in predicted_as_true:
-                    self.cm[0][1] += 1                  # FP
-                elif predicted_as_false:
-                    self.cm[1][1] += 1                  # TN
-                else:
-                    print("Error: ground truth is false but client is not predicted as true or false")
-            else:
-                print("Error: ground truth is not true or false")

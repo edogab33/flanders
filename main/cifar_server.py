@@ -247,7 +247,7 @@ if __name__ == "__main__":
         "num_cpus": args.num_client_cpus
     }  # each client will get allocated 1 CPUs
 
-    initial_parameters = ndarrays_to_parameters(np.load("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/strategy/histories/aggregated_params.npy", allow_pickle=True))
+    #initial_parameters = ndarrays_to_parameters(np.load("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/strategy/histories/aggregated_params.npy", allow_pickle=True))
 
 
     # configure the strategy
@@ -258,7 +258,7 @@ if __name__ == "__main__":
         min_fit_clients=10,
         min_evaluate_clients=0,
         magnitude=20,
-        warmup_rounds=40,
+        warmup_rounds=0,
         to_keep=8,
         threshold=0.005,
         min_available_clients=pool_size,  # All clients should be available
