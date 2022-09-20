@@ -131,7 +131,6 @@ def save_history_average(weights_results):
     params = np.asarray([])
     for par, _ in weights_results:
         flattened_params = np.concatenate([w.flatten() for w in par])
-        print(np.mean(flattened_params))
         params = np.append(params, np.mean(flattened_params))
 
     # check that strategy/histoies directory exists and load history if it does

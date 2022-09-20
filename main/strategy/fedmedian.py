@@ -4,7 +4,14 @@ import numpy as np
 
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
-from strategy.utilities import evaluate_aggregated
+from strategy.utilities import (
+    evaluate_aggregated, 
+    save_params, 
+    load_all_time_series, 
+    load_time_series, 
+    update_confusion_matrix, 
+    flatten_params
+)
 
 from flwr.common import (
     EvaluateIns,
@@ -48,6 +55,7 @@ class FedMedian(fl.server.strategy.FedAvg):
         min_fit_clients: int = 2,
         min_evaluate_clients: int = 2,
         min_available_clients: int = 2,
+        attack_fn: Optional[Callable],
         evaluate_fn: Optional[
             Callable[
                 [int, NDArrays, Dict[str, Scalar]],
@@ -94,6 +102,7 @@ class FedMedian(fl.server.strategy.FedAvg):
         self.aggr_losses = np.array([])
         self.m = []                         # number of malicious clients in each round
         self.sample_size = []               # sample size for each round
+        self.attack_fn = attack_fn
     
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
@@ -141,6 +150,21 @@ class FedMedian(fl.server.strategy.FedAvg):
         #weights_results = [
         #    (params, num) for num, params in results
         #]
+
+        clients_state = {}      # dictionary of clients' representing wether they are malicious or not
+
+        # Save parameters of each client as a time series
+        ordered_results = [0 for _ in range(len(results))]
+        cids = np.array([])
+        for proxy, fitres in results:
+            cids = np.append(cids, int(fitres.metrics["cid"]))
+            clients_state[fitres.metrics['cid']] = fitres.metrics['malicious']
+            params = parameters_to_ndarrays(fitres.parameters)
+            save_params(params, fitres.metrics['cid'])
+            # Re-arrange results in the same order as clients' cids impose
+            ordered_results[int(fitres.metrics['cid'])] = (proxy, fitres)
+
+        results = self.attack_fn(ordered_results, clients_state, self.magnitude)
 
         # Convert results
         weights_results = [

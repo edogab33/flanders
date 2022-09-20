@@ -251,16 +251,16 @@ if __name__ == "__main__":
 
 
     # configure the strategy
-    strategy = GlobalFlanders(
+    strategy = Krum(
         fraction_fit=1,
         fraction_evaluate=0,            # no federated evaluation
-        fraction_malicious=0.2,
+        fraction_malicious=0.5,
         min_fit_clients=10,
         min_evaluate_clients=0,
         magnitude=20,
-        warmup_rounds=0,
-        to_keep=8,
-        threshold=0.005,
+        #warmup_rounds=40,
+        #to_keep=8,
+        #threshold=0.005,
         min_available_clients=pool_size,  # All clients should be available
         on_fit_config_fn=fit_config,
         evaluate_fn=circles_evaluate_fn,  # centralised evaluation of global model

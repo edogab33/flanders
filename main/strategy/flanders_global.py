@@ -184,7 +184,6 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
                     M = np.zeros((tensor.shape[0], tensor.shape[1], flattened.shape[1]))
                 M[i] = flattened
             M = np.transpose(M, (0, 2, 1))
-            print(M.shape)
             M_hat = M[:,:,-1].copy()
             pred_step = 1
             Mr = self.mar(M[:,:,:-1], pred_step)
