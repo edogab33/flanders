@@ -7,6 +7,7 @@ from flwr.common import (
     FitRes,
 )
 from flwr.server.client_proxy import ClientProxy
+from scipy.stats import norm
 
 def gaussian_attack(
         ordered_results:List[Tuple[ClientProxy, FitRes]], 
@@ -28,6 +29,9 @@ def lie_attack(
         states:Dict[str, bool], 
         magnitude:float
     ) -> List[Tuple[ClientProxy, FitRes]]:
+    """
+    Omniscent LIE attack, by Baruch et al. (2019)
+    """
     results = ordered_results.copy()
     params = [parameters_to_ndarrays(fitres.parameters) for _, fitres in results]
     grads_mean = np.mean(params, axis=0)
@@ -35,9 +39,8 @@ def lie_attack(
 
     n = len(ordered_results)
     m = sum(val == True for val in states.values())
-    s = math.ceil((n / 2) + 1) - m
-    z_max = (n - m - s) / (n - m)
-    print("z_max:", z_max)
+    s = math.floor((n / 2) + 1) - m
+    z_max = norm.ppf((n - m - s) / (n - m))
     for proxy, fitres in ordered_results:
         if states[fitres.metrics["cid"]]:
             grads_mean[:] -= z_max * grads_stdev[:]

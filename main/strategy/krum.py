@@ -1,5 +1,6 @@
 import flwr as fl
 import numpy as np
+import matplotlib.pyplot as plt
 
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
@@ -105,6 +106,7 @@ class Krum(fl.server.strategy.FedAvg):
         self.aggr_losses = np.array([])
         self.m = []                                              # number of malicious clients (updates each round)
         self.sample_size = []                                    # number of clients available (updates each round)
+        self.cm = [[0,0],[0,0]]                                     # confusion matrix (updates each round)
         self.attack_fn = attack_fn
     
     def configure_fit(
@@ -174,17 +176,17 @@ class Krum(fl.server.strategy.FedAvg):
         # Convert results
         weights_results = [
             (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
-            for _, fit_res in ordered_results
+            for _, fit_res in results
         ]
 
         #save_history_average(weights_results)
-
+        print("client states ", clients_state)
         parameters_aggregated = ndarrays_to_parameters(self._aggregate_weights(weights_results))
         #np.save("strategy/krum_parameters_aggregated.npy", parameters_to_ndarrays(parameters_aggregated))
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
         if self.fit_metrics_aggregation_fn:
-            fit_metrics = [(res.num_examples, res.metrics) for _, res in ordered_results]
+            fit_metrics = [(res.num_examples, res.metrics) for _, res in results]
             metrics_aggregated = self.fit_metrics_aggregation_fn(fit_metrics)
         elif server_round == 1:  # Only log this warning once
             log(WARNING, "No fit_metrics_aggregation_fn provided")
@@ -220,13 +222,14 @@ class Krum(fl.server.strategy.FedAvg):
         closest_indices = self._get_closest_indices(M, num_closest)         # indices of closest points
         scores = [np.sum(M[i,closest_indices[i]]) for i in range(len(M))]   # scores i->j for each i
         best_index = np.argmin(scores)                                      # index of the best score
+        print("best client: "+str(best_index))
         return weights[best_index]                                          # best weights vector
 
     def _compute_distances(self, weights: NDArrays) -> NDArrays:
         """
         Compute the distance between the vectors.
 
-        Input: weights - list of weights vectors
+        Input: weights - list of weights vectorsa
         Output: distances - matrix M of squared distances between the vectors
         """
         weights = np.array(weights)
@@ -236,8 +239,8 @@ class Krum(fl.server.strategy.FedAvg):
                 d = weights[i] - weights[j]
                 norm_sums = 0
                 for k in d:
-                    norm_sums += np.linalg.norm(k, ord=1)**2
-                M[i, j] = norm_sums
+                    norm_sums += np.linalg.norm(k)
+                M[i, j] = norm_sums**2
         return M
 
     def _get_closest_indices(self, M, num_closest: int) -> List[int]:

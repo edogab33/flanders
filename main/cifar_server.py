@@ -67,12 +67,12 @@ class MnistClient(fl.client.NumPyClient):
 
         new_parameters = self.get_parameters(config={})
 
-        if "malicious" in config:
-            if config["malicious"]:
-                magnitude = config["magnitude"]
-                # Add random perturbation.
-                perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
-                new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
+        #if "malicious" in config:
+        #    if config["malicious"]:
+        #        magnitude = config["magnitude"]
+        #        # Add random perturbation.
+        #        perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
+        #        new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
 
         # Return local model and statistics
         return new_parameters, len(trainloader.dataset), {"malicious": config["malicious"]}
@@ -118,12 +118,12 @@ class ToyClient(fl.client.NumPyClient):
 
         new_parameters = self.get_parameters(config={})
 
-        if "malicious" in config:
-            if config["malicious"]:
-                magnitude = config["magnitude"]
-                # Add random perturbation.
-                perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
-                new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
+        #if "malicious" in config:
+        #    if config["malicious"]:
+        #        magnitude = config["magnitude"]
+        #        # Add random perturbation.
+        #        perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
+        #        new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
 
         # Return local model and statistics
         return new_parameters, len(trainloader.dataset), {"malicious": config["malicious"], "cid": self.cid}
@@ -254,7 +254,7 @@ if __name__ == "__main__":
     strategy = Krum(
         fraction_fit=1,
         fraction_evaluate=0,            # no federated evaluation
-        fraction_malicious=0.5,
+        fraction_malicious=0.4,
         min_fit_clients=10,
         min_evaluate_clients=0,
         magnitude=20,
