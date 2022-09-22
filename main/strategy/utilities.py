@@ -65,14 +65,7 @@ def flatten_params(params):
     """
     Transform a list of parameters into a single vector of shape (n).
     """
-    params_flattened = []
-    for i in range(len(params)):
-        params_flattened.append([])
-        for j in range(len(params[i])):
-            p = np.hstack(params[i][j])
-            for k in range(len(p)):
-                params_flattened[i].append(p[k])
-    return np.array(params_flattened)
+    return np.concatenate(params, axis=None).ravel()
 
 def update_confusion_matrix(
     cm:List[List[int]], 

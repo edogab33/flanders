@@ -25,7 +25,7 @@ from strategy.krum import Krum
 from strategy.multikrum import MultiKrum
 from strategy.generate_dataset_fg import GenerateDataset
 
-from attacks import gaussian_attack, lie_attack
+from attacks import fang_attack, gaussian_attack, lie_attack, pga_attack
 
 from flwr.server.strategy.fedavg import FedAvg
 
@@ -258,13 +258,13 @@ if __name__ == "__main__":
         min_fit_clients=10,
         min_evaluate_clients=0,
         magnitude=20,
-        #warmup_rounds=40,
+        #warmup_rounds=3,
         #to_keep=8,
         #threshold=0.005,
         min_available_clients=pool_size,  # All clients should be available
         on_fit_config_fn=fit_config,
         evaluate_fn=circles_evaluate_fn,  # centralised evaluation of global model
-        attack_fn=lie_attack,
+        attack_fn=fang_attack,
         #initial_parameters=initial_parameters
     )
 

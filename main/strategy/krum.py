@@ -104,10 +104,13 @@ class Krum(fl.server.strategy.FedAvg):
         self.fraction_malicious = fraction_malicious
         self.magnitude = magnitude
         self.aggr_losses = np.array([])
-        self.m = []                                              # number of malicious clients (updates each round)
-        self.sample_size = []                                    # number of clients available (updates each round)
+        self.m = []                                                 # number of malicious clients (updates each round)
+        self.sample_size = []                                       # number of clients available (updates each round)
         self.cm = [[0,0],[0,0]]                                     # confusion matrix (updates each round)
-        self.attack_fn = attack_fn
+        self.attack_fn = attack_fn                                  # attack function
+        self.aggregated_parameters = []                             # global model (updates each round)
+        self.malicious_selected = False                             # selected malicious parameters? (updates each round)
+        self.old_lambda = 0.0                                       # lambda from previous round (updates each round)
     
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
@@ -158,7 +161,7 @@ class Krum(fl.server.strategy.FedAvg):
         #    for _, fit_res in results
         #]
 
-        clients_state = {}      # dictionary of clients' representing wether they are malicious or not
+        clients_state = {}      # dictionary of clients representing wether they are malicious or not
 
         # Save parameters of each client as a time series
         ordered_results = [0 for _ in range(len(results))]
@@ -166,22 +169,39 @@ class Krum(fl.server.strategy.FedAvg):
         for proxy, fitres in results:
             cids = np.append(cids, int(fitres.metrics["cid"]))
             clients_state[fitres.metrics['cid']] = fitres.metrics['malicious']
-            params = parameters_to_ndarrays(fitres.parameters)
+            params = flatten_params(parameters_to_ndarrays(fitres.parameters))
             save_params(params, fitres.metrics['cid'])
             # Re-arrange results in the same order as clients' cids impose
             ordered_results[int(fitres.metrics['cid'])] = (proxy, fitres)
 
-        results = self.attack_fn(ordered_results, clients_state, self.magnitude)
+        if self.aggregated_parameters == []:
+            # Initialize aggregated parameters if is the first round
+            self.aggregated_parameters, _ = self._aggregate_weights(
+                [
+                    (parameters_to_ndarrays(fitres.parameters), fitres.num_examples) 
+                    for _, fitres in ordered_results if clients_state[fitres.metrics["cid"]]
+                ]
+            )
+
+        results, others = self.attack_fn(
+            ordered_results, clients_state, magnitude=self.magnitude,
+            w_re=self.aggregated_parameters, malicious_selected=self.malicious_selected,
+            threshold=1e-5, d=params.shape[0], old_lambda=self.old_lambda
+        )
+        self.old_lambda = others.get('lambda', 0.0)
 
         # Convert results
         weights_results = [
-            (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
-            for _, fit_res in results
+            (parameters_to_ndarrays(fitres.parameters), fitres.num_examples)
+            for _, fitres in results
         ]
 
         #save_history_average(weights_results)
         print("client states ", clients_state)
-        parameters_aggregated = ndarrays_to_parameters(self._aggregate_weights(weights_results))
+        self.aggregated_parameters, selected_cid = self._aggregate_weights(weights_results)
+        self.malicious_selected = clients_state[str(selected_cid)]
+        print("best client: "+str(selected_cid))
+
         #np.save("strategy/krum_parameters_aggregated.npy", parameters_to_ndarrays(parameters_aggregated))
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
@@ -191,7 +211,7 @@ class Krum(fl.server.strategy.FedAvg):
         elif server_round == 1:  # Only log this warning once
             log(WARNING, "No fit_metrics_aggregation_fn provided")
 
-        return parameters_aggregated, metrics_aggregated
+        return ndarrays_to_parameters(self.aggregated_parameters), metrics_aggregated
 
     def evaluate(
         self, server_round: int, parameters: Parameters
@@ -216,14 +236,14 @@ class Krum(fl.server.strategy.FedAvg):
 
         Output: the best parameters vector.
         """
-        weights = [weights for weights, _ in results]                       # list of weights
+        weights = [np.array(w) for w, _ in results]             # list of weights
         M = self._compute_distances(weights)                                # matrix of distances
         num_closest = len(weights) - self.m[-1] - 2                         # number of closest points to use
         closest_indices = self._get_closest_indices(M, num_closest)         # indices of closest points
         scores = [np.sum(M[i,closest_indices[i]]) for i in range(len(M))]   # scores i->j for each i
+        print("scores _aggregate_weights: "+str(scores))
         best_index = np.argmin(scores)                                      # index of the best score
-        print("best client: "+str(best_index))
-        return weights[best_index]                                          # best weights vector
+        return weights[best_index], best_index                              # best weights vector
 
     def _compute_distances(self, weights: NDArrays) -> NDArrays:
         """

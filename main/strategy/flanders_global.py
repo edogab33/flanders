@@ -118,7 +118,9 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
         self.m = []                                                 # number of malicious clients (updates each round)
         self.sample_size = []                                       # number of clients available (updates each round)
         self.cm = [[0,0],[0,0]]                                     # confusion matrix (updates each round)
-        self.attack_fn = attack_fn                                  # attack function performed by malicious clients
+        self.attack_fn = attack_fn                                  # attack function
+        self.aggregated_parameters = []                             # global model (updates each round)
+        self.malicious_selected = False                             # selected malicious parameters? (updates each round)
     
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
@@ -168,21 +170,19 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
         for proxy, fitres in results:
             cids = np.append(cids, int(fitres.metrics["cid"]))
             clients_state[fitres.metrics['cid']] = fitres.metrics['malicious']
-            params = parameters_to_ndarrays(fitres.parameters)
+            params = flatten_params(parameters_to_ndarrays(fitres.parameters))
             save_params(params, fitres.metrics['cid'])
             # Re-arrange results in the same order as clients' cids impose
             ordered_results[int(fitres.metrics['cid'])] = (proxy, fitres)
 
-        results = self.attack_fn(ordered_results, clients_state, self.magnitude)
+        results = self.attack_fn(
+            ordered_results, clients_state, magnitude=self.magnitude,
+            w_re=self.aggregated_parameters, malicious_selected=self.malicious_selected,
+            threshold=1e-5, d=params.shape[0]
+        )
 
         if server_round >= self.warmup_rounds:
-            tensor = load_all_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params")
-
-            for i in range(len(tensor)):
-                flattened = flatten_params(tensor[i])
-                if i == 0:
-                    M = np.zeros((tensor.shape[0], tensor.shape[1], flattened.shape[1]))
-                M[i] = flattened
+            M = load_all_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params")
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1
@@ -219,7 +219,7 @@ class GlobalFlanders(fl.server.strategy.FedAvg):
             # otherwise the forecasting in next round won't be reliable
             for idx in malicious_clients_idx:
                 params = load_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params", cid=idx)
-                save_params(parameters_to_ndarrays(parameters_aggregated), idx, remove_last=True)
+                save_params(flatten_params(parameters_to_ndarrays(parameters_aggregated)), idx, remove_last=True)
         else:
             parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
