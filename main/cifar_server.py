@@ -34,6 +34,8 @@ from flwr.common import (
     parameters_to_ndarrays,
 )
 
+from strategy.trimmedmean import TrimmedMean
+
 parser = argparse.ArgumentParser(description="Flower Simulation with PyTorch")
 
 parser.add_argument("--num_client_cpus", type=int, default=1)
@@ -227,16 +229,6 @@ def save_results(loss, accuracy, config=None):
     with open(config_path, "w") as f:
         json.dump(config, f)
 
-# Start simulation (a _default server_ will be created)
-# This example does:
-# 1. Downloads CIFAR-10
-# 2. Partitions the dataset into N splits, where N is the total number of
-#    clients. We refere to this as `pool_size`. The partition can be IID or non-IID
-# 3. Starts a simulation where a % of clients are sample each round.
-# 4. After the M rounds end, the global model is evaluated on the entire testset.
-#    Also, the global model is evaluated on the valset partition residing in each
-#    client. This is useful to get a sense on how well the global model can generalise
-#    to each client's data.
 if __name__ == "__main__":
 
     # parse input arguments
@@ -251,10 +243,10 @@ if __name__ == "__main__":
 
 
     # configure the strategy
-    strategy = MultiKrum(
+    strategy = TrimmedMean(
         fraction_fit=1,
         fraction_evaluate=0,            # no federated evaluation
-        fraction_malicious=0.2,
+        fraction_malicious=0.0,
         min_fit_clients=10,
         min_evaluate_clients=0,
         magnitude=20,
@@ -264,7 +256,7 @@ if __name__ == "__main__":
         min_available_clients=pool_size,  # All clients should be available
         on_fit_config_fn=fit_config,
         evaluate_fn=circles_evaluate_fn,  # centralised evaluation of global model
-        attack_fn=lie_attack,
+        attack_fn=fang_attack,
         #initial_parameters=initial_parameters
     )
 

@@ -1,4 +1,6 @@
 import flwr as fl
+import numpy as np
+from functools import reduce
 
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
@@ -25,8 +27,10 @@ connected to the server. `min_available_clients` must be set to a value larger
 than or equal to the values of `min_fit_clients` and `min_evaluate_clients`.
 """
 
-class MaliciousFedAvg(RobustStrategy):
-    """Configurable MaliciousFedAvg strategy implementation."""
+class TrimmedMean(RobustStrategy):
+    """
+    Configurable Trimmed Mean strategy.
+    """
 
     # pylint: disable=too-many-arguments,too-many-instance-attributes
     def __init__(
@@ -90,20 +94,45 @@ class MaliciousFedAvg(RobustStrategy):
         results: List[Tuple[ClientProxy, FitRes]],
         failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
-        """Aggregate fit results using weighted average."""
+        """Aggregate fit results using median on weights."""
+
+        if not results:
+            return None, {}
+        # Do not aggregate if there are failures and failures are not accepted
+        if not self.accept_failures and failures:
+            return None, {}
+
+        # For test_strategy
+        #weights_results = [
+        #    (fit_res.parameters, fit_res.num_examples)
+        #    for _, fit_res in results
+        #]
 
         results, others, clients_state = super().init_fit(server_round, results, failures)
-
-        # Convert results
+        
         weights_results = [
-            (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples) 
+            (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
             for _, fit_res in results
         ]
 
-        #save_history_avergage_normalized(weights_results)
-        #save_history_stack(weights_results, server_round)
+        # Compute median of the parameters
+        w_median = self._compute_median(weights_results)
+        
+        # Take the k closest parameters around w_median
+        dist_w = np.zeros((len(weights_results)))
+        for i in range(len(weights_results)):
+            dist = [
+                weights_results[i][0][j] - w_median[j] for j in range(len(self.aggregated_parameters))
+            ]
+            norm_sums = 0
+            for k in dist:
+                norm_sums += np.linalg.norm(k)
+            dist_w[i] = norm_sums**2
+        closest_idx = np.argsort(dist_w)[:self.to_keep]
+        closest_w = [weights_results[i] for i in closest_idx]
 
-        parameters_aggregated = ndarrays_to_parameters(aggregate(weights_results))
+        # Compute the mean of the k closest parameters
+        parameters_aggregated = ndarrays_to_parameters(aggregate(closest_w))
 
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
@@ -114,3 +143,9 @@ class MaliciousFedAvg(RobustStrategy):
             log(WARNING, "No fit_metrics_aggregation_fn provided")
 
         return parameters_aggregated, metrics_aggregated
+
+    def _compute_median(self, results: List[Tuple[int, float]]) -> NDArrays:
+        """Compute median of weights."""
+        weights = [weights for weights, _ in results]   # list of weights
+        median = [[np.apply_along_axis(np.median, 0, l2) for l2 in zip(*l)] for l in zip(*weights)]
+        return median

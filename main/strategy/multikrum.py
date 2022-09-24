@@ -110,7 +110,7 @@ class MultiKrum(RobustStrategy):
         #    for _, fit_res in results
         #]
 
-        results, others, clients_state = super().init_fit(server_round, results, failures)        # Convert results
+        results, others, clients_state = super().init_fit(server_round, results, failures)
         
         weights_results = [
             (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)

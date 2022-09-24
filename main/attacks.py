@@ -101,7 +101,7 @@ def fang_attack(
         # Compute max distance from w_re
         dist_wre = np.zeros((len(benign)))
         for i in range(len(benign)):
-            dist = benign[i][0] - w_re
+            dist = [benign[i][0][j] - w_re[j] for j in range(d)]
             norm_sums = 0
             for k in dist:
                 norm_sums += np.linalg.norm(k)

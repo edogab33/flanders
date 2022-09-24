@@ -143,6 +143,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
         """Initialize the robust aggregation and apply the attack function."""
+
         print("FAILURES: ")
         print(failures)
         if not results:
@@ -171,17 +172,16 @@ class RobustStrategy(fl.server.strategy.FedAvg):
             ordered_results[int(fitres.metrics['cid'])] = (proxy, fitres)
 
         if self.aggregated_parameters == []:
-            # Initialize aggregated parameters if is the first round
-            input = [
-                (parameters_to_ndarrays(fitres.parameters), fitres.num_examples) 
-                for _, fitres in ordered_results if clients_state[fitres.metrics["cid"]]
-            ]
-            self.aggregated_parameters, _ = input
+            # Initialize aggregated_parameters if is the first round
+            for key, val in clients_state.items():
+                if val == False:
+                    self.aggregated_parameters = parameters_to_ndarrays(ordered_results[int(key)][1].parameters)
+                    break
 
         results, others = self.attack_fn(
             ordered_results, clients_state, magnitude=self.magnitude,
             w_re=self.aggregated_parameters, malicious_selected=self.malicious_selected,
-            threshold=1e-5, d=params.shape[0], old_lambda=self.old_lambda
+            threshold=1e-5, d=len(self.aggregated_parameters), old_lambda=self.old_lambda
         )
         self.old_lambda = others.get('lambda', 0.0)
 
