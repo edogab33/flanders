@@ -3,6 +3,4 @@ An aggregation function based on MSCRED to detect malicious clients attempting t
 
 # Run
 
-To test the code configurate the strategy and the server in server.py and run `python server.py` or `sh run.sh`. 
-
-There is a bug now which often causes the simulation to stop working in the middle of a round.
+To test the code configurate the strategy and the server in server.py and run `python server.py --num_rounds=[x]`
