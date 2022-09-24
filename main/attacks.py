@@ -38,7 +38,6 @@ def lie_attack(
     results = ordered_results.copy()
     params = [parameters_to_ndarrays(fitres.parameters) for _, fitres in results]
     grads_mean = np.mean(params, axis=0)
-    print(grads_mean)
     grads_stdev = np.var(params, axis=0) ** 0.5
 
     n = len(ordered_results)                                        # number of clients

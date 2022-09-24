@@ -3,28 +3,18 @@ import numpy as np
 import os
 import pandas as pd
 
-from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
-from strategy.utilities import evaluate_aggregated
+from strategy.robustrategy import RobustStrategy
 
 from flwr.common import (
-    EvaluateIns,
-    EvaluateRes,
-    FitIns,
     FitRes,
     MetricsAggregationFn,
     NDArrays,
     Parameters,
     Scalar,
-    ndarrays_to_parameters,
     parameters_to_ndarrays,
 )
-from flwr.common.logger import log
-from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
-
-from flwr.server.strategy.aggregate import aggregate, weighted_loss_avg
-from flwr.server.strategy.strategy import Strategy
 
 WARNING_MIN_AVAILABLE_CLIENTS_TOO_LOW = """
 Setting `min_available_clients` lower than `min_fit_clients` or
@@ -33,8 +23,7 @@ connected to the server. `min_available_clients` must be set to a value larger
 than or equal to the values of `min_fit_clients` and `min_evaluate_clients`.
 """
 
-
-class GenerateDataset(fl.server.strategy.FedAvg):
+class GenerateDataset(RobustStrategy):
     """
     Aggregation function based on MSCRED anomaly detection.
     This is the Global Approach, where parameters trained by 
@@ -52,6 +41,7 @@ class GenerateDataset(fl.server.strategy.FedAvg):
         threshold: float = 0.005,
         warmup_rounds: int = 1,
         to_keep: int = 1,
+        attack_fn: Optional[Callable],
         min_fit_clients: int = 2,
         min_evaluate_clients: int = 2,
         min_available_clients: int = 2,
@@ -87,52 +77,15 @@ class GenerateDataset(fl.server.strategy.FedAvg):
                 accept_failures = accept_failures,
                 initial_parameters = initial_parameters,
                 fit_metrics_aggregation_fn = fit_metrics_aggregation_fn,
-                evaluate_metrics_aggregation_fn = evaluate_metrics_aggregation_fn
+                evaluate_metrics_aggregation_fn = evaluate_metrics_aggregation_fn,
+                fraction_malicious = fraction_malicious,
+                magnitude = magnitude,
+                warmup_rounds = warmup_rounds,
+                to_keep = to_keep,
+                attack_fn = attack_fn,
+                threshold = threshold
             )
-
-        if (
-            self.min_fit_clients > self.min_available_clients
-            or self.min_evaluate_clients > self.min_available_clients
-        ):
-            log(WARNING, WARNING_MIN_AVAILABLE_CLIENTS_TOO_LOW)
-
-        self.fraction_malicious = fraction_malicious
-        self.magnitude = magnitude
-        self.threshold = threshold
-        self.warmup_rounds = warmup_rounds                          # number of rounds needed to prepare the time series
-        self.to_keep = to_keep                                      # number of clients to keep in the aggregation
-        self.aggr_losses = np.array([])
-        self.m = []                                                 # number of malicious clients (updates each round)
-        self.sample_size = []                                       # number of clients available (updates each round)
     
-    def configure_fit(
-        self, server_round: int, parameters: Parameters, client_manager: ClientManager
-    ) -> List[Tuple[ClientProxy, FitIns]]:
-        
-        """Configure the next round of training."""
-        config = {}
-        if self.on_fit_config_fn is not None:
-            config = self.on_fit_config_fn(server_round)
-
-        sample_size, min_num_clients = self.num_fit_clients(
-            client_manager.num_available()
-        )
-        self.sample_size.append(sample_size)
-        clients = client_manager.sample(
-            num_clients=sample_size, min_num_clients=min_num_clients
-        )
-
-        self.m.append(int(sample_size * self.fraction_malicious))
-
-        print("sample size: "+str(sample_size))
-        print("num m: "+str(self.m[-1]))
-
-        fit_ins_array = [
-            FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude}) if idx < self.m[-1] else dict(config, **{"malicious": False}))
-            for idx,_ in enumerate(clients)]
-
-        return [(client, fit_ins_array[idx]) for idx,client in enumerate(clients)]
-
     def aggregate_fit(
         self,
         server_round: int,
@@ -140,12 +93,7 @@ class GenerateDataset(fl.server.strategy.FedAvg):
         failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
         """Apply MSCRED to exclude malicious clients from the average."""
-        print("round: "+str(server_round))
-        if not results:
-            return None, {}
-        # Do not aggregate if there are failures and failures are not accepted
-        if not self.accept_failures and failures:
-            return None, {}
+        results, others, clients_state = super().init_fit(server_round, results, failures)
 
         weights_results = {
             proxy.cid: np.asarray(parameters_to_ndarrays(fit_res.parameters))
@@ -169,39 +117,3 @@ class GenerateDataset(fl.server.strategy.FedAvg):
         parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
         return parameters_aggregated, metrics_aggregated
-
-    def evaluate(
-        self, server_round: int, parameters: Parameters
-    ) -> Optional[Tuple[float, Dict[str, Scalar]]]:
-        """Evaluate model parameters using an evaluation function."""
-        if self.evaluate_fn is None:
-            # No evaluation function provided
-            return None
-        config = {"strategy": "FedMSCRED", "fraction_mal": self.fraction_malicious, "magnitude": self.magnitude, 
-            "frac_fit": self.fraction_fit, "frac_eval": self.fraction_evaluate, "min_fit_clients": self.min_fit_clients,
-            "min_eval_clients": self.min_evaluate_clients, "min_available_clients": self.min_available_clients,
-            "num_clients": self.sample_size, "num_malicious": self.m}
-        eval_res = evaluate_aggregated(self.evaluate_fn, server_round, parameters, config)
-        if eval_res is None:
-            return None
-        loss, metrics = eval_res
-        return loss, metrics
-
-    def aggregate_evaluate(
-        self,
-        server_round: int,
-        results: List[Tuple[ClientProxy, EvaluateRes]],
-        failures: List[Union[Tuple[ClientProxy, EvaluateRes], BaseException]],
-    ) -> Tuple[Optional[float], Dict[str, Scalar]]:
-        """Aggregate evaluation losses using weighted average."""
-        if not results:
-            return None, {}
-        # Do not aggregate if there are failures and failures are not accepted
-        if not self.accept_failures and failures:
-            return None, {}
-
-        loss_aggregated, metrics_aggregated = super().aggregate_evaluate(server_round, results, failures)
-
-        self.aggr_losses = np.append(loss_aggregated, self.aggr_losses)
-
-        return loss_aggregated, metrics_aggregated
