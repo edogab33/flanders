@@ -63,7 +63,7 @@ def load_time_series(dir="", cid=0):
 
 def flatten_params(params):
     """
-    Transform a list of parameters into a single vector of shape (n).
+    Transform a list of (layers-)parameters into a single vector of shape (n).
     """
     return np.concatenate(params, axis=None).ravel()
 

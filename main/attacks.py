@@ -11,6 +11,13 @@ from flwr.common import (
 from flwr.server.client_proxy import ClientProxy
 from scipy.stats import norm
 
+def no_attack(
+        ordered_results:List[Tuple[ClientProxy, FitRes]], 
+        states:Dict[str, bool], 
+        **kwargs
+    ) -> List[Tuple[ClientProxy, FitRes]]:
+    return ordered_results, {}
+
 def gaussian_attack(
         ordered_results:List[Tuple[ClientProxy, FitRes]], 
         states:Dict[str, bool], 
@@ -46,7 +53,7 @@ def lie_attack(
     z_max = norm.ppf((n - m - s) / (n - m))
     for proxy, fitres in ordered_results:
         if states[fitres.metrics["cid"]]:
-            grads_mean[:] -= z_max * grads_stdev[:]
+            grads_mean[:] = grads_mean[:] - (z_max * grads_stdev[:])
             fitres.parameters = ndarrays_to_parameters(grads_mean)
             results[int(fitres.metrics['cid'])] = (proxy, fitres)
     return results, {}

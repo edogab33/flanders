@@ -16,6 +16,7 @@ from cifar_nn.utils import MnistNet, ToyNN, test_toy, train_mnist, test_mnist, t
 from torch.utils.data import DataLoader
 from torchvision import transforms
 from torchvision.datasets import MNIST
+from strategy.fltrust import FLTrust
 
 from strategy.malicious_fedavg import MaliciousFedAvg
 from strategy.fedmedian import FedMedian
@@ -25,7 +26,7 @@ from strategy.krum import Krum
 from strategy.multikrum import MultiKrum
 from strategy.generate_dataset_fg import GenerateDataset
 
-from attacks import fang_attack, gaussian_attack, lie_attack, pga_attack
+from attacks import fang_attack, gaussian_attack, lie_attack, no_attack, pga_attack
 
 from flwr.server.strategy.fedavg import FedAvg
 
@@ -243,10 +244,10 @@ if __name__ == "__main__":
 
 
     # configure the strategy
-    strategy = TrimmedMean(
+    strategy = MaliciousFedAvg(
         fraction_fit=1,
         fraction_evaluate=0,            # no federated evaluation
-        fraction_malicious=0.0,
+        fraction_malicious=0.4,
         min_fit_clients=10,
         min_evaluate_clients=0,
         magnitude=20,
@@ -256,7 +257,7 @@ if __name__ == "__main__":
         min_available_clients=pool_size,  # All clients should be available
         on_fit_config_fn=fit_config,
         evaluate_fn=circles_evaluate_fn,  # centralised evaluation of global model
-        attack_fn=fang_attack,
+        attack_fn=lie_attack,
         #initial_parameters=initial_parameters
     )
 

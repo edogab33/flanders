@@ -9,6 +9,7 @@ from strategy.utilities import (
     save_params, 
     flatten_params
 )
+from cifar_nn.dataset_utils import get_circles
 
 from flwr.common import (
     FitIns,
@@ -23,7 +24,6 @@ from flwr.common import (
 from flwr.common.logger import log
 from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
-
 from flwr.server.strategy.aggregate import aggregate
 
 WARNING_MIN_AVAILABLE_CLIENTS_TOO_LOW = """
@@ -53,6 +53,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         min_fit_clients: int = 2,
         min_evaluate_clients: int = 2,
         min_available_clients: int = 2,
+        dataset_name: str = "circles",
         evaluate_fn: Optional[
             Callable[
                 [int, NDArrays, Dict[str, Scalar]],
@@ -102,11 +103,13 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         self.cm = [[0,0],[0,0]]                                     # confusion matrix (updates each round)
         self.attack_fn = attack_fn                                  # attack function
         self.aggregated_parameters = []                             # global model (updates each round)
-        self.malicious_selected = False                             # selected malicious parameters? (updates each round)
+        self.malicious_selected = False                             # selected malicious parameters in this round? (updates each round)
         self.old_lambda = 0.0                                       # lambda from previous round (updates each round)
         self.warmup_rounds = warmup_rounds                          # number of warmup rounds
         self.to_keep = to_keep                                      # number of cliernts to aggregate
         self.threshold = threshold                                  # threshold for lambda
+        self.dataset_name = dataset_name.lower()                    # dataset name used by clients (circles, mnist, cifar10, etc.)
+        self.root_dataset = None                                    # root dataset used by the server (circles, mnist, cifar10, etc.)
 
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
@@ -172,11 +175,20 @@ class RobustStrategy(fl.server.strategy.FedAvg):
             ordered_results[int(fitres.metrics['cid'])] = (proxy, fitres)
 
         if self.aggregated_parameters == []:
-            # Initialize aggregated_parameters if is the first round
+            # Initialize aggregated_parameters if it is the first round
             for key, val in clients_state.items():
                 if val == False:
                     self.aggregated_parameters = parameters_to_ndarrays(ordered_results[int(key)][1].parameters)
                     break
+
+        if self.root_dataset == None:    
+            # Load the root dataset
+            if self.dataset_name == "circles":
+                self.root_dataset = get_circles(32, n_samples=10000, is_train=True)
+            elif self.dataset_name == "mnist":
+                pass
+            elif self.dataset_name == "cifar10":
+                pass
 
         results, others = self.attack_fn(
             ordered_results, clients_state, magnitude=self.magnitude,
