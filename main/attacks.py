@@ -128,6 +128,7 @@ def fang_attack(
     for i in range(len(w_re)):
         magnitude.append(np.sign(w_re[i]) * l)
     w_1 = w_re + magnitude                                               # new corrupted update
+    print("w_1", len(w_1))
     corrupted_params = ndarrays_to_parameters(w_1)
 
     # Set corrupted clients' updates to w_1

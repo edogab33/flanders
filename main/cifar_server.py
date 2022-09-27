@@ -244,7 +244,7 @@ if __name__ == "__main__":
 
 
     # configure the strategy
-    strategy = MaliciousFedAvg(
+    strategy = Krum(
         fraction_fit=1,
         fraction_evaluate=0,            # no federated evaluation
         fraction_malicious=0.4,
@@ -257,7 +257,7 @@ if __name__ == "__main__":
         min_available_clients=pool_size,  # All clients should be available
         on_fit_config_fn=fit_config,
         evaluate_fn=circles_evaluate_fn,  # centralised evaluation of global model
-        attack_fn=lie_attack,
+        attack_fn=fang_attack,
         #initial_parameters=initial_parameters
     )
 

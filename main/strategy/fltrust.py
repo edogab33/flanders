@@ -117,7 +117,7 @@ class FLTrust(RobustStrategy):
                 g0 = weights_results[int(key)][0]
                 break
         g0 = self.aggregated_parameters
-        
+        print("client state: ", clients_state)
         # Compute cosine similarities between g0 and all other clients
         c_i = []
         flattened = [flatten_params(x[0]) for x in weights_results]
@@ -140,12 +140,12 @@ class FLTrust(RobustStrategy):
                 gi_norm += np.linalg.norm(layer)
             print("gi_norm: ", gi_norm)
             normalized_params[i] = ([(g0_norm / gi_norm) * layer for layer in weights_results[i][0]], trust_scores[i])
-
+        print(trust_scores)
         # Aggregate parameters weighted by trust scores
         update = aggregate(normalized_params)
-        print("update", update)
+        #print("update", update)
         for layer in range(len(update)):
-            self.aggregated_parameters[layer] = self.aggregated_parameters[layer] + (update[layer] * 1)
+            self.aggregated_parameters[layer] = self.aggregated_parameters[layer] + update[layer]
         print("self.aggregated_parameters", self.aggregated_parameters)
 
         # Aggregate custom metrics if aggregation fn was provided
