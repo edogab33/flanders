@@ -246,7 +246,7 @@ if __name__ == "__main__":
     # configure the strategy
     strategy = Krum(
         fraction_fit=1,
-        fraction_evaluate=0,            # no federated evaluation
+        fraction_evaluate=0,                # no federated evaluation
         fraction_malicious=0.4,
         min_fit_clients=10,
         min_evaluate_clients=0,
@@ -254,9 +254,9 @@ if __name__ == "__main__":
         warmup_rounds=3,
         to_keep=8,
         threshold=0.005,
-        min_available_clients=pool_size,  # All clients should be available
+        min_available_clients=pool_size,    # All clients should be available
         on_fit_config_fn=fit_config,
-        evaluate_fn=circles_evaluate_fn,  # centralised evaluation of global model
+        evaluate_fn=circles_evaluate_fn,    # centralised evaluation of global model
         attack_fn=fang_attack,
         #initial_parameters=initial_parameters
     )

@@ -113,8 +113,9 @@ def fang_attack(
             for k in dist:
                 norm_sums += np.linalg.norm(k)
             dist_wre[i] = norm_sums**2
-        print("dist_wre", dist_wre)
+
         max_dist = np.max(dist_wre) / np.sqrt(d)
+        print("dist_wre", dist_wre)
         print("max dist: ", max_dist)
 
         l = min_dist + max_dist                                         # lambda
@@ -122,13 +123,14 @@ def fang_attack(
         l = old_lambda
         if old_lambda > threshold and malicious_selected == False:
             l = old_lambda * 0.5
+    print("lambda: ", l)
 
     # Compute sign vector s
     magnitude = []
     for i in range(len(w_re)):
         magnitude.append(np.sign(w_re[i]) * l)
-    w_1 = w_re + magnitude                                               # new corrupted update
-    print("w_1", len(w_1))
+
+    w_1 = [w_re[i] - magnitude[i] for i in range(len(w_re))]            # corrupted model
     corrupted_params = ndarrays_to_parameters(w_1)
 
     # Set corrupted clients' updates to w_1
