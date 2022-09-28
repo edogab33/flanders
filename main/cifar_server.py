@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Dict, Callable, Optional, Tuple, List
 from cifar_nn.dataset_utils import get_mnist, do_fl_partitioning, get_dataloader, get_circles
 from cifar_nn.utils import MnistNet, ToyNN, test_toy, train_mnist, test_mnist, train_toy
+from strategy.utilities import save_results
 
 from torch.utils.data import DataLoader
 from torchvision import transforms
@@ -203,33 +204,11 @@ def circles_evaluate_fn(
     testloader = get_circles(32, n_samples=10000, workers=1, is_train=False)
     loss, accuracy = test_toy(model, testloader, device=device)
 
+    config["round"] = server_round
     save_results(loss, accuracy, config=config)
 
     # return statistics
     return loss, {"accuracy": accuracy}
-
-def save_results(loss, accuracy, config=None):
-    # Save results as npy file
-    dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
-    longest_string = len(max(dirs, key=len))
-    idx = -2 if longest_string > 5 else -1
-
-    highest_number = str(max([int(x[idx:]) for x in dirs if x[idx:].isdigit()]))
-    loss_series = []
-    acc_series = []
-    loss_path = "results/run_"+highest_number+"/loss.npy"
-    acc_path = "results/run_"+highest_number+"/acc.npy"
-    if os.path.exists(loss_path):
-        loss_series = np.load(loss_path)
-    if os.path.exists(acc_path):
-        acc_series = np.load(acc_path)
-    loss_series = np.save(loss_path, np.append(loss_series, loss))
-    acc_series = np.save(acc_path, np.append(acc_series, accuracy))
-
-    # Save config
-    config_path = "results/run_"+highest_number+"/config.json"
-    with open(config_path, "w") as f:
-        json.dump(config, f)
 
 if __name__ == "__main__":
 

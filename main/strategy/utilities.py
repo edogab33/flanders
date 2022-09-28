@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import json
 import pandas as pd
 from typing import Dict, Optional, Tuple, List
 from flwr.common import (
@@ -23,6 +24,41 @@ def save_params(parameters, cid, remove_last=False):
             new_params = np.vstack((old_params, new_params))
         # save parameters
         np.save(path, new_params)
+
+def save_results(loss, accuracy, config=None):
+    # Save results as npy file
+    dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
+    longest_string = len(max(dirs, key=len))
+    idx = -2 if longest_string > 5 else -1
+
+    highest_number = str(max([int(x[idx:]) for x in dirs if x[idx:].isdigit()]))
+    loss_series = []
+    acc_series = []
+    loss_path = "results/run_"+highest_number+"/loss.npy"
+    acc_path = "results/run_"+highest_number+"/acc.npy"
+    if os.path.exists(loss_path):
+        loss_series = np.load(loss_path)
+    if os.path.exists(acc_path):
+        acc_series = np.load(acc_path)
+    loss_series = np.save(loss_path, np.append(loss_series, loss))
+    acc_series = np.save(acc_path, np.append(acc_series, accuracy))
+
+    # Save config
+    config_path = "results/run_"+highest_number+"/config.json"
+    with open(config_path, "w") as f:
+        json.dump(config, f)
+
+    # Generate csv
+    config["accuracy"] = accuracy
+    config["loss"] = loss
+    for key, val in config.items():
+        print(f"{key}: {val}")
+    df = pd.DataFrame.from_records([config])
+    csv_path = "results/run_"+highest_number+"/config.csv"
+    if os.path.exists(csv_path):
+        df.to_csv(csv_path, mode="a", header=False, index=False)
+    else:
+        df.to_csv(csv_path, index=False)
 
 def load_all_time_series(dir=""):
         """
@@ -94,7 +130,6 @@ def update_confusion_matrix(
         else:
             print("Error: ground truth is not true or false")
     return cm
-
 
 def evaluate_aggregated(
     evaluate_fn, server_round: int, parameters: Parameters, config: Dict[str, Scalar]
