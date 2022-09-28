@@ -1,4 +1,5 @@
 import argparse
+import shutil
 import flwr as fl
 from flwr.common.typing import Scalar
 import ray
@@ -40,7 +41,7 @@ from strategy.trimmedmean import TrimmedMean
 parser = argparse.ArgumentParser(description="Flower Simulation with PyTorch")
 
 parser.add_argument("--num_client_cpus", type=int, default=1)
-parser.add_argument("--num_rounds", type=int, default=5)
+parser.add_argument("--num_rounds", type=int, default=100)
 
 
 # Flower client, adapted from Pytorch quickstart example
@@ -78,7 +79,7 @@ class MnistClient(fl.client.NumPyClient):
         #        new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
 
         # Return local model and statistics
-        return new_parameters, len(trainloader.dataset), {"malicious": config["malicious"]}
+        return new_parameters, len(trainloader.dataset), {"malicious": config["malicious"], "cid": self.cid}
 
     def evaluate(self, parameters, config):
         set_params(self.net, parameters)
@@ -240,14 +241,11 @@ if __name__ == "__main__":
         "num_cpus": args.num_client_cpus
     }  # each client will get allocated 1 CPUs
 
-    #initial_parameters = ndarrays_to_parameters(np.load("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/strategy/histories/aggregated_params.npy", allow_pickle=True))
-
-
     # configure the strategy
     strategy = Krum(
         fraction_fit=1,
         fraction_evaluate=0,                # no federated evaluation
-        fraction_malicious=0.4,
+        malicious_clients=5,
         min_fit_clients=10,
         min_evaluate_clients=0,
         magnitude=20,
@@ -263,7 +261,7 @@ if __name__ == "__main__":
 
     def client_fn(cid: int):
         # create a single client instance
-        return ToyClient(cid)
+        return MnistClient(cid)
 
     # (optional) specify Ray config
     ray_init_args = {"include_dashboard": False}
@@ -277,6 +275,11 @@ if __name__ == "__main__":
 
     highest_number = max([int(x[idx:]) for x in dirs if x[idx:].isdigit()])
     os.makedirs("results/run_"+str(highest_number+1), exist_ok=True)
+
+    # Delete previous tensor in client_params
+    tensor_dir = "clients_params/"
+    if os.path.exists(tensor_dir):
+        shutil.rmtree(tensor_dir)
 
     # start simulation
     fl.simulation.start_simulation(

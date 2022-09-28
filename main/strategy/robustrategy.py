@@ -44,7 +44,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         *,
         fraction_fit: float = 1.0,
         fraction_evaluate: float = 1.0,
-        fraction_malicious: float = 0.0,
+        malicious_clients: int = 0,
         magnitude: float = 1.0,
         threshold: float = 0.005,
         warmup_rounds: int = 1,
@@ -95,7 +95,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         ):
             log(WARNING, WARNING_MIN_AVAILABLE_CLIENTS_TOO_LOW)
 
-        self.fraction_malicious = fraction_malicious
+        self.malicious_clients = malicious_clients
         self.magnitude = magnitude
         self.aggr_losses = np.array([])
         self.m = []                                                 # number of malicious clients (updates each round)
@@ -128,16 +128,17 @@ class RobustStrategy(fl.server.strategy.FedAvg):
             num_clients=sample_size, min_num_clients=min_num_clients
         )
 
-        self.m.append(int(sample_size * self.fraction_malicious))
+        self.m.append(int(self.malicious_clients))
 
         print("sample size: "+str(sample_size))
         print("num m: "+str(self.m[-1]))
 
         fit_ins_array = [
             FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude}) if idx < self.m[-1] else dict(config, **{"malicious": False}))
-            for idx,_ in enumerate(clients)]
+            for idx,_ in enumerate(clients)
+        ]
 
-        return [(client, fit_ins_array[idx]) for idx,client in enumerate(clients)]
+        return [(client, fit_ins_array[idx]) for idx, client in enumerate(clients)]
 
     def init_fit(
         self,
@@ -236,10 +237,12 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         if self.evaluate_fn is None:
             # No evaluation function provided
             return None
+
         config = {"strategy": "Krum", "fraction_mal": self.fraction_malicious, "magnitude": self.magnitude, 
             "frac_fit": self.fraction_fit, "frac_eval": self.fraction_evaluate, "min_fit_clients": self.min_fit_clients,
             "min_eval_clients": self.min_evaluate_clients, "min_available_clients": self.min_available_clients,
             "num_clients": self.sample_size, "num_malicious": self.m}
+            
         eval_res = evaluate_aggregated(self.evaluate_fn, server_round, parameters, config)
         if eval_res is None:
             return None
