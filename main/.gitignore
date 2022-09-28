@@ -8,3 +8,4 @@ results
 ../MSCRED
 cifar_nn/data
 strategy/mscred/model_ckpt
+clients_params

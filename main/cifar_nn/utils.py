@@ -59,7 +59,6 @@ def test_mnist(model, dataloader, device):
             n_correct += (predicted == labels).sum().item()
 
         acc = n_correct / n_samples
-        print(f'Accuracy of the network on the 10000 test images: {acc}')
     return loss, acc
 
 

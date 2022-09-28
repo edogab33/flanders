@@ -1,19 +1,10 @@
-from locale import normalize
-import string
 import numpy as np
 import os
 import pandas as pd
 from typing import Dict, Optional, Tuple, List
 from flwr.common import (
-    EvaluateIns,
-    EvaluateRes,
-    FitIns,
-    FitRes,
-    MetricsAggregationFn,
-    NDArrays,
     Parameters,
     Scalar,
-    ndarrays_to_parameters,
     parameters_to_ndarrays,
 )
 
@@ -21,6 +12,8 @@ def save_params(parameters, cid, remove_last=False):
         new_params = parameters
         # Save parameters in client_params/cid_params
         path = f"clients_params/{cid}_params.npy"
+        if os.path.exists("clients_params") == False:
+            os.mkdir("clients_params")
         if os.path.exists(path):
             # load old parameters
             old_params = np.load(path, allow_pickle=True)

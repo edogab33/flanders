@@ -44,7 +44,6 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         *,
         fraction_fit: float = 1.0,
         fraction_evaluate: float = 1.0,
-        malicious_clients: int = 0,
         magnitude: float = 1.0,
         threshold: float = 0.005,
         warmup_rounds: int = 1,
@@ -54,6 +53,10 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         min_evaluate_clients: int = 2,
         min_available_clients: int = 2,
         dataset_name: str = "circles",
+        strategy_name: str = "not specified",
+        attack_name: str = "not specified",
+        iid: bool = True,
+        malicious_clients: int = 0,
         evaluate_fn: Optional[
             Callable[
                 [int, NDArrays, Dict[str, Scalar]],
@@ -110,6 +113,9 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         self.threshold = threshold                                  # threshold for lambda
         self.dataset_name = dataset_name.lower()                    # dataset name used by clients (circles, mnist, cifar10, etc.)
         self.root_dataset = None                                    # root dataset used by the server (circles, mnist, cifar10, etc.)
+        self.strategy_name = strategy_name.lower()                  # strategy name (fedavg, krum, etc.)
+        self.attack_name = attack_name.lower()                      # attack name (gaussian, lie, etc.)
+        self.iid = iid                                              # iid or non-iid dataset
 
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
@@ -238,11 +244,12 @@ class RobustStrategy(fl.server.strategy.FedAvg):
             # No evaluation function provided
             return None
 
-        config = {"strategy": "Krum", "fraction_mal": self.fraction_malicious, "magnitude": self.magnitude, 
+        config = {"strategy": self.strategy_name, "fraction_mal": self.malicious_clients, "magnitude": self.magnitude, 
             "frac_fit": self.fraction_fit, "frac_eval": self.fraction_evaluate, "min_fit_clients": self.min_fit_clients,
             "min_eval_clients": self.min_evaluate_clients, "min_available_clients": self.min_available_clients,
-            "num_clients": self.sample_size, "num_malicious": self.m}
-            
+            "num_clients": self.sample_size, "num_malicious": self.m, "attack": self.attack_name, "iid": self.iid,
+            "dataset_name": self.dataset_name}
+
         eval_res = evaluate_aggregated(self.evaluate_fn, server_round, parameters, config)
         if eval_res is None:
             return None

@@ -34,7 +34,11 @@ class MaliciousFedAvg(RobustStrategy):
         *,
         fraction_fit: float = 1.0,
         fraction_evaluate: float = 1.0,
-        fraction_malicious: float = 0.0,
+        dataset_name: str = "circles",
+        strategy_name: str = "not specified",
+        attack_name: str = "not specified",
+        iid: bool = True,
+        malicious_clients: int = 0,
         magnitude: float = 1.0,
         threshold: float = 0.005,
         warmup_rounds: int = 1,
@@ -76,14 +80,18 @@ class MaliciousFedAvg(RobustStrategy):
                 initial_parameters = initial_parameters,
                 fit_metrics_aggregation_fn = fit_metrics_aggregation_fn,
                 evaluate_metrics_aggregation_fn = evaluate_metrics_aggregation_fn,
-                fraction_malicious = fraction_malicious,
+                dataset_name = dataset_name,
+                strategy_name = strategy_name,
+                attack_name = attack_name,
+                iid = iid,
+                malicious_clients = malicious_clients,
                 magnitude = magnitude,
                 warmup_rounds = warmup_rounds,
                 to_keep = to_keep,
                 attack_fn = attack_fn,
                 threshold = threshold
             )
-    
+            
     def aggregate_fit(
         self,
         server_round: int,

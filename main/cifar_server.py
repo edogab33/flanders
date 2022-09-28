@@ -249,19 +249,21 @@ if __name__ == "__main__":
         min_fit_clients=10,
         min_evaluate_clients=0,
         magnitude=20,
-        warmup_rounds=3,
+        warmup_rounds=3,                    # Used only in GlobalFlanders
         to_keep=8,
         threshold=0.005,
         min_available_clients=pool_size,    # All clients should be available
         on_fit_config_fn=fit_config,
         evaluate_fn=circles_evaluate_fn,    # centralised evaluation of global model
         attack_fn=fang_attack,
+        attack_name="fang",
+        strategy_name="krum",
         #initial_parameters=initial_parameters
     )
 
     def client_fn(cid: int):
         # create a single client instance
-        return MnistClient(cid)
+        return ToyClient(cid)
 
     # (optional) specify Ray config
     ray_init_args = {"include_dashboard": False}
