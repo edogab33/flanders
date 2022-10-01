@@ -39,7 +39,7 @@ def get_dataloader(
     """Generates trainset/valset object and returns appropiate dataloader."""
 
     partition = "train" if is_train else "val"
-    dataset = get_dataset(Path(path_to_data), cid, partition)
+    dataset = get_dataset(Path(path_to_data), str(cid), partition)
 
     # we use as number of workers all the cpu cores assigned to this actor
     kwargs = {"num_workers": workers, "pin_memory": True, "drop_last": False}

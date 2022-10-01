@@ -131,14 +131,15 @@ class Krum(RobustStrategy):
 
         return ndarrays_to_parameters(self.aggregated_parameters), metrics_aggregated
 
-def krum(results: List[Tuple[List, int]], m: int, to_keep: int):
+def krum(results: List[Tuple[List, int]], m: int, to_keep: int, num_closest=0):
     """
     Get the best parameters vector according to the Krum function.
     Output: the best parameters vector.
     """
-    weights = [w for w, _ in results]                             # list of weights
+    weights = [w for w, _ in results]                                       # list of weights
     M = _compute_distances(weights)                                         # matrix of distances
-    num_closest = len(weights) - m - 2                                      # number of closest points to use
+    if num_closest == 0:
+        num_closest = len(weights) - m - 2                                  # number of closest points to use
     closest_indices = _get_closest_indices(M, num_closest)                  # indices of closest points
     scores = [np.sum(M[i,closest_indices[i]]) for i in range(len(M))]       # scores i->j for each i
     print("scores _aggregate_weights: "+str(scores))

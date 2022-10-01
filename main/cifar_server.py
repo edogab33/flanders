@@ -29,7 +29,7 @@ from strategy.multikrum import MultiKrum
 from strategy.trimmedmean import TrimmedMean
 from strategy.generate_dataset_fg import GenerateDataset
 
-from attacks import fang_attack, gaussian_attack, lie_attack, no_attack, pga_attack
+from attacks import fang_attack, gaussian_attack, lie_attack, no_attack, minmax_attack
 
 from flwr.server.strategy.fedavg import FedAvg
 from flwr.common import (
@@ -143,13 +143,13 @@ if __name__ == "__main__":
     # parse input arguments
     args = parser.parse_args()
 
-    pool_size = 6  # number of dataset partions (= number of total clients)
+    pool_size = 5  # number of dataset partions (= number of total clients)
     client_resources = {
         "num_cpus": args.num_client_cpus
     }  # each client will get allocated 1 CPUs
 
     # configure the strategy
-    strategy = MultiKrum(
+    strategy = MaliciousFedAvg(
         fraction_fit=1,
         fraction_evaluate=0,                # no federated evaluation
         malicious_clients=2,
@@ -158,14 +158,14 @@ if __name__ == "__main__":
         magnitude=20,
         warmup_rounds=3,                    # Used only in GlobalFlanders
         to_keep=8,
-        threshold=0.005,
+        threshold=1e-5,                     # 1e-5 for fang attack
         min_available_clients=pool_size,    # All clients should be available
         on_fit_config_fn=fit_config,
-        evaluate_fn=income_evaluate,    # centralised evaluation of global model
-        attack_fn=fang_attack,
-        attack_name="no attack",
-        strategy_name="fedavg",
-        dataset_name="income",
+        evaluate_fn=circles_evaluate,       # centralised evaluation of global model
+        attack_fn=minmax_attack,
+        attack_name="minmax",               # minmax, fang, gaussian, lie, no attack
+        strategy_name="flanders",             # avg, median, krum, multikrum, trimmedmean, fltrust, flanders
+        dataset_name="circles",                # mnist, cifar, income, circles
         #initial_parameters=initial_parameters
     )
 
@@ -181,8 +181,9 @@ if __name__ == "__main__":
     def client_fn(cid: int):
         cid = int(cid)
         # create a single client instance
-        return IncomeClient(cid, X_train[cid], y_train[cid], X_test[cid], y_test[cid])
-        #return ToyClient(cid, pool_size)
+        #return IncomeClient(cid, X_train[cid], y_train[cid], X_test[cid], y_test[cid])
+        return ToyClient(cid, pool_size)
+        #return CifarClient(cid, fed_dir)
 
     # (optional) specify Ray config
     ray_init_args = {"include_dashboard": False}

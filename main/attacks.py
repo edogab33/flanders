@@ -47,17 +47,17 @@ def lie_attack(
         **kwargs
     ) -> List[Tuple[ClientProxy, FitRes]]:
     """
-    Omniscent LIE attack, Baruch et al. (2019)
+    Implementation of Omniscent LIE attack, Baruch et al. (2019)
     """
     dataset_name = kwargs.get("dataset_name", "no name")
     results = ordered_results.copy()
     params = [parameters_to_ndarrays(fitres.parameters) for _, fitres in results]
     if dataset_name == "income":
         grads_mean = [np.mean(layer, axis=0) for layer in zip(*params)]
-        grads_stdev = [np.var(layer, axis=0) ** 0.5 for layer in zip(*params)]
+        grads_stdev = [np.std(layer, axis=0) ** 0.5 for layer in zip(*params)]
     else:
         grads_mean = np.mean(params, axis=0)
-        grads_stdev = np.var(params, axis=0) ** 0.5
+        grads_stdev = np.std(params, axis=0) ** 0.5
 
     n = len(ordered_results)                                        # number of clients
     m = sum(val == True for val in states.values())                 # number of corrupted clients
@@ -78,7 +78,7 @@ def fang_attack(
         **kwargs
     ) -> List[Tuple[ClientProxy, FitRes]]:
     """
-    Local Model Poisoning Attacks to Byzantine-Robust Federated Learning, Fang et al. (2020)
+    Implemetatio of Local Model Poisoning Attacks to Byzantine-Robust Federated Learning, Fang et al. (2020)
     Specifically designed for Krum, but they claim it works for other aggregation functions as well.
     Omniscent version.
 
@@ -159,12 +159,79 @@ def fang_attack(
 
     return results, {"lambda": l}
 
-def pga_attack(
+def minmax_attack(
         ordered_results:List[Tuple[ClientProxy, FitRes]], 
         states:Dict[str, bool], 
-        magnitude:float
+        **kwargs
     ) -> List[Tuple[ClientProxy, FitRes]]:
     """
-    PGA attack, Shejwalkar et al. (2022)
+    Implementation of Min-Max agnostic attack.
+    From: 
+    "Manipulating the Byzantine: Optimizing Model Poisoning Attacks and Defenses for Federated Learning"
+    (Shejwalkar et al., 2021)
     """
-    pass
+    dataset_name = kwargs.get("dataset_name", None)
+    agr_func = kwargs.get("strategy_name", None)
+    threshold = kwargs.get("threshold", 1e-5)
+    lambda_init = kwargs.get("old_lambda", 5.0)
+    to_keep = kwargs.get("to_keep", 0)
+    malicious_num = kwargs.get("malicious_num", 0)
+
+    results = ordered_results.copy()
+    params = [parameters_to_ndarrays(fitres.parameters) for _, fitres in results]
+    params_avg = [np.mean(param, axis=0) for param in zip(*params)]
+
+    # Decide what perturbation to use according to the
+    # resutlts presented in the paper.
+    if dataset_name == "mnist":
+        # Apply sign perturbation
+        perturbation_vect = [-np.sign(params_avg[i]) for i in range(len(params_avg))]
+    elif dataset_name == "cifar":
+        if agr_func == "krum":
+            # Apply unit vector perturbation
+            norm = 0
+            for i in range(len(params_avg)):
+                norm += np.linalg.norm(params_avg[i])
+            perturbation_vect = [params_avg[i] / norm for i in range(len(params_avg))]
+            pass
+        else:
+            # Apply std perturbation
+            perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
+    else:
+        # Apply std perturbation
+        # TODO: check that experimentally std is the best as default
+        perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
+
+    # Compute lambda (that is gamma in the paper)
+    lambda_succ = 0
+    l = lambda_init
+    step = lambda_init * 0.5
+    while abs(lambda_succ - l) > threshold and step > threshold and malicious_num > 0:
+        w_res = [
+            (parameters_to_ndarrays(fitres.parameters), fitres.num_examples)
+            for _, fitres in ordered_results
+        ]
+        # TODO: do not apply krum, but compute distances manually according to the paper
+        _, _, _, distances = krum(w_res, malicious_num, to_keep, num_closest=2)
+        # Separate distances of bennign clients from the malicious ones
+        idx_benign = [int(cid) for cid in states.keys() if states[cid]==False]
+        idx_malicious = [int(cid) for cid in states.keys() if states[cid]==True]
+        distances_benign = np.array(distances)[idx_benign]
+        distances_malicious = np.array(distances)[idx_malicious]
+        if np.max(distances_benign) < np.max(distances_malicious):
+            lambda_succ = l
+            l += step * 0.5
+        else:
+            l -= step * 0.5
+        step *= 0.5
+    print("lambda: ", l)
+    print("step ", step)
+    # Compute the final malicious update
+    perturbation_vect = [l * perturbation_vect[i] for i in range(len(perturbation_vect))]
+    corrupted_params = [params_avg[i] + perturbation_vect[i] for i in range(len(params_avg))]
+    corrupted_params = ndarrays_to_parameters(corrupted_params)
+    for proxy, fitres in ordered_results:
+        if states[fitres.metrics["cid"]]:
+            fitres.parameters = corrupted_params
+            results[int(fitres.metrics['cid'])] = (proxy, fitres)
+    return results, {"lambda": l}

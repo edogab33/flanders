@@ -108,9 +108,11 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         self.aggregated_parameters = []                             # global model (updates each round)
         self.malicious_selected = False                             # selected malicious parameters in this round? (updates each round)
         self.old_lambda = 0.0                                       # lambda from previous round (updates each round)
+        if attack_name == "minmax":
+            self.old_lambda = 5.0
         self.warmup_rounds = warmup_rounds                          # number of warmup rounds
         self.to_keep = to_keep                                      # number of cliernts to aggregate
-        self.threshold = threshold                                  # threshold for lambda
+        self.threshold = threshold                                  # threshold for fang and minmax attacks
         self.dataset_name = dataset_name.lower()                    # dataset name used by clients (circles, mnist, cifar10, etc.)
         self.root_dataset = None                                    # root dataset used by the server (circles, mnist, cifar10, etc.)
         self.strategy_name = strategy_name.lower()                  # strategy name (fedavg, krum, etc.)
@@ -200,8 +202,9 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         results, others = self.attack_fn(
             ordered_results, clients_state, magnitude=self.magnitude,
             w_re=self.aggregated_parameters, malicious_selected=self.malicious_selected,
-            threshold=1e-5, d=len(self.aggregated_parameters), old_lambda=self.old_lambda,
-            dataset_name=self.dataset_name
+            threshold=self.threshold, d=len(self.aggregated_parameters), old_lambda=self.old_lambda,
+            dataset_name=self.dataset_name, agr_function=self.strategy_name, to_keep = self.to_keep,
+            malicious_num=self.m[-1]
         )
         self.old_lambda = others.get('lambda', 0.0)
 
