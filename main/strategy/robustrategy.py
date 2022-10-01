@@ -9,7 +9,7 @@ from strategy.utilities import (
     save_params, 
     flatten_params
 )
-from cifar_nn.dataset_utils import get_circles
+from neural_networks.dataset_utils import get_circles
 
 from flwr.common import (
     FitIns,
@@ -52,7 +52,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         min_fit_clients: int = 2,
         min_evaluate_clients: int = 2,
         min_available_clients: int = 2,
-        dataset_name: str = "circles",
+        dataset_name: str = "not specified",
         strategy_name: str = "not specified",
         attack_name: str = "not specified",
         iid: bool = True,
@@ -200,7 +200,8 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         results, others = self.attack_fn(
             ordered_results, clients_state, magnitude=self.magnitude,
             w_re=self.aggregated_parameters, malicious_selected=self.malicious_selected,
-            threshold=1e-5, d=len(self.aggregated_parameters), old_lambda=self.old_lambda
+            threshold=1e-5, d=len(self.aggregated_parameters), old_lambda=self.old_lambda,
+            dataset_name=self.dataset_name
         )
         self.old_lambda = others.get('lambda', 0.0)
 

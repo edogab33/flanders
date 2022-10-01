@@ -51,8 +51,6 @@ def save_results(loss, accuracy, config=None):
     # Generate csv
     config["accuracy"] = accuracy
     config["loss"] = loss
-    for key, val in config.items():
-        print(f"{key}: {val}")
     df = pd.DataFrame.from_records([config])
     csv_path = "results/run_"+highest_number+"/config.csv"
     if os.path.exists(csv_path):
