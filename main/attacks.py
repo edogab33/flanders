@@ -188,14 +188,16 @@ def minmax_attack(
             for i in range(len(params_avg)):
                 norm += np.linalg.norm(params_avg[i])
             perturbation_vect = [params_avg[i] / norm for i in range(len(params_avg))]
-            pass
         else:
             # Apply std perturbation
             perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
     else:
-        # Apply std perturbation
-        # TODO: check that experimentally std is the best as default
-        perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
+        if agr_func == "fltrust":
+            perturbation_vect = [-np.sign(params_avg[i]) for i in range(len(params_avg))]
+        else:
+            # Apply std perturbation
+            # TODO: check that experimentally std is the best as default
+            perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
 
     # Compute lambda (that is gamma in the paper)
     lambda_succ = 0

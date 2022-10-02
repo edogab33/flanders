@@ -5,7 +5,7 @@ from matplotlib.ticker import FuncFormatter
 import seaborn as sns
 import json
 
-fedavg = True
+fedavg = False
 
 dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
 

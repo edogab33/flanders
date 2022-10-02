@@ -118,9 +118,6 @@ class FLTrust(RobustStrategy):
             for _, fitres in results
         ]
 
-        #print("weights_results: ", weights_results[0][0])
-        print("flattened: ", len(flatten_params(weights_results[0][0])))
-
         # Take a parameter vector from one benign client
         g0 = []
         for key,val in clients_state.items():

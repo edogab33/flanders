@@ -256,7 +256,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
             "frac_fit": self.fraction_fit, "frac_eval": self.fraction_evaluate, "min_fit_clients": self.min_fit_clients,
             "min_eval_clients": self.min_evaluate_clients, "min_available_clients": self.min_available_clients,
             "num_clients": self.sample_size[-1], "num_malicious": self.m[-1], "attack": self.attack_name, "iid": self.iid,
-            "dataset_name": self.dataset_name}
+            "dataset_name": self.dataset_name, "confusion_matrix": self.cm, "warmup_rounds": self.warmup_rounds}
 
         eval_res = evaluate_aggregated(self.evaluate_fn, server_round, parameters, config)
         if eval_res is None:
