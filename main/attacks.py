@@ -12,7 +12,7 @@ from flwr.server.client_proxy import ClientProxy
 from scipy.stats import norm
 
 from utilities import flatten_params
-from strategy.krum import krum
+from strategy.krum import krum, _compute_distances
 
 def no_attack(
         ordered_results:List[Tuple[ClientProxy, FitRes]], 
@@ -52,12 +52,8 @@ def lie_attack(
     dataset_name = kwargs.get("dataset_name", "no name")
     results = ordered_results.copy()
     params = [parameters_to_ndarrays(fitres.parameters) for _, fitres in results]
-    if dataset_name == "income":
-        grads_mean = [np.mean(layer, axis=0) for layer in zip(*params)]
-        grads_stdev = [np.std(layer, axis=0) ** 0.5 for layer in zip(*params)]
-    else:
-        grads_mean = np.mean(params, axis=0)
-        grads_stdev = np.std(params, axis=0) ** 0.5
+    grads_mean = [np.mean(layer, axis=0) for layer in zip(*params)]
+    grads_stdev = [np.std(layer, axis=0) ** 0.5 for layer in zip(*params)]
 
     n = len(ordered_results)                                        # number of clients
     m = sum(val == True for val in states.values())                 # number of corrupted clients
@@ -174,7 +170,6 @@ def minmax_attack(
     agr_func = kwargs.get("strategy_name", None)
     threshold = kwargs.get("threshold", 1e-5)
     lambda_init = kwargs.get("old_lambda", 5.0)
-    to_keep = kwargs.get("to_keep", 0)
     malicious_num = kwargs.get("malicious_num", 0)
 
     results = ordered_results.copy()
@@ -207,18 +202,31 @@ def minmax_attack(
     l = lambda_init
     step = lambda_init * 0.5
     while abs(lambda_succ - l) > threshold and step > threshold and malicious_num > 0:
-        w_res = [
-            (parameters_to_ndarrays(fitres.parameters), fitres.num_examples)
-            for _, fitres in ordered_results
-        ]
-        # TODO: do not apply krum, but compute distances manually according to the paper
-        _, _, _, distances = krum(w_res, malicious_num, to_keep, num_closest=2)
-        # Separate distances of bennign clients from the malicious ones
-        idx_benign = [int(cid) for cid in states.keys() if states[cid]==False]
-        idx_malicious = [int(cid) for cid in states.keys() if states[cid]==True]
-        distances_benign = np.array(distances)[idx_benign]
-        distances_malicious = np.array(distances)[idx_malicious]
-        if np.max(distances_benign) < np.max(distances_malicious):
+        # Compute malicious gradients
+        perturbation_vect = [l * perturbation_vect[i] for i in range(len(perturbation_vect))]
+        corrupted_params = [params_avg[i] + perturbation_vect[i] for i in range(len(params_avg))]
+
+        # Set corrupted clients' updates to corrupted_params
+        params_c = [corrupted_params if states[i] else params[i] for i in range(len(params))]
+        M = _compute_distances(params_c)
+
+        # Remove from matrix M all malicious clients in both rows and columns
+        M_b = np.delete(M, [i for i in range(len(M)) if states[results[i][1].metrics["cid"]]], axis=0)
+        M_b = np.delete(M_b, [i for i in range(len(M)) if states[results[i][1].metrics["cid"]]], axis=1)
+
+        # Remove from M all benign clients on rows and all malicious on columns
+        M_m = np.delete(M, [i for i in range(len(M)) if not states[results[i][1].metrics["cid"]]], axis=0)
+        M_m = np.delete(M_m, [i for i in range(len(M)) if states[results[i][1].metrics["cid"]]], axis=1)
+
+        # Take the maximum distance between any benign client and any malicious one
+        max_dist_m = np.max(M_m)
+
+        # Take the maximum distance between any two benigm cliets
+        max_dist_b = np.max(M_b)
+
+        # Compute lambda
+        if max_dist_m < max_dist_b:
+            print("O(gr, gamma) is true")
             lambda_succ = l
             l += step * 0.5
         else:

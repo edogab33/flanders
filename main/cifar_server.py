@@ -149,20 +149,20 @@ if __name__ == "__main__":
     }  # each client will get allocated 1 CPUs
 
     # configure the strategy
-    strategy = MaliciousFedAvg(
+    strategy = GlobalFlanders(
         fraction_fit=1,
         fraction_evaluate=0,                # no federated evaluation
         malicious_clients=2,
         min_fit_clients=5,
         min_evaluate_clients=0,
         magnitude=20,
-        warmup_rounds=3,                    # Used only in GlobalFlanders
-        to_keep=8,
+        warmup_rounds=30,                    # Used only in GlobalFlanders
+        to_keep=3,                          # Used in Flanders and Krum/MultiKrum
         threshold=1e-5,                     # 1e-5 for fang attack
         min_available_clients=pool_size,    # All clients should be available
         on_fit_config_fn=fit_config,
         evaluate_fn=circles_evaluate,       # centralised evaluation of global model
-        attack_fn=minmax_attack,
+        attack_fn=lie_attack,
         attack_name="minmax",               # minmax, fang, gaussian, lie, no attack
         strategy_name="flanders",             # avg, median, krum, multikrum, trimmedmean, fltrust, flanders
         dataset_name="circles",                # mnist, cifar, income, circles

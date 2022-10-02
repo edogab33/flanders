@@ -1,3 +1,4 @@
+from http import server
 import flwr as fl
 import numpy as np
 import matplotlib.pyplot as plt
@@ -198,15 +199,18 @@ class RobustStrategy(fl.server.strategy.FedAvg):
                 pass
             elif self.dataset_name == "cifar10":
                 pass
-
-        results, others = self.attack_fn(
-            ordered_results, clients_state, magnitude=self.magnitude,
-            w_re=self.aggregated_parameters, malicious_selected=self.malicious_selected,
-            threshold=self.threshold, d=len(self.aggregated_parameters), old_lambda=self.old_lambda,
-            dataset_name=self.dataset_name, agr_function=self.strategy_name, to_keep = self.to_keep,
-            malicious_num=self.m[-1]
-        )
-        self.old_lambda = others.get('lambda', 0.0)
+        if server_round > self.warmup_rounds:
+            results, others = self.attack_fn(
+                ordered_results, clients_state, magnitude=self.magnitude,
+                w_re=self.aggregated_parameters, malicious_selected=self.malicious_selected,
+                threshold=self.threshold, d=len(self.aggregated_parameters), old_lambda=self.old_lambda,
+                dataset_name=self.dataset_name, agr_function=self.strategy_name, to_keep = self.to_keep,
+                malicious_num=self.m[-1]
+            )
+            self.old_lambda = others.get('lambda', 0.0)
+        else:
+            results = ordered_results
+            others = {}
 
         return results, others, clients_state
 

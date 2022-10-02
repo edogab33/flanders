@@ -27,8 +27,6 @@ print(acc_series)
 with open(config_path) as json_file:
     data = json.load(json_file)
     config = {key: val for key, val in data.items()}
-config["num_clients"].insert(0, 0)  # first round is empty
-config["num_malicious"].insert(0, 0.0)  # first round is empty
 
 if fedavg == False:
     normalized_cm = np.array(config["confusion_matrix"]) / np.array(config["confusion_matrix"]).sum()
