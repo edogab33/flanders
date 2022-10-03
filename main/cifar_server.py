@@ -153,7 +153,7 @@ if __name__ == "__main__":
         fraction_fit=1,
         fraction_evaluate=0,                # no federated evaluation
         malicious_clients=4,
-        min_fit_clients=5,
+        min_fit_clients=10,
         min_evaluate_clients=0,
         magnitude=20,
         warmup_rounds=70,                    # Used only in GlobalFlanders
@@ -162,7 +162,7 @@ if __name__ == "__main__":
         min_available_clients=pool_size,    # All clients should be available
         on_fit_config_fn=fit_config,
         evaluate_fn=circles_evaluate,       # centralised evaluation of global model
-        attack_fn=fang_attack,
+        attack_fn=minmax_attack,
         attack_name="minmax",               # minmax, fang, gaussian, lie, no attack
         strategy_name="flanders",             # avg, median, krum, multikrum, trimmedmean, fltrust, flanders
         dataset_name="circles",                # mnist, cifar, income, circles

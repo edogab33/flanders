@@ -116,12 +116,12 @@ class GlobalFlanders(RobustStrategy):
         """
         results, others, clients_state = super().init_fit(server_round, results, failures)
 
-        if server_round >= self.warmup_rounds:
+        if server_round > self.warmup_rounds:
             M = load_all_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params")
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = self.mar(M[:,:,:-1], pred_step)
+            Mr = self.mar(M[:,:,:-1], pred_step, window=0)
             select_matrix_error = np.square(np.subtract(M_hat, Mr[:,:,0]))
             num_broken = len(select_matrix_error[select_matrix_error > self.threshold])
             print("Overall anomaly score: ", num_broken)
@@ -148,17 +148,42 @@ class GlobalFlanders(RobustStrategy):
             #ax[2].matshow(select_matrix_error)
             #plt.show()
 
+            # Aplly FedAvg for the remaining clients
             parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
             # For clients detected as malicious, set their parameters to be the averaged ones in their files
             # otherwise the forecasting in next round won't be reliable
             for idx in malicious_clients_idx:
-                params = load_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params", cid=idx)
                 save_params(flatten_params(parameters_to_ndarrays(parameters_aggregated)), idx, remove_last=True)
         else:
             parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
         return parameters_aggregated, metrics_aggregated
+
+    def mar(self, X, pred_step, maxiter = 100, window = 0):
+        m, n, T = X.shape
+        if window > 0:
+            T = window
+        B = np.random.randn(n, n)
+        for it in range(maxiter):
+            temp0 = B.T @ B
+            temp1 = np.zeros((m, m))
+            temp2 = np.zeros((m, m))
+            for t in range(1, T):
+                temp1 += X[:, :, t] @ B @ X[:, :, t - 1].T
+                temp2 += X[:, :, t - 1] @ temp0 @ X[:, :, t - 1].T
+            A = temp1 @ np.linalg.inv(temp2)
+            temp0 = A.T @ A
+            temp1 = np.zeros((n, n))
+            temp2 = np.zeros((n, n))
+            for t in range(1, T):
+                temp1 += X[:, :, t].T @ A @ X[:, :, t - 1]
+                temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
+            B = temp1 @ np.linalg.inv(temp2)
+        tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
+        for s in range(pred_step):
+            tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
+        return tensor[:, :, - pred_step :]
 
     def aggregate_fit_mscred(
         self,
@@ -223,26 +248,3 @@ class GlobalFlanders(RobustStrategy):
         parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
         return parameters_aggregated, metrics_aggregated
-
-    def mar(self, X, pred_step, maxiter = 100):
-        m, n, T = X.shape
-        B = np.random.randn(n, n)
-        for it in range(maxiter):
-            temp0 = B.T @ B
-            temp1 = np.zeros((m, m))
-            temp2 = np.zeros((m, m))
-            for t in range(1, T):
-                temp1 += X[:, :, t] @ B @ X[:, :, t - 1].T
-                temp2 += X[:, :, t - 1] @ temp0 @ X[:, :, t - 1].T
-            A = temp1 @ np.linalg.inv(temp2)
-            temp0 = A.T @ A
-            temp1 = np.zeros((n, n))
-            temp2 = np.zeros((n, n))
-            for t in range(1, T):
-                temp1 += X[:, :, t].T @ A @ X[:, :, t - 1]
-                temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
-            B = temp1 @ np.linalg.inv(temp2)
-        tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
-        for s in range(pred_step):
-            tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
-        return tensor[:, :, - pred_step :]

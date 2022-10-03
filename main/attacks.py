@@ -74,7 +74,7 @@ def fang_attack(
         **kwargs
     ) -> List[Tuple[ClientProxy, FitRes]]:
     """
-    Implemetatio of Local Model Poisoning Attacks to Byzantine-Robust Federated Learning, Fang et al. (2020)
+    Implemetation of Local Model Poisoning Attacks to Byzantine-Robust Federated Learning, Fang et al. (2020)
     Specifically designed for Krum, but they claim it works for other aggregation functions as well.
     Omniscent version.
 

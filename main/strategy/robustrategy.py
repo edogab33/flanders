@@ -173,7 +173,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
 
         clients_state = {}      # dictionary of clients representing wether they are malicious or not
 
-        # Save parameters of each client as a time series
+        # Save parameters of each client as time series
         ordered_results = [0 for _ in range(len(results))]
         cids = np.array([])
         for proxy, fitres in results:
@@ -208,6 +208,11 @@ class RobustStrategy(fl.server.strategy.FedAvg):
                 malicious_num=self.m[-1]
             )
             self.old_lambda = others.get('lambda', 0.0)
+
+            # Update saved parameters time series after the attack
+            for proxy, fitres in results:
+                params = flatten_params(parameters_to_ndarrays(fitres.parameters))
+                save_params(params, fitres.metrics['cid'], remove_last=True)
         else:
             results = ordered_results
             others = {}

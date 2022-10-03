@@ -13,6 +13,7 @@ dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
 longest_string = len(max(dirs, key=len))
 idx = -2 if longest_string > 5 else -1
 highest_number = str(max([int(x[idx:]) for x in dirs if x[idx:].isdigit()]))
+#highest_number = "35"
 
 loss_path = "results/run_"+highest_number+"/loss.npy"
 acc_path = "results/run_"+highest_number+"/acc.npy"
