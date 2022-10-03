@@ -63,6 +63,7 @@ def set_sklearn_initial_params(model: LogisticRegression):
     model.coef_ = np.zeros((n_classes, n_features))
     if model.fit_intercept:
         model.intercept_ = np.zeros((n_classes,))
+    return model
 
 
 # Flower client, adapted from Pytorch quickstart example
@@ -169,7 +170,7 @@ class CifarClient(fl.client.NumPyClient):
 
 class IncomeClient(fl.client.NumPyClient):
     def __init__(self, cid: str, x_train, y_train, x_test, y_test):
-        self.model = LogisticRegression(max_iter=1)
+        self.model = LogisticRegression(penalty="l2", max_iter=500, warm_start=True)
         set_sklearn_initial_params(self.model)
         self.cid = cid
         self.x_train = x_train
@@ -182,14 +183,14 @@ class IncomeClient(fl.client.NumPyClient):
 
     def fit(self, parameters, config):
         # Set scikit logistic regression model parameters
-        set_sklearn_model_params(self.model, parameters)
+        self.model = set_sklearn_model_params(self.model, parameters)
         self.model.fit(self.x_train, self.y_train)
         new_parameters = get_sklearn_model_params(self.model)
         return new_parameters, len(self.x_train), {"malicious": config["malicious"], "cid": self.cid}
     
     def evaluate(self, parameters, config):
         # Set scikit logistic regression model parameters
-        set_sklearn_model_params(self.model, parameters)
+        self.model = set_sklearn_model_params(self.model, parameters)
         y_pred = self.model.predict(self.x_test)
         accuracy = accuracy_score(y_pred, self.y_test)
         loss = log_loss(self.y_test, self.model.predict_proba(self.x_test))

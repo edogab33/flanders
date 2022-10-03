@@ -39,11 +39,14 @@ from flwr.common import (
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, log_loss
+from sklearn.preprocessing import StandardScaler
+
 
 parser = argparse.ArgumentParser(description="Flower Simulation with PyTorch")
 
 parser.add_argument("--num_client_cpus", type=int, default=1)
 parser.add_argument("--num_rounds", type=int, default=100)
+parser.add_argument("--exp_num", type=int, default=0)
 
 def fit_config(server_round: int) -> Dict[str, Scalar]:
     """Return a configuration with static batch size and (local) epochs."""
@@ -101,13 +104,12 @@ def income_evaluate(
 ) -> Optional[Tuple[float, float]]:
     """Use the entire Income test set for evaluation."""
     model = LogisticRegression()
-    set_sklearn_model_params(model, parameters)
+    model = set_sklearn_model_params(model, parameters)
     model.classes_ = np.array([0.0, 1.0])
 
-    _, x_test, _, y_test = get_partitioned_income("neural_networks/adult.csv", pool_size)
+    _, x_test, _, y_test = get_partitioned_income("neural_networks/adult.csv", 1)
     x_test = x_test[0]
     y_test = y_test[0]
-    print("x_test ", x_test.shape)
     y_pred = model.predict(x_test)
     #accuracy = model.score(x_test, y_test)
     accuracy = accuracy_score(y_test, y_pred)
@@ -142,48 +144,111 @@ if __name__ == "__main__":
 
     # parse input arguments
     args = parser.parse_args()
+    
+    config = pd.read_csv("experiments_config.csv")
+    config = config.to_dict("records")[args.exp_num]
+    print(config)
+    pool_size = config.get("num_clients", 10)  # number of dataset partions (= number of total clients)
+    fraction_fit = config.get("fraction_fit", 1)
+    fraction_evaluate = config.get("fraction_evaluate", 0)
+    malicious_clients = config.get("malicious_clients", 0)
+    min_fit_clients = config.get("min_fit_clients", 10)
+    min_evaluate_clients = config.get("min_evaluate_clients", 0)
+    magnitude = config.get("magnitude", 0)
+    warmup_rounds = config.get("warmup_rounds", 0)
+    to_keep = config.get("to_keep", 0)
+    threshold = config.get("threshold", 1e-5)
+    attack_name = config.get("attack_name", "no attack")
+    strategy_name = config.get("strategy_name", "fedavg")
+    dataset_name = config.get("dataset_name", "circles")
 
-    pool_size = 10  # number of dataset partions (= number of total clients)
+    if dataset_name == "circles":
+        evaluate_fn = circles_evaluate
+        client_func = ToyClient
+    elif dataset_name == "mnist":
+        evaluate_fn = mnist_evaluate
+        client_func = MnistClient
+    elif dataset_name == "cifar":
+        evaluate_fn = cifar_evaluate
+        client_func = CifarClient
+    elif dataset_name == "income":
+        evaluate_fn = income_evaluate
+        client_func = IncomeClient
+    elif dataset_name == "houses":
+        pass
+
+    if attack_name == "no attack":
+        attack_fn = no_attack
+    elif attack_name == "gaussian":
+        attack_fn = gaussian_attack
+    elif attack_name == "lie":
+        attack_fn = lie_attack
+    elif attack_name == "fang":
+        attack_fn = fang_attack
+    elif attack_name == "minmax":
+        attack_fn = minmax_attack
+
+    if strategy_name == "avg":
+        strategy_fn = MaliciousFedAvg
+    elif strategy_name == "median":
+        strategy_fn = FedMedian
+    elif strategy_name == "trimmedmean":
+        strategy_fn = TrimmedMean
+    elif strategy_name == "krum":
+        strategy_fn = Krum
+    elif strategy_name == "multikrum":
+        strategy_fn = MultiKrum
+    elif strategy_name == "fltrust":
+        strategy_fn = FLTrust
+    elif strategy_name == "flanders":
+        strategy_fn = GlobalFlanders
+    elif strategy_name == "bulyan":
+        pass
+
     client_resources = {
         "num_cpus": args.num_client_cpus
     }  # each client will get allocated 1 CPUs
 
     # configure the strategy
-    strategy = GlobalFlanders(
-        fraction_fit=1,
-        fraction_evaluate=0,                # no federated evaluation
-        malicious_clients=4,
-        min_fit_clients=10,
-        min_evaluate_clients=0,
-        magnitude=20,
-        warmup_rounds=70,                    # Used only in GlobalFlanders
-        to_keep=6,                          # Used in Flanders and Krum/MultiKrum
-        threshold=1e-5,                     # 1e-5 for fang attack and minmax attacks. Used also in Flanders
-        min_available_clients=pool_size,    # All clients should be available
+    strategy = strategy_fn(
+        fraction_fit=fraction_fit,
+        fraction_evaluate=fraction_evaluate,                # no federated evaluation
+        malicious_clients=malicious_clients,
+        min_fit_clients=min_fit_clients,
+        min_evaluate_clients=min_evaluate_clients,
+        magnitude=magnitude,
+        warmup_rounds=warmup_rounds,                        # Used only in GlobalFlanders
+        to_keep=to_keep,                                    # Used in Flanders and Krum/MultiKrum
+        threshold=threshold,                                # 1e-5 for fang attack and minmax attacks. Used also in Flanders
+        min_available_clients=pool_size,                    # All clients should be available
         on_fit_config_fn=fit_config,
-        evaluate_fn=circles_evaluate,       # centralised evaluation of global model
-        attack_fn=minmax_attack,
-        attack_name="minmax",               # minmax, fang, gaussian, lie, no attack
-        strategy_name="flanders",             # avg, median, krum, multikrum, trimmedmean, fltrust, flanders
-        dataset_name="circles",                # mnist, cifar, income, circles
+        evaluate_fn=evaluate_fn,                            # centralised evaluation of global model
+        attack_fn=attack_fn,
+        attack_name=attack_name,                            # minmax, fang, gaussian, lie, no attack
+        strategy_name=strategy_name,                        # avg, median, krum, multikrum, trimmedmean, fltrust, flanders
+        dataset_name=dataset_name,                          # mnist, cifar, income, circles
         #initial_parameters=initial_parameters
     )
 
-    # Cifar-10 dataset
-    #train_path, testset = get_cifar_10()
-    #fed_dir = do_fl_partitioning(
-    #    train_path, pool_size=pool_size, alpha=1000, num_classes=10, val_ratio=0.1
-    #)
-    
-    # Income dataset
-    X_train, X_test, y_train, y_test = get_partitioned_income("neural_networks/adult.csv", pool_size)
+    if dataset_name == "cifar":
+        # Cifar-10 dataset
+        train_path, testset = get_cifar_10()
+        fed_dir = do_fl_partitioning(
+            train_path, pool_size=pool_size, alpha=1000, num_classes=10, val_ratio=0.1
+        )
+    elif dataset_name == "income":
+        # Income dataset
+        X_train, X_test, y_train, y_test = get_partitioned_income("neural_networks/adult.csv", pool_size)
 
     def client_fn(cid: int):
         cid = int(cid)
         # create a single client instance
-        #return IncomeClient(cid, X_train[cid], y_train[cid], X_test[cid], y_test[cid])
-        return ToyClient(cid, pool_size)
-        #return CifarClient(cid, fed_dir)
+        if dataset_name == "cifar":
+            return CifarClient(cid, fed_dir)
+        elif dataset_name == "income":
+            return IncomeClient(cid, X_train[cid], y_train[cid], X_test[cid], y_test[cid])
+        else:
+            return client_func(cid, pool_size)
 
     # (optional) specify Ray config
     ray_init_args = {"include_dashboard": False}

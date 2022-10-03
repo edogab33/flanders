@@ -1,12 +1,8 @@
 #!/bin/bash
 
-echo "Starting server"
-python server.py &
-sleep 5 # Sleep for 3s to give the server enough time to start
-
-for i in `seq 0 11`; do
-    echo "Starting client $i"
-    python client.py &
+for i in `seq 0 1`; do
+    echo "Starting experiment # $i"
+    python cifar_server.py --num_rounds=1 --exp_num=$i;
 done
 
 # This will allow you to use CTRL+C to stop all background processes

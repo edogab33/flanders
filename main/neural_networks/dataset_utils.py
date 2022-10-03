@@ -11,6 +11,7 @@ from typing import Callable, Optional, Tuple, Any
 from neural_networks.common import create_lda_partitions
 from sklearn.datasets import make_circles
 from sklearn.preprocessing import OrdinalEncoder
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 
 class Data(torch.utils.data.Dataset):

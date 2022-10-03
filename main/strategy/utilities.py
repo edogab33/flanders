@@ -52,7 +52,7 @@ def save_results(loss, accuracy, config=None):
     config["accuracy"] = accuracy
     config["loss"] = loss
     df = pd.DataFrame.from_records([config])
-    csv_path = "results/run_"+highest_number+"/config.csv"
+    csv_path = "results/all_results.csv"
     if os.path.exists(csv_path):
         df.to_csv(csv_path, mode="a", header=False, index=False)
     else:

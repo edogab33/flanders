@@ -117,7 +117,8 @@ class GlobalFlanders(RobustStrategy):
         results, others, clients_state = super().init_fit(server_round, results, failures)
 
         if server_round > self.warmup_rounds:
-            M = load_all_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params")
+            M = load_all_time_series(dir="clients_params")
+            print(M)
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1
