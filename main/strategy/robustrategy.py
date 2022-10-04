@@ -157,8 +157,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
         """Initialize the robust aggregation and apply the attack function."""
 
-        print("FAILURES: ")
-        print(failures)
+        print("FAILURES: ", failures)
         if not results:
             return None, {}
         # Do not aggregate if there are failures and failures are not accepted

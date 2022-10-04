@@ -118,7 +118,6 @@ class GlobalFlanders(RobustStrategy):
 
         if server_round > self.warmup_rounds:
             M = load_all_time_series(dir="clients_params")
-            print(M)
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1

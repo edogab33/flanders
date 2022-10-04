@@ -81,19 +81,19 @@ def all_combinations():
     return d
 
 d = generate_d(
-    pool_size=[10,10],
-    fraction_fit=[1,1],
-    fraction_evaluate=[0,0],
-    malicious_clients=[0,0],
-    min_fit_clients=[10,10],
-    min_evaluate_clients=[0,0],
-    magnitude=[0,0],
-    warmup_rounds=[1,10],
-    to_keep=[10,6],
-    threshold=[1e-5, 1e-5],
-    attack_name=["no attack", "gaussian"],
-    strategy_name=["avg", "flanders"],
-    dataset_name=["income", "income"]
+    pool_size=[5,10,10],
+    fraction_fit=[1,1,1],
+    fraction_evaluate=[0,0,0],
+    malicious_clients=[0,0,4],
+    min_fit_clients=[10,10,10],
+    min_evaluate_clients=[0,0,0],
+    magnitude=[0,0,0],
+    warmup_rounds=[1,10,60],
+    to_keep=[10,6,6],
+    threshold=[1e-5, 1e-5, 1e-5],
+    attack_name=["no attack", "no attack", "lie"],
+    strategy_name=["avg", "avg", "flanders"],
+    dataset_name=["mnist", "income", "income"]
 )
 df = pd.DataFrame(data=d)
 df.to_csv("experiments_config.csv", index=False)

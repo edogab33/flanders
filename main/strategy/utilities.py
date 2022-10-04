@@ -27,15 +27,15 @@ def save_params(parameters, cid, remove_last=False):
 
 def save_results(loss, accuracy, config=None):
     # Save results as npy file
-    dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
+    dirs = [f for f in os.listdir("results_graphs/") if not f.startswith('.')]
     longest_string = len(max(dirs, key=len))
     idx = -2 if longest_string > 5 else -1
 
     highest_number = str(max([int(x[idx:]) for x in dirs if x[idx:].isdigit()]))
     loss_series = []
     acc_series = []
-    loss_path = "results/run_"+highest_number+"/loss.npy"
-    acc_path = "results/run_"+highest_number+"/acc.npy"
+    loss_path = "results_graphs/run_"+highest_number+"/loss.npy"
+    acc_path = "results_graphs/run_"+highest_number+"/acc.npy"
     if os.path.exists(loss_path):
         loss_series = np.load(loss_path)
     if os.path.exists(acc_path):
@@ -44,7 +44,7 @@ def save_results(loss, accuracy, config=None):
     acc_series = np.save(acc_path, np.append(acc_series, accuracy))
 
     # Save config
-    config_path = "results/run_"+highest_number+"/config.json"
+    config_path = "results_graphs/run_"+highest_number+"/config.json"
     with open(config_path, "w") as f:
         json.dump(config, f)
 
@@ -52,7 +52,7 @@ def save_results(loss, accuracy, config=None):
     config["accuracy"] = accuracy
     config["loss"] = loss
     df = pd.DataFrame.from_records([config])
-    csv_path = "results/all_results.csv"
+    csv_path = "results_all/all_results.csv"
     if os.path.exists(csv_path):
         df.to_csv(csv_path, mode="a", header=False, index=False)
     else:

@@ -3,15 +3,24 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+from sklearn.metrics import roc_auc_score
+from sklearn.preprocessing import LabelBinarizer
+
+def roc_auc_multiclass(y_true, y_pred):
+    lb = LabelBinarizer()
+    lb.fit(y_true)
+    y_true = lb.transform(y_true)
+    y_pred = lb.transform(y_pred)
+    return roc_auc_score(y_true, y_pred, multi_class="ovr")
 
 # Source: https://github.com/python-engineer/pytorchTutorial/blob/master/13_feedforward.py
 class MnistNet(nn.Module):
     def __init__(self, input_size=784, hidden_size=500, num_classes=10):
         super(MnistNet, self).__init__()
         self.input_size = input_size
-        self.l1 = nn.Linear(input_size, hidden_size) 
+        self.l1 = nn.Linear(input_size, hidden_size)
         self.relu = nn.ReLU()
-        self.l2 = nn.Linear(hidden_size, num_classes)  
+        self.l2 = nn.Linear(hidden_size, num_classes)
     
     def forward(self, x):
         out = self.l1(x)
@@ -46,6 +55,8 @@ def train_mnist(model, dataloader, epochs, device):
 def test_mnist(model, dataloader, device):
     loss=0
     model.eval()
+    criterion = nn.CrossEntropyLoss()
+    y_true, y_pred = [], []
     with torch.no_grad():
         n_correct = 0
         n_samples = 0
@@ -57,9 +68,14 @@ def test_mnist(model, dataloader, device):
             _, predicted = torch.max(outputs.data, 1)
             n_samples += labels.size(0)
             n_correct += (predicted == labels).sum().item()
-
+            loss += criterion(outputs, labels).item()
+            y_true.append(labels.cpu().numpy())
+            y_pred.append(predicted.cpu().numpy())
+        y_true = list(itertools.chain(*y_true))
+        y_pred = list(itertools.chain(*y_pred))
+        auc = roc_auc_multiclass(y_true, y_pred)
         acc = n_correct / n_samples
-    return loss, acc
+    return loss, acc, auc
 
 # Model (simple CNN adapted from 'PyTorch: A 60 Minute Blitz')
 # borrowed from Pytorch quickstart example
@@ -102,6 +118,7 @@ def test_cifar(net, testloader, device: str):
     """Validate the network on the entire test set."""
     criterion = torch.nn.CrossEntropyLoss()
     correct, total, loss = 0, 0, 0.0
+    y_true, y_pred = [], []
     net.eval()
     with torch.no_grad():
         for data in testloader:
@@ -111,8 +128,13 @@ def test_cifar(net, testloader, device: str):
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
+            y_true.append(labels.cpu().numpy())
+            y_pred.append(predicted.cpu().numpy())
+        y_true = list(itertools.chain(*y_true))
+        y_pred = list(itertools.chain(*y_pred))
+        auc = roc_auc_multiclass(y_true, y_pred)
     accuracy = correct / total
-    return loss, accuracy
+    return loss, accuracy, auc
 
 # Source: https://www.datacamp.com/tutorial/pytorch-tutorial-building-a-simple-neural-network-from-scratch
 class ToyNN(nn.Module):

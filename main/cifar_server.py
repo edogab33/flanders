@@ -10,7 +10,7 @@ import pandas as pd
 
 from typing import Dict, Callable, Optional, Tuple, List
 from neural_networks.dataset_utils import get_mnist, do_fl_partitioning, get_dataloader, get_circles, get_cifar_10, get_partitioned_income
-from neural_networks.neural_networks import MnistNet, ToyNN, test_toy, train_mnist, test_mnist, train_toy
+from neural_networks.neural_networks import MnistNet, ToyNN, roc_auc_multiclass, test_toy, train_mnist, test_mnist, train_toy
 from clients import CifarClient, IncomeClient, ToyClient, set_params, get_params, MnistClient, set_sklearn_model_params, get_sklearn_model_params
 from neural_networks.neural_networks import CifarNet, test_cifar
 from strategy.utilities import save_results
@@ -39,7 +39,7 @@ from flwr.common import (
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, log_loss
-from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import roc_auc_score
 
 
 parser = argparse.ArgumentParser(description="Flower Simulation with PyTorch")
@@ -70,13 +70,14 @@ def mnist_evaluate(
 
     testset = MNIST("", train=False, download=True, transform=transforms.ToTensor())
     testloader = DataLoader(testset, batch_size=32, shuffle=False, num_workers=1)
-    loss, accuracy = test_mnist(model, testloader, device=device)
+    loss, accuracy, auc = test_mnist(model, testloader, device=device)
 
     config["round"] = server_round
+    config["auc"] = auc
     save_results(loss, accuracy, config=config)
 
     # return statistics
-    return loss, {"accuracy": accuracy}
+    return loss, {"accuracy": accuracy, "auc": auc}
 
 def cifar_evaluate(
     server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
@@ -91,13 +92,14 @@ def cifar_evaluate(
 
     _, testset = get_cifar_10()
     testloader = torch.utils.data.DataLoader(testset, batch_size=50)
-    loss, accuracy = test_cifar(model, testloader, device=device)
+    loss, accuracy, auc = test_cifar(model, testloader, device=device)
 
     config["round"] = server_round
+    config["auc"] = auc
     save_results(loss, accuracy, config=config)
 
     # return statistics
-    return loss, {"accuracy": accuracy}
+    return loss, {"accuracy": accuracy, "auc": auc}
 
 def income_evaluate(
     server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
@@ -114,11 +116,13 @@ def income_evaluate(
     #accuracy = model.score(x_test, y_test)
     accuracy = accuracy_score(y_test, y_pred)
     loss = log_loss(y_test, model.predict_proba(x_test))
+    auc = roc_auc_score(y_test, model.predict_proba(x_test)[:,1])
 
     config["round"] = server_round
+    config["auc"] = auc
     save_results(loss, accuracy, config=config)
 
-    return loss, {"accuracy": accuracy}
+    return loss, {"accuracy": accuracy, "auc": auc}
 
 
 def circles_evaluate(
@@ -254,12 +258,10 @@ if __name__ == "__main__":
     ray_init_args = {"include_dashboard": False}
 
     # Prepare directory for logs
-    dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
-
+    dirs = [f for f in os.listdir("results_graphs/") if not f.startswith('.')]
     # find the highest number in a list composed by strings that have a number as final char
     longest_string = len(max(dirs, key=len))
     idx = -2 if longest_string > 5 else -1
-
     highest_number = max([int(x[idx:]) for x in dirs if x[idx:].isdigit()])
     os.makedirs("results/run_"+str(highest_number+1), exist_ok=True)
 

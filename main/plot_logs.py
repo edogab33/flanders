@@ -7,7 +7,7 @@ import json
 
 fedavg = False
 
-dirs = [f for f in os.listdir("results/") if not f.startswith('.')]
+dirs = [f for f in os.listdir("results_graphs/") if not f.startswith('.')]
 
 # find the highest number in a list composed by strings that have a number as final char
 longest_string = len(max(dirs, key=len))
@@ -15,9 +15,9 @@ idx = -2 if longest_string > 5 else -1
 highest_number = str(max([int(x[idx:]) for x in dirs if x[idx:].isdigit()]))
 #highest_number = "35"
 
-loss_path = "results/run_"+highest_number+"/loss.npy"
-acc_path = "results/run_"+highest_number+"/acc.npy"
-config_path = "results/run_"+highest_number+"/config.json"
+loss_path = "results_graphs/run_"+highest_number+"/loss.npy"
+acc_path = "results_graphs/run_"+highest_number+"/acc.npy"
+config_path = "results_graphs/run_"+highest_number+"/config.json"
 
 loss_series = np.load(loss_path)
 acc_series = np.load(acc_path)
@@ -69,5 +69,5 @@ else:
     ax.set_xlabel("epoch")
     ax.set_facecolor("whitesmoke")
 
-plt.savefig("results/run_"+highest_number+"/plot.png")
+plt.savefig("results_graphs/run_"+highest_number+"/plot.png")
 plt.show()
