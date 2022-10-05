@@ -22,7 +22,6 @@ from torchvision.datasets import MNIST
 from strategy.fltrust import FLTrust
 from strategy.malicious_fedavg import MaliciousFedAvg
 from strategy.fedmedian import FedMedian
-from strategy.flanders_local import LocalFlanders
 from strategy.flanders_global import GlobalFlanders
 from strategy.krum import Krum
 from strategy.multikrum import MultiKrum
