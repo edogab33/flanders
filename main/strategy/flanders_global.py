@@ -156,7 +156,7 @@ class GlobalFlanders(RobustStrategy):
             # For clients detected as malicious, set their parameters to be the averaged ones in their files
             # otherwise the forecasting in next round won't be reliable
             for idx in malicious_clients_idx:
-                save_params(flatten_params(parameters_to_ndarrays(parameters_aggregated)[:500]), idx, remove_last=True)
+                save_params(flatten_params(parameters_to_ndarrays(parameters_aggregated))[:500], idx, remove_last=True)
         else:
             parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
