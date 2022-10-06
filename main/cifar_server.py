@@ -164,6 +164,7 @@ if __name__ == "__main__":
     strategy_name = config.get("strategy_name", "fedavg")
     dataset_name = config.get("dataset_name", "circles")
     window = config.get("window", 0)
+    num_rounds = config.get("num_rounds", 50)
 
     if dataset_name == "circles":
         evaluate_fn = circles_evaluate
@@ -275,7 +276,7 @@ if __name__ == "__main__":
         client_fn=client_fn,
         num_clients=pool_size,
         client_resources=client_resources,
-        config=fl.server.ServerConfig(num_rounds=args.num_rounds),
+        config=fl.server.ServerConfig(num_rounds=num_rounds),
         strategy=strategy,
         ray_init_args=ray_init_args,
     )

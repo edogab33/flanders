@@ -58,6 +58,7 @@ class GlobalFlanders(RobustStrategy):
         min_evaluate_clients: int = 2,
         min_available_clients: int = 2,
         window: int = 0,
+        sampling: str = None,
         evaluate_fn: Optional[
             Callable[
                 [int, NDArrays, Dict[str, Scalar]],
@@ -101,7 +102,8 @@ class GlobalFlanders(RobustStrategy):
                 to_keep = to_keep,
                 attack_fn = attack_fn,
                 threshold = threshold,
-                window = window
+                window = window,
+                sampling=sampling
             )
 
     def aggregate_fit(
@@ -120,7 +122,7 @@ class GlobalFlanders(RobustStrategy):
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = self.mar(M[:,:,:-1], pred_step, window=40)
+            Mr = self.mar(M[:,:,:-1], pred_step, window=self.window-1)
             select_matrix_error = np.square(np.subtract(M_hat, Mr[:,:,0]))
             num_broken = len(select_matrix_error[select_matrix_error > self.threshold])
             print("Overall anomaly score: ", num_broken)

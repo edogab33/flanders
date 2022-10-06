@@ -34,9 +34,9 @@ def generate_d(
 
 def all_combinations():
     attacks = ["minmax"]
-    strategies = ["avg", "median", "trimmedmean", "krum", "multikrum", "fltrust", "flanders"]
-    datasets = ["income"]
-    malicious_num = [0, 5, 10, 20, 30, 50]
+    strategies = ["flanders"]
+    datasets = ["mnist"]
+    malicious_num = [5, 10, 20, 30, 50]
     to_keep = [10, 25, 50]
     #malicious_num = [0, 2, 4]
 
@@ -56,6 +56,7 @@ def all_combinations():
         "strategy_name": [],
         "dataset_name": [],
         "num_rounds": [],
+        "sampling": [],
     }
 
     for dataset in datasets:
@@ -80,6 +81,10 @@ def all_combinations():
                         d["strategy_name"].append(strategy)
                         d["dataset_name"].append(dataset)
                         d["num_rounds"].append(50)
+                        if strategy == "flanders" and (dataset == "cifar" or dataset == "mnist"):
+                            d["sampling"].append("layer")
+                        else:
+                            d["sampling"].append(None)
     return d
 
 d = all_combinations()

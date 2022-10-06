@@ -228,7 +228,6 @@ def minmax_attack(
 
         # Compute lambda
         if max_dist_m < max_dist_b:
-            print("O(gr, gamma) is true")
             lambda_succ = l
             l += step * 0.5
         else:

@@ -52,6 +52,7 @@ class TrimmedMean(RobustStrategy):
         min_evaluate_clients: int = 2,
         min_available_clients: int = 2,
         window: int = 0,
+        sampling: str = None,
         evaluate_fn: Optional[
             Callable[
                 [int, NDArrays, Dict[str, Scalar]],
