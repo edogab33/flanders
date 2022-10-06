@@ -24,9 +24,6 @@ from flwr.common import (
 )
 from flwr.server.client_proxy import ClientProxy
 
-import strategy.mscred.evaluate as eval
-import strategy.mscred.matrix_generator as mg
-
 WARNING_MIN_AVAILABLE_CLIENTS_TOO_LOW = """
 Setting `min_available_clients` lower than `min_fit_clients` or
 `min_evaluate_clients` can cause the server to fail when there are too few clients
@@ -186,67 +183,3 @@ class GlobalFlanders(RobustStrategy):
         for s in range(pred_step):
             tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
         return tensor[:, :, - pred_step :]
-
-    def aggregate_fit_mscred(
-        self,
-        server_round: int,
-        results: List[Tuple[ClientProxy, FitRes]],
-        failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
-    ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
-        """Apply MSCRED to exclude malicious clients from the average."""
-        print("round: "+str(server_round))
-        if not results:
-            return None, {}
-        # Do not aggregate if there are failures and failures are not accepted
-        if not self.accept_failures and failures:
-            return None, {}
-
-        # Save params for initial_parameters
-        #weights_results = [
-        #    (parameters_to_ndarrays(fit_res.parameters), fit_res.num_examples)
-        #    for _, fit_res in results
-        #]
-        #parameters_aggregated = aggregate(weights_results)
-        #np.save("/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/strategy/histories/aggregated_params.npy", parameters_aggregated)
-
-        weights_results = {
-            proxy.cid: np.asarray(parameters_to_ndarrays(fit_res.parameters))
-            for proxy, fit_res in results
-        }
-        
-        params = np.asarray([])
-        for cid in weights_results:
-            flattened_params = np.concatenate([w.flatten() for w in weights_results[cid]])
-            print(np.mean(flattened_params))
-            params = np.append(params, np.mean(flattened_params))
-
-        #np.save("params_ts.npy", params)
-
-        # check that strategy/histoies directory exists and load history if it does
-        history = np.load("strategy/histories/history.npy") if os.path.exists("strategy/histories/history.npy") else np.array([])
-        history = np.vstack((history, params)) if history.size else params
-        np.save("strategy/histories/history.npy", history)
-        
-        if server_round >= self.warmup_rounds:
-            df = pd.DataFrame(history.T)
-            df.to_csv("strategy/histories/history.csv", index=False, header=False)
-
-            # For each client, make signature test matrices
-            mg.generate_train_test_data(test_start=server_round-10, test_end=server_round, step_max=5, win_size=[10,30,60], params_time_series="strategy/histories/history.csv",
-                gap_time=1)
-
-            # Load MSCRED trained model and generate reconstructed matrices
-            mg.generate_reconstructed_matrices(test_start_id=server_round-10, test_end_id=server_round, sensor_n=history.shape[1], step_max=5, scale_n=9,
-                model_path="strategy/mscred/model_ckpt/8/", restore_idx=18)
-
-            # Compute anomaly scores
-            anomaly_scores = np.array(eval.evaluate(threshold=self.threshold, test_matrix_id=server_round-1))
-            print(anomaly_scores)
-            # Keep only the 'to_keep' clients with lower socres
-            print(sorted(np.argsort(anomaly_scores)[:self.to_keep]))
-            results = np.array(results)[sorted(np.argsort(anomaly_scores)[:self.to_keep])].tolist()
-
-        # TODO: save history without malicious clients (?)
-        parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
-
-        return parameters_aggregated, metrics_aggregated
