@@ -35,11 +35,12 @@ def generate_d(
 def all_combinations():
     attacks = ["no attack", "gaussian", "lie", "fang", "minmax"]
     strategies = ["avg", "median", "trimmedmean", "krum", "multikrum", "fltrust", "flanders"]
-    datasets = ["circles", "mnist", "cifar", "income"]
-    #malicious_num = [0, 5, 10, 20, 30, 50]
-    malicious_num = [0, 2, 4]
+    datasets = ["income"]
+    malicious_num = [0, 5, 10, 20, 30, 50]
+    #malicious_num = [0, 2, 4]
 
     d = {
+        "window":[],
         "pool_size": [],
         "fraction_fit": [],
         "fraction_evaluate": [],
@@ -59,41 +60,43 @@ def all_combinations():
         for strategy in strategies:
             for attack in attacks:
                 for malicious in malicious_num:
-                    d["pool_size"].append(10)
+                    d["window"].append(0)
+                    d["pool_size"].append(100)
                     d["fraction_fit"].append(1)
                     d["fraction_evaluate"].append(0)
                     d["malicious_clients"].append(malicious)
-                    d["min_fit_clients"].append(10)
+                    d["min_fit_clients"].append(100)
                     d["min_evaluate_clients"].append(0)
                     if attack == "gaussian":
                         d["magnitude"].append(0.5)
                     else:
                         d["magnitude"].append(0)
                     if strategy == "flanders":
-                        d["warmup_rounds"].append(70)
+                        d["warmup_rounds"].append(20)
                     else:
                         d["warmup_rounds"].append(0)
-                    d["to_keep"].append(10-malicious)
+                    d["to_keep"].append(20)
                     d["threshold"].append(1e-5)
                     d["attack_name"].append(attack)
                     d["strategy_name"].append(strategy)
                     d["dataset_name"].append(dataset)
     return d
 
-d = generate_d(
-    pool_size=[5,10,10],
-    fraction_fit=[1,1,1],
-    fraction_evaluate=[0,0,0],
-    malicious_clients=[0,0,4],
-    min_fit_clients=[10,10,10],
-    min_evaluate_clients=[0,0,0],
-    magnitude=[0,0,0],
-    warmup_rounds=[1,10,60],
-    to_keep=[10,6,6],
-    threshold=[1e-5, 1e-5, 1e-5],
-    attack_name=["no attack", "no attack", "lie"],
-    strategy_name=["avg", "avg", "flanders"],
-    dataset_name=["mnist", "income", "income"]
-)
+d = all_combinations()
+#d = generate_d(
+#    pool_size=[5,10,10],
+#    fraction_fit=[1,1,1],
+#    fraction_evaluate=[0,0,0],
+#    malicious_clients=[0,0,4],
+#    min_fit_clients=[10,10,10],
+#    min_evaluate_clients=[0,0,0],
+#    magnitude=[0,0,0],
+#    warmup_rounds=[1,10,60],
+#    to_keep=[10,6,6],
+#    threshold=[1e-5, 1e-5, 1e-5],
+#    attack_name=["no attack", "no attack", "lie"],
+#    strategy_name=["avg", "avg", "flanders"],
+#    dataset_name=["mnist", "income", "income"]
+#)
 df = pd.DataFrame(data=d)
 df.to_csv("experiments_config.csv", index=False)
