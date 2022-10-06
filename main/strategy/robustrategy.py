@@ -183,7 +183,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
             cids = np.append(cids, int(fitres.metrics["cid"]))
             clients_state[fitres.metrics['cid']] = fitres.metrics['malicious']
             if self.sampling == 'layer':
-                params = flatten_params(parameters_to_ndarrays(fitres.parameters)[0])
+                params = flatten_params(parameters_to_ndarrays(fitres.parameters)[-2])
             else:
                 params = flatten_params(parameters_to_ndarrays(fitres.parameters))
             save_params(params, fitres.metrics['cid'])
