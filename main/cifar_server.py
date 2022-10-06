@@ -165,6 +165,7 @@ if __name__ == "__main__":
     dataset_name = config.get("dataset_name", "circles")
     window = config.get("window", 0)
     num_rounds = config.get("num_rounds", 50)
+    sampling = config.get("sampling", None)
 
     if dataset_name == "circles":
         evaluate_fn = circles_evaluate
@@ -232,6 +233,7 @@ if __name__ == "__main__":
         strategy_name=strategy_name,                        # avg, median, krum, multikrum, trimmedmean, fltrust, flanders
         dataset_name=dataset_name,                          # mnist, cifar, income, circles
         window=window,                                      # Used in Flanders
+        sampling=sampling,                                  # Used in Flanders
         #initial_parameters=initial_parameters
     )
 
