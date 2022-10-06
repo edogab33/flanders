@@ -33,10 +33,11 @@ def generate_d(
     return d
 
 def all_combinations():
-    attacks = ["no attack", "gaussian", "lie", "fang", "minmax"]
+    attacks = ["minmax"]
     strategies = ["avg", "median", "trimmedmean", "krum", "multikrum", "fltrust", "flanders"]
     datasets = ["income"]
     malicious_num = [0, 5, 10, 20, 30, 50]
+    to_keep = [10, 25, 50]
     #malicious_num = [0, 2, 4]
 
     d = {
@@ -54,32 +55,31 @@ def all_combinations():
         "attack_name": [],
         "strategy_name": [],
         "dataset_name": [],
+        "num_rounds": [],
     }
 
     for dataset in datasets:
         for strategy in strategies:
             for attack in attacks:
                 for malicious in malicious_num:
-                    d["window"].append(0)
-                    d["pool_size"].append(100)
-                    d["fraction_fit"].append(1)
-                    d["fraction_evaluate"].append(0)
-                    d["malicious_clients"].append(malicious)
-                    d["min_fit_clients"].append(100)
-                    d["min_evaluate_clients"].append(0)
-                    if attack == "gaussian":
-                        d["magnitude"].append(0.5)
-                    else:
+                    for k in to_keep:
+                        d["window"].append(40)
+                        d["pool_size"].append(100)
+                        d["fraction_fit"].append(1)
+                        d["fraction_evaluate"].append(0)
+                        d["malicious_clients"].append(malicious)
+                        d["min_fit_clients"].append(100)
+                        d["min_evaluate_clients"].append(0)
+                        if attack == "gaussian":
+                            d["magnitude"].append(0.5)
                         d["magnitude"].append(0)
-                    if strategy == "flanders":
-                        d["warmup_rounds"].append(20)
-                    else:
-                        d["warmup_rounds"].append(1)
-                    d["to_keep"].append(20)
-                    d["threshold"].append(1e-5)
-                    d["attack_name"].append(attack)
-                    d["strategy_name"].append(strategy)
-                    d["dataset_name"].append(dataset)
+                        d["warmup_rounds"].append(40)
+                        d["to_keep"].append(k)
+                        d["threshold"].append(1e-5)
+                        d["attack_name"].append(attack)
+                        d["strategy_name"].append(strategy)
+                        d["dataset_name"].append(dataset)
+                        d["num_rounds"].append(50)
     return d
 
 d = all_combinations()

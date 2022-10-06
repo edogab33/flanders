@@ -1,211 +1,127 @@
-window,pool_size,fraction_fit,fraction_evaluate,malicious_clients,min_fit_clients,min_evaluate_clients,magnitude,warmup_rounds,to_keep,threshold,attack_name,strategy_name,dataset_name
-0,100,1,0,0,100,0,0.0,1,20,1e-05,no attack,avg,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,no attack,avg,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,no attack,avg,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,no attack,avg,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,no attack,avg,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,no attack,avg,income
-0,100,1,0,0,100,0,0.5,1,20,1e-05,gaussian,avg,income
-0,100,1,0,5,100,0,0.5,1,20,1e-05,gaussian,avg,income
-0,100,1,0,10,100,0,0.5,1,20,1e-05,gaussian,avg,income
-0,100,1,0,20,100,0,0.5,1,20,1e-05,gaussian,avg,income
-0,100,1,0,30,100,0,0.5,1,20,1e-05,gaussian,avg,income
-0,100,1,0,50,100,0,0.5,1,20,1e-05,gaussian,avg,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,lie,avg,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,lie,avg,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,lie,avg,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,lie,avg,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,lie,avg,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,lie,avg,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,fang,avg,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,fang,avg,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,fang,avg,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,fang,avg,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,fang,avg,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,fang,avg,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,minmax,avg,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,minmax,avg,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,minmax,avg,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,minmax,avg,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,minmax,avg,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,minmax,avg,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,no attack,median,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,no attack,median,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,no attack,median,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,no attack,median,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,no attack,median,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,no attack,median,income
-0,100,1,0,0,100,0,0.5,1,20,1e-05,gaussian,median,income
-0,100,1,0,5,100,0,0.5,1,20,1e-05,gaussian,median,income
-0,100,1,0,10,100,0,0.5,1,20,1e-05,gaussian,median,income
-0,100,1,0,20,100,0,0.5,1,20,1e-05,gaussian,median,income
-0,100,1,0,30,100,0,0.5,1,20,1e-05,gaussian,median,income
-0,100,1,0,50,100,0,0.5,1,20,1e-05,gaussian,median,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,lie,median,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,lie,median,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,lie,median,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,lie,median,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,lie,median,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,lie,median,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,fang,median,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,fang,median,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,fang,median,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,fang,median,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,fang,median,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,fang,median,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,minmax,median,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,minmax,median,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,minmax,median,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,minmax,median,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,minmax,median,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,minmax,median,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,no attack,trimmedmean,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,no attack,trimmedmean,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,no attack,trimmedmean,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,no attack,trimmedmean,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,no attack,trimmedmean,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,no attack,trimmedmean,income
-0,100,1,0,0,100,0,0.5,1,20,1e-05,gaussian,trimmedmean,income
-0,100,1,0,5,100,0,0.5,1,20,1e-05,gaussian,trimmedmean,income
-0,100,1,0,10,100,0,0.5,1,20,1e-05,gaussian,trimmedmean,income
-0,100,1,0,20,100,0,0.5,1,20,1e-05,gaussian,trimmedmean,income
-0,100,1,0,30,100,0,0.5,1,20,1e-05,gaussian,trimmedmean,income
-0,100,1,0,50,100,0,0.5,1,20,1e-05,gaussian,trimmedmean,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,lie,trimmedmean,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,lie,trimmedmean,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,lie,trimmedmean,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,lie,trimmedmean,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,lie,trimmedmean,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,lie,trimmedmean,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,fang,trimmedmean,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,fang,trimmedmean,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,fang,trimmedmean,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,fang,trimmedmean,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,fang,trimmedmean,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,fang,trimmedmean,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,minmax,trimmedmean,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,minmax,trimmedmean,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,minmax,trimmedmean,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,minmax,trimmedmean,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,minmax,trimmedmean,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,minmax,trimmedmean,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,no attack,krum,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,no attack,krum,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,no attack,krum,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,no attack,krum,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,no attack,krum,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,no attack,krum,income
-0,100,1,0,0,100,0,0.5,1,20,1e-05,gaussian,krum,income
-0,100,1,0,5,100,0,0.5,1,20,1e-05,gaussian,krum,income
-0,100,1,0,10,100,0,0.5,1,20,1e-05,gaussian,krum,income
-0,100,1,0,20,100,0,0.5,1,20,1e-05,gaussian,krum,income
-0,100,1,0,30,100,0,0.5,1,20,1e-05,gaussian,krum,income
-0,100,1,0,50,100,0,0.5,1,20,1e-05,gaussian,krum,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,lie,krum,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,lie,krum,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,lie,krum,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,lie,krum,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,lie,krum,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,lie,krum,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,fang,krum,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,fang,krum,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,fang,krum,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,fang,krum,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,fang,krum,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,fang,krum,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,minmax,krum,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,minmax,krum,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,minmax,krum,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,minmax,krum,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,minmax,krum,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,minmax,krum,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,no attack,multikrum,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,no attack,multikrum,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,no attack,multikrum,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,no attack,multikrum,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,no attack,multikrum,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,no attack,multikrum,income
-0,100,1,0,0,100,0,0.5,1,20,1e-05,gaussian,multikrum,income
-0,100,1,0,5,100,0,0.5,1,20,1e-05,gaussian,multikrum,income
-0,100,1,0,10,100,0,0.5,1,20,1e-05,gaussian,multikrum,income
-0,100,1,0,20,100,0,0.5,1,20,1e-05,gaussian,multikrum,income
-0,100,1,0,30,100,0,0.5,1,20,1e-05,gaussian,multikrum,income
-0,100,1,0,50,100,0,0.5,1,20,1e-05,gaussian,multikrum,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,lie,multikrum,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,lie,multikrum,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,lie,multikrum,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,lie,multikrum,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,lie,multikrum,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,lie,multikrum,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,fang,multikrum,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,fang,multikrum,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,fang,multikrum,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,fang,multikrum,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,fang,multikrum,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,fang,multikrum,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,minmax,multikrum,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,minmax,multikrum,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,minmax,multikrum,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,minmax,multikrum,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,minmax,multikrum,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,minmax,multikrum,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,no attack,fltrust,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,no attack,fltrust,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,no attack,fltrust,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,no attack,fltrust,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,no attack,fltrust,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,no attack,fltrust,income
-0,100,1,0,0,100,0,0.5,1,20,1e-05,gaussian,fltrust,income
-0,100,1,0,5,100,0,0.5,1,20,1e-05,gaussian,fltrust,income
-0,100,1,0,10,100,0,0.5,1,20,1e-05,gaussian,fltrust,income
-0,100,1,0,20,100,0,0.5,1,20,1e-05,gaussian,fltrust,income
-0,100,1,0,30,100,0,0.5,1,20,1e-05,gaussian,fltrust,income
-0,100,1,0,50,100,0,0.5,1,20,1e-05,gaussian,fltrust,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,lie,fltrust,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,lie,fltrust,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,lie,fltrust,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,lie,fltrust,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,lie,fltrust,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,lie,fltrust,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,fang,fltrust,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,fang,fltrust,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,fang,fltrust,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,fang,fltrust,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,fang,fltrust,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,fang,fltrust,income
-0,100,1,0,0,100,0,0.0,1,20,1e-05,minmax,fltrust,income
-0,100,1,0,5,100,0,0.0,1,20,1e-05,minmax,fltrust,income
-0,100,1,0,10,100,0,0.0,1,20,1e-05,minmax,fltrust,income
-0,100,1,0,20,100,0,0.0,1,20,1e-05,minmax,fltrust,income
-0,100,1,0,30,100,0,0.0,1,20,1e-05,minmax,fltrust,income
-0,100,1,0,50,100,0,0.0,1,20,1e-05,minmax,fltrust,income
-0,100,1,0,0,100,0,0.0,20,20,1e-05,no attack,flanders,income
-0,100,1,0,5,100,0,0.0,20,20,1e-05,no attack,flanders,income
-0,100,1,0,10,100,0,0.0,20,20,1e-05,no attack,flanders,income
-0,100,1,0,20,100,0,0.0,20,20,1e-05,no attack,flanders,income
-0,100,1,0,30,100,0,0.0,20,20,1e-05,no attack,flanders,income
-0,100,1,0,50,100,0,0.0,20,20,1e-05,no attack,flanders,income
-0,100,1,0,0,100,0,0.5,20,20,1e-05,gaussian,flanders,income
-0,100,1,0,5,100,0,0.5,20,20,1e-05,gaussian,flanders,income
-0,100,1,0,10,100,0,0.5,20,20,1e-05,gaussian,flanders,income
-0,100,1,0,20,100,0,0.5,20,20,1e-05,gaussian,flanders,income
-0,100,1,0,30,100,0,0.5,20,20,1e-05,gaussian,flanders,income
-0,100,1,0,50,100,0,0.5,20,20,1e-05,gaussian,flanders,income
-0,100,1,0,0,100,0,0.0,20,20,1e-05,lie,flanders,income
-0,100,1,0,5,100,0,0.0,20,20,1e-05,lie,flanders,income
-0,100,1,0,10,100,0,0.0,20,20,1e-05,lie,flanders,income
-0,100,1,0,20,100,0,0.0,20,20,1e-05,lie,flanders,income
-0,100,1,0,30,100,0,0.0,20,20,1e-05,lie,flanders,income
-0,100,1,0,50,100,0,0.0,20,20,1e-05,lie,flanders,income
-0,100,1,0,0,100,0,0.0,20,20,1e-05,fang,flanders,income
-0,100,1,0,5,100,0,0.0,20,20,1e-05,fang,flanders,income
-0,100,1,0,10,100,0,0.0,20,20,1e-05,fang,flanders,income
-0,100,1,0,20,100,0,0.0,20,20,1e-05,fang,flanders,income
-0,100,1,0,30,100,0,0.0,20,20,1e-05,fang,flanders,income
-0,100,1,0,50,100,0,0.0,20,20,1e-05,fang,flanders,income
-0,100,1,0,0,100,0,0.0,20,20,1e-05,minmax,flanders,income
-0,100,1,0,5,100,0,0.0,20,20,1e-05,minmax,flanders,income
-0,100,1,0,10,100,0,0.0,20,20,1e-05,minmax,flanders,income
-0,100,1,0,20,100,0,0.0,20,20,1e-05,minmax,flanders,income
-0,100,1,0,30,100,0,0.0,20,20,1e-05,minmax,flanders,income
-0,100,1,0,50,100,0,0.0,20,20,1e-05,minmax,flanders,income
+window,pool_size,fraction_fit,fraction_evaluate,malicious_clients,min_fit_clients,min_evaluate_clients,magnitude,warmup_rounds,to_keep,threshold,attack_name,strategy_name,dataset_name,num_rounds
+40,100,1,0,0,100,0,0,40,10,1e-05,minmax,avg,income,50
+40,100,1,0,0,100,0,0,40,25,1e-05,minmax,avg,income,50
+40,100,1,0,0,100,0,0,40,50,1e-05,minmax,avg,income,50
+40,100,1,0,5,100,0,0,40,10,1e-05,minmax,avg,income,50
+40,100,1,0,5,100,0,0,40,25,1e-05,minmax,avg,income,50
+40,100,1,0,5,100,0,0,40,50,1e-05,minmax,avg,income,50
+40,100,1,0,10,100,0,0,40,10,1e-05,minmax,avg,income,50
+40,100,1,0,10,100,0,0,40,25,1e-05,minmax,avg,income,50
+40,100,1,0,10,100,0,0,40,50,1e-05,minmax,avg,income,50
+40,100,1,0,20,100,0,0,40,10,1e-05,minmax,avg,income,50
+40,100,1,0,20,100,0,0,40,25,1e-05,minmax,avg,income,50
+40,100,1,0,20,100,0,0,40,50,1e-05,minmax,avg,income,50
+40,100,1,0,30,100,0,0,40,10,1e-05,minmax,avg,income,50
+40,100,1,0,30,100,0,0,40,25,1e-05,minmax,avg,income,50
+40,100,1,0,30,100,0,0,40,50,1e-05,minmax,avg,income,50
+40,100,1,0,50,100,0,0,40,10,1e-05,minmax,avg,income,50
+40,100,1,0,50,100,0,0,40,25,1e-05,minmax,avg,income,50
+40,100,1,0,50,100,0,0,40,50,1e-05,minmax,avg,income,50
+40,100,1,0,0,100,0,0,40,10,1e-05,minmax,median,income,50
+40,100,1,0,0,100,0,0,40,25,1e-05,minmax,median,income,50
+40,100,1,0,0,100,0,0,40,50,1e-05,minmax,median,income,50
+40,100,1,0,5,100,0,0,40,10,1e-05,minmax,median,income,50
+40,100,1,0,5,100,0,0,40,25,1e-05,minmax,median,income,50
+40,100,1,0,5,100,0,0,40,50,1e-05,minmax,median,income,50
+40,100,1,0,10,100,0,0,40,10,1e-05,minmax,median,income,50
+40,100,1,0,10,100,0,0,40,25,1e-05,minmax,median,income,50
+40,100,1,0,10,100,0,0,40,50,1e-05,minmax,median,income,50
+40,100,1,0,20,100,0,0,40,10,1e-05,minmax,median,income,50
+40,100,1,0,20,100,0,0,40,25,1e-05,minmax,median,income,50
+40,100,1,0,20,100,0,0,40,50,1e-05,minmax,median,income,50
+40,100,1,0,30,100,0,0,40,10,1e-05,minmax,median,income,50
+40,100,1,0,30,100,0,0,40,25,1e-05,minmax,median,income,50
+40,100,1,0,30,100,0,0,40,50,1e-05,minmax,median,income,50
+40,100,1,0,50,100,0,0,40,10,1e-05,minmax,median,income,50
+40,100,1,0,50,100,0,0,40,25,1e-05,minmax,median,income,50
+40,100,1,0,50,100,0,0,40,50,1e-05,minmax,median,income,50
+40,100,1,0,0,100,0,0,40,10,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,0,100,0,0,40,25,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,0,100,0,0,40,50,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,5,100,0,0,40,10,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,5,100,0,0,40,25,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,5,100,0,0,40,50,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,10,100,0,0,40,10,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,10,100,0,0,40,25,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,10,100,0,0,40,50,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,20,100,0,0,40,10,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,20,100,0,0,40,25,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,20,100,0,0,40,50,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,30,100,0,0,40,10,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,30,100,0,0,40,25,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,30,100,0,0,40,50,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,50,100,0,0,40,10,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,50,100,0,0,40,25,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,50,100,0,0,40,50,1e-05,minmax,trimmedmean,income,50
+40,100,1,0,0,100,0,0,40,10,1e-05,minmax,krum,income,50
+40,100,1,0,0,100,0,0,40,25,1e-05,minmax,krum,income,50
+40,100,1,0,0,100,0,0,40,50,1e-05,minmax,krum,income,50
+40,100,1,0,5,100,0,0,40,10,1e-05,minmax,krum,income,50
+40,100,1,0,5,100,0,0,40,25,1e-05,minmax,krum,income,50
+40,100,1,0,5,100,0,0,40,50,1e-05,minmax,krum,income,50
+40,100,1,0,10,100,0,0,40,10,1e-05,minmax,krum,income,50
+40,100,1,0,10,100,0,0,40,25,1e-05,minmax,krum,income,50
+40,100,1,0,10,100,0,0,40,50,1e-05,minmax,krum,income,50
+40,100,1,0,20,100,0,0,40,10,1e-05,minmax,krum,income,50
+40,100,1,0,20,100,0,0,40,25,1e-05,minmax,krum,income,50
+40,100,1,0,20,100,0,0,40,50,1e-05,minmax,krum,income,50
+40,100,1,0,30,100,0,0,40,10,1e-05,minmax,krum,income,50
+40,100,1,0,30,100,0,0,40,25,1e-05,minmax,krum,income,50
+40,100,1,0,30,100,0,0,40,50,1e-05,minmax,krum,income,50
+40,100,1,0,50,100,0,0,40,10,1e-05,minmax,krum,income,50
+40,100,1,0,50,100,0,0,40,25,1e-05,minmax,krum,income,50
+40,100,1,0,50,100,0,0,40,50,1e-05,minmax,krum,income,50
+40,100,1,0,0,100,0,0,40,10,1e-05,minmax,multikrum,income,50
+40,100,1,0,0,100,0,0,40,25,1e-05,minmax,multikrum,income,50
+40,100,1,0,0,100,0,0,40,50,1e-05,minmax,multikrum,income,50
+40,100,1,0,5,100,0,0,40,10,1e-05,minmax,multikrum,income,50
+40,100,1,0,5,100,0,0,40,25,1e-05,minmax,multikrum,income,50
+40,100,1,0,5,100,0,0,40,50,1e-05,minmax,multikrum,income,50
+40,100,1,0,10,100,0,0,40,10,1e-05,minmax,multikrum,income,50
+40,100,1,0,10,100,0,0,40,25,1e-05,minmax,multikrum,income,50
+40,100,1,0,10,100,0,0,40,50,1e-05,minmax,multikrum,income,50
+40,100,1,0,20,100,0,0,40,10,1e-05,minmax,multikrum,income,50
+40,100,1,0,20,100,0,0,40,25,1e-05,minmax,multikrum,income,50
+40,100,1,0,20,100,0,0,40,50,1e-05,minmax,multikrum,income,50
+40,100,1,0,30,100,0,0,40,10,1e-05,minmax,multikrum,income,50
+40,100,1,0,30,100,0,0,40,25,1e-05,minmax,multikrum,income,50
+40,100,1,0,30,100,0,0,40,50,1e-05,minmax,multikrum,income,50
+40,100,1,0,50,100,0,0,40,10,1e-05,minmax,multikrum,income,50
+40,100,1,0,50,100,0,0,40,25,1e-05,minmax,multikrum,income,50
+40,100,1,0,50,100,0,0,40,50,1e-05,minmax,multikrum,income,50
+40,100,1,0,0,100,0,0,40,10,1e-05,minmax,fltrust,income,50
+40,100,1,0,0,100,0,0,40,25,1e-05,minmax,fltrust,income,50
+40,100,1,0,0,100,0,0,40,50,1e-05,minmax,fltrust,income,50
+40,100,1,0,5,100,0,0,40,10,1e-05,minmax,fltrust,income,50
+40,100,1,0,5,100,0,0,40,25,1e-05,minmax,fltrust,income,50
+40,100,1,0,5,100,0,0,40,50,1e-05,minmax,fltrust,income,50
+40,100,1,0,10,100,0,0,40,10,1e-05,minmax,fltrust,income,50
+40,100,1,0,10,100,0,0,40,25,1e-05,minmax,fltrust,income,50
+40,100,1,0,10,100,0,0,40,50,1e-05,minmax,fltrust,income,50
+40,100,1,0,20,100,0,0,40,10,1e-05,minmax,fltrust,income,50
+40,100,1,0,20,100,0,0,40,25,1e-05,minmax,fltrust,income,50
+40,100,1,0,20,100,0,0,40,50,1e-05,minmax,fltrust,income,50
+40,100,1,0,30,100,0,0,40,10,1e-05,minmax,fltrust,income,50
+40,100,1,0,30,100,0,0,40,25,1e-05,minmax,fltrust,income,50
+40,100,1,0,30,100,0,0,40,50,1e-05,minmax,fltrust,income,50
+40,100,1,0,50,100,0,0,40,10,1e-05,minmax,fltrust,income,50
+40,100,1,0,50,100,0,0,40,25,1e-05,minmax,fltrust,income,50
+40,100,1,0,50,100,0,0,40,50,1e-05,minmax,fltrust,income,50
+40,100,1,0,0,100,0,0,40,10,1e-05,minmax,flanders,income,50
+40,100,1,0,0,100,0,0,40,25,1e-05,minmax,flanders,income,50
+40,100,1,0,0,100,0,0,40,50,1e-05,minmax,flanders,income,50
+40,100,1,0,5,100,0,0,40,10,1e-05,minmax,flanders,income,50
+40,100,1,0,5,100,0,0,40,25,1e-05,minmax,flanders,income,50
+40,100,1,0,5,100,0,0,40,50,1e-05,minmax,flanders,income,50
+40,100,1,0,10,100,0,0,40,10,1e-05,minmax,flanders,income,50
+40,100,1,0,10,100,0,0,40,25,1e-05,minmax,flanders,income,50
+40,100,1,0,10,100,0,0,40,50,1e-05,minmax,flanders,income,50
+40,100,1,0,20,100,0,0,40,10,1e-05,minmax,flanders,income,50
+40,100,1,0,20,100,0,0,40,25,1e-05,minmax,flanders,income,50
+40,100,1,0,20,100,0,0,40,50,1e-05,minmax,flanders,income,50
+40,100,1,0,30,100,0,0,40,10,1e-05,minmax,flanders,income,50
+40,100,1,0,30,100,0,0,40,25,1e-05,minmax,flanders,income,50
+40,100,1,0,30,100,0,0,40,50,1e-05,minmax,flanders,income,50
+40,100,1,0,50,100,0,0,40,10,1e-05,minmax,flanders,income,50
+40,100,1,0,50,100,0,0,40,25,1e-05,minmax,flanders,income,50
+40,100,1,0,50,100,0,0,40,50,1e-05,minmax,flanders,income,50
