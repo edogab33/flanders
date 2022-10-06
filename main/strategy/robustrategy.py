@@ -59,7 +59,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         iid: bool = True,
         malicious_clients: int = 0,
         window: int = 0,
-        sampling: str = None,
+        sampling: int = 0,
         evaluate_fn: Optional[
             Callable[
                 [int, NDArrays, Dict[str, Scalar]],
@@ -122,7 +122,8 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         self.attack_name = attack_name.lower()                      # attack name (gaussian, lie, etc.)
         self.iid = iid                                              # iid or non-iid dataset
         self.window = window                                        # window size (num of timesteps loaded and window size for MAR)
-        self.sampling = sampling                                    # parameters sampling method (none, layer, random)
+        self.sampling = sampling                                    # number of params to sample
+        self.params_indexes = []                                    # indexes of sampled parameters after round 1
 
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
@@ -182,10 +183,12 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         for proxy, fitres in results:
             cids = np.append(cids, int(fitres.metrics["cid"]))
             clients_state[fitres.metrics['cid']] = fitres.metrics['malicious']
-            if self.sampling == 'layer':
-                params = flatten_params(parameters_to_ndarrays(fitres.parameters))[:500]
-            else:
-                params = flatten_params(parameters_to_ndarrays(fitres.parameters))
+            params = flatten_params(parameters_to_ndarrays(fitres.parameters))
+            if self.sampling > 0:
+                if len(self.params_indexes) == 0:
+                    # Sample a random subset of parameters
+                    self.params_indexes = np.random.randint(0, len(params), size=self.sampling)
+                params = params[self.params_indexes]
             save_params(params, fitres.metrics['cid'])
             # Re-arrange results in the same order as clients' cids impose
             ordered_results[int(fitres.metrics['cid'])] = (proxy, fitres)
@@ -202,9 +205,12 @@ class RobustStrategy(fl.server.strategy.FedAvg):
             if self.dataset_name == "circles":
                 self.root_dataset = get_circles(32, n_samples=10000, is_train=True)
             elif self.dataset_name == "mnist":
+                #TODO: Implement
                 pass
-            elif self.dataset_name == "cifar10":
+            elif self.dataset_name == "cifar":
+                #TODO: Implement
                 pass
+
         if server_round > self.warmup_rounds:
             results, others = self.attack_fn(
                 ordered_results, clients_state, magnitude=self.magnitude,
@@ -217,8 +223,8 @@ class RobustStrategy(fl.server.strategy.FedAvg):
 
             # Update saved parameters time series after the attack
             for proxy, fitres in results:
-                if self.sampling == 'layer':
-                    params = flatten_params(parameters_to_ndarrays(fitres.parameters))[:500]
+                if self.sampling > 0:
+                    params = flatten_params(parameters_to_ndarrays(fitres.parameters))[self.params_indexes]
                 else:
                     params = flatten_params(parameters_to_ndarrays(fitres.parameters))
                 save_params(params, fitres.metrics['cid'], remove_last=True)

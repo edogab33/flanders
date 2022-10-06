@@ -165,7 +165,7 @@ if __name__ == "__main__":
     dataset_name = config.get("dataset_name", "circles")
     window = config.get("window", 0)
     num_rounds = config.get("num_rounds", 50)
-    sampling = config.get("sampling", None)
+    sampling = config.get("sampling", 0)
 
     if dataset_name == "circles":
         evaluate_fn = circles_evaluate
@@ -266,7 +266,7 @@ if __name__ == "__main__":
     longest_string = len(max(dirs, key=len))
     idx = -2 if longest_string > 5 else -1
     highest_number = max([int(x[idx:]) for x in dirs if x[idx:].isdigit()])
-    os.makedirs("results/run_"+str(highest_number+1), exist_ok=True)
+    os.makedirs("results_graphs/run_"+str(highest_number+1), exist_ok=True)
 
     # Delete previous tensor in client_params
     tensor_dir = "clients_params/"

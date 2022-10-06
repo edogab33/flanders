@@ -14,6 +14,8 @@ def generate_d(
     attack_name=["no attack"],
     strategy_name=["avg"],
     dataset_name=["circles"],
+    num_rounds=[50],
+    sampling=[0],
 ):
     d = {
         "pool_size": pool_size,
@@ -29,6 +31,8 @@ def generate_d(
         "attack_name": attack_name,
         "strategy_name": strategy_name,
         "dataset_name": dataset_name,
+        "num_rounds": num_rounds,
+        "sampling": sampling,
     }
     return d
 
@@ -82,26 +86,28 @@ def all_combinations():
                         d["dataset_name"].append(dataset)
                         d["num_rounds"].append(50)
                         if strategy == "flanders" and (dataset == "cifar" or dataset == "mnist"):
-                            d["sampling"].append("layer")
+                            d["sampling"].append(50)
                         else:
-                            d["sampling"].append(None)
+                            d["sampling"].append(0)
     return d
 
-d = all_combinations()
-#d = generate_d(
-#    pool_size=[5,10,10],
-#    fraction_fit=[1,1,1],
-#    fraction_evaluate=[0,0,0],
-#    malicious_clients=[0,0,4],
-#    min_fit_clients=[10,10,10],
-#    min_evaluate_clients=[0,0,0],
-#    magnitude=[0,0,0],
-#    warmup_rounds=[1,10,60],
-#    to_keep=[10,6,6],
-#    threshold=[1e-5, 1e-5, 1e-5],
-#    attack_name=["no attack", "no attack", "lie"],
-#    strategy_name=["avg", "avg", "flanders"],
-#    dataset_name=["mnist", "income", "income"]
-#)
+#d = all_combinations()
+d = generate_d(
+    pool_size=[5,10,10],
+    fraction_fit=[1,1,1],
+    fraction_evaluate=[0,0,0],
+    malicious_clients=[2,0,4],
+    min_fit_clients=[5,10,10],
+    min_evaluate_clients=[0,0,0],
+    magnitude=[0,0,0],
+    warmup_rounds=[10,10,60],
+    to_keep=[2,6,6],
+    threshold=[1e-5, 1e-5, 1e-5],
+    attack_name=["minmax", "no attack", "lie"],
+    strategy_name=["flanders", "avg", "flanders"],
+    dataset_name=["mnist", "income", "income"],
+    num_rounds=[50,50,50],
+    sampling=[50,0,0]
+)
 df = pd.DataFrame(data=d)
 df.to_csv("experiments_config.csv", index=False)
