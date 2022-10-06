@@ -34,9 +34,9 @@ def generate_d(
 
 def all_combinations():
     attacks = ["minmax"]
-    strategies = ["flanders"]
-    datasets = ["mnist"]
-    malicious_num = [5, 10, 20, 30, 50]
+    strategies = ["avg", "median", "trimmedmean", "krum", "multikrum", "fltrust", "flanders"]
+    datasets = ["income"]
+    malicious_num = [0, 5, 10, 20, 30, 50]
     to_keep = [10, 25, 50]
     #malicious_num = [0, 2, 4]
 

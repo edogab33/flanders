@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in `seq 0 209`; do
+for i in `seq 0 127`; do
     echo "Starting experiment # $i"
     python cifar_server.py --exp_num=$i;
 done
