@@ -58,7 +58,7 @@ def save_results(loss, accuracy, config=None):
     else:
         df.to_csv(csv_path, index=False)
 
-def load_all_time_series(dir=""):
+def load_all_time_series(dir="", window=0):
         """
         Load all time series in order to have a tensor of shape (m,T,n)
         where:
@@ -70,7 +70,10 @@ def load_all_time_series(dir=""):
         files.sort()
         data = []
         for file in files:
-            data.append(np.load(os.path.join(dir, file), allow_pickle=True))
+            if window == 0:
+                data.append(np.load(os.path.join(dir, file), allow_pickle=True))
+            else:
+                data.append(np.load(os.path.join(dir, file), allow_pickle=True)[-window:])
         return np.array(data)
 
 def load_time_series(dir="", cid=0):

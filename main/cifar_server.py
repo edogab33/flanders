@@ -1,5 +1,4 @@
 import argparse
-from multiprocessing import pool
 import shutil
 import flwr as fl
 from flwr.common.typing import Scalar
@@ -152,7 +151,7 @@ if __name__ == "__main__":
     config = pd.read_csv("experiments_config.csv")
     config = config.to_dict("records")[args.exp_num]
     print(config)
-    pool_size = config.get("num_clients", 10)  # number of dataset partions (= number of total clients)
+    pool_size = config.get("pool_size", 10)  # number of dataset partions (= number of total clients)
     fraction_fit = config.get("fraction_fit", 1)
     fraction_evaluate = config.get("fraction_evaluate", 0)
     malicious_clients = config.get("malicious_clients", 0)
@@ -165,6 +164,7 @@ if __name__ == "__main__":
     attack_name = config.get("attack_name", "no attack")
     strategy_name = config.get("strategy_name", "fedavg")
     dataset_name = config.get("dataset_name", "circles")
+    window = config.get("window", 0)
 
     if dataset_name == "circles":
         evaluate_fn = circles_evaluate
@@ -231,6 +231,7 @@ if __name__ == "__main__":
         attack_name=attack_name,                            # minmax, fang, gaussian, lie, no attack
         strategy_name=strategy_name,                        # avg, median, krum, multikrum, trimmedmean, fltrust, flanders
         dataset_name=dataset_name,                          # mnist, cifar, income, circles
+        window=window,                                      # Used in Flanders
         #initial_parameters=initial_parameters
     )
 

@@ -1,0 +1,4 @@
+name: flanders
+channels:
+  - defaults
+prefix: /Users/eddie/opt/miniconda3/envs/flanders

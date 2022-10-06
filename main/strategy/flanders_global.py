@@ -60,6 +60,7 @@ class GlobalFlanders(RobustStrategy):
         min_fit_clients: int = 2,
         min_evaluate_clients: int = 2,
         min_available_clients: int = 2,
+        window: int = 0,
         evaluate_fn: Optional[
             Callable[
                 [int, NDArrays, Dict[str, Scalar]],
@@ -102,7 +103,8 @@ class GlobalFlanders(RobustStrategy):
                 warmup_rounds = warmup_rounds,
                 to_keep = to_keep,
                 attack_fn = attack_fn,
-                threshold = threshold
+                threshold = threshold,
+                window = window
             )
 
     def aggregate_fit(
@@ -117,7 +119,7 @@ class GlobalFlanders(RobustStrategy):
         results, others, clients_state = super().init_fit(server_round, results, failures)
 
         if server_round > self.warmup_rounds:
-            M = load_all_time_series(dir="clients_params")
+            M = load_all_time_series(dir="clients_params", window=self.window)
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1

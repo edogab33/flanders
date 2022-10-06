@@ -58,6 +58,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         attack_name: str = "not specified",
         iid: bool = True,
         malicious_clients: int = 0,
+        window: int = 0,
         evaluate_fn: Optional[
             Callable[
                 [int, NDArrays, Dict[str, Scalar]],
@@ -119,6 +120,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         self.strategy_name = strategy_name.lower()                  # strategy name (fedavg, krum, etc.)
         self.attack_name = attack_name.lower()                      # attack name (gaussian, lie, etc.)
         self.iid = iid                                              # iid or non-iid dataset
+        self.window = window                                        # window size
 
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager

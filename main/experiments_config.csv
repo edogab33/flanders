@@ -1,4 +1,4 @@
-pool_size,fraction_fit,fraction_evaluate,malicious_clients,min_fit_clients,min_evaluate_clients,magnitude,warmup_rounds,to_keep,threshold,attack_name,strategy_name,dataset_name
-5,1,0,0,10,0,0,1,10,1e-05,no attack,avg,mnist
-10,1,0,0,10,0,0,10,6,1e-05,no attack,avg,income
-10,1,0,4,10,0,0,60,6,1e-05,lie,flanders,income
+window,pool_size,fraction_fit,fraction_evaluate,malicious_clients,min_fit_clients,min_evaluate_clients,magnitude,warmup_rounds,to_keep,threshold,attack_name,strategy_name,dataset_name
+1,5,1,0,0,5,0,0,1,10,1e-05,no attack,flanders,income
+1,10,1,0,0,10,0,0,10,6,1e-05,no attack,avg,income
+1,10,1,0,4,10,0,0,60,6,1e-05,lie,flanders,income
