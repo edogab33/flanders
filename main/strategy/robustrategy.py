@@ -183,7 +183,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
             cids = np.append(cids, int(fitres.metrics["cid"]))
             clients_state[fitres.metrics['cid']] = fitres.metrics['malicious']
             if self.sampling == 'layer':
-                params = flatten_params(parameters_to_ndarrays(fitres.parameters)[-2])
+                params = flatten_params(parameters_to_ndarrays(fitres.parameters))[:500]
             else:
                 params = flatten_params(parameters_to_ndarrays(fitres.parameters))
             save_params(params, fitres.metrics['cid'])
@@ -218,7 +218,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
             # Update saved parameters time series after the attack
             for proxy, fitres in results:
                 if self.sampling == 'layer':
-                    params = flatten_params(parameters_to_ndarrays(fitres.parameters)[-2])
+                    params = flatten_params(parameters_to_ndarrays(fitres.parameters))[:500]
                 else:
                     params = flatten_params(parameters_to_ndarrays(fitres.parameters))
                 save_params(params, fitres.metrics['cid'], remove_last=True)
