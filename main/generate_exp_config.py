@@ -74,7 +74,7 @@ def all_combinations():
                     if strategy == "flanders":
                         d["warmup_rounds"].append(20)
                     else:
-                        d["warmup_rounds"].append(0)
+                        d["warmup_rounds"].append(1)
                     d["to_keep"].append(20)
                     d["threshold"].append(1e-5)
                     d["attack_name"].append(attack)
