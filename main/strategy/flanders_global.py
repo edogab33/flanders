@@ -3,6 +3,7 @@ import numpy as np
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 from typing import Callable, Dict, List, Optional, Tuple, Union
 from strategy.robustrategy import RobustStrategy
@@ -166,7 +167,7 @@ class GlobalFlanders(RobustStrategy):
         if window > 0:
             T = window
         B = np.random.randn(n, n)
-        for it in range(maxiter):
+        for it in tqdm(range(maxiter)):
             temp0 = B.T @ B
             temp1 = np.zeros((m, m))
             temp2 = np.zeros((m, m))
@@ -182,6 +183,6 @@ class GlobalFlanders(RobustStrategy):
                 temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
             B = temp1 @ np.linalg.inv(temp2)
         tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
-        for s in range(pred_step):
+        for s in tqdm(range(pred_step)):
             tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
         return tensor[:, :, - pred_step :]
