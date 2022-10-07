@@ -70,11 +70,8 @@ def load_all_time_series(dir="", window=0):
         files.sort()
         data = []
         for file in files:
-            if window == 0:
-                data.append(np.load(os.path.join(dir, file), allow_pickle=True))
-            else:
-                data.append(np.load(os.path.join(dir, file), allow_pickle=True)[-window:])
-        return np.array(data)
+            data.append(np.load(os.path.join(dir, file), allow_pickle=True))
+        return np.array(data)[:,-window:,:]
 
 def load_time_series(dir="", cid=0):
     """

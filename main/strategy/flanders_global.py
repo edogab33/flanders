@@ -123,17 +123,16 @@ class GlobalFlanders(RobustStrategy):
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = self.mar(M[:,:,:-1], pred_step, window=self.window-1)
+            Mr = mar(M[:,:,:-1], pred_step, maxiter=1, window=self.window-1)
             #select_matrix_error = np.square(np.subtract(M_hat, Mr[:,:,0]))
             #num_broken = len(select_matrix_error[select_matrix_error > self.threshold])
             #print("Overall anomaly score: ", num_broken)
-
             #anomaly_scores = []
             ## Compute anomaly score for each client
             #for client in select_matrix_error:
             #    anomaly_scores.append(np.sum(client))
             delta = np.subtract(M_hat, Mr[:,:,0])
-            anomaly_scores = np.square(np.sum(np.abs(delta)**2,axis=-1)**(1./2))
+            anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
             print("Anomaly scores: ", anomaly_scores)
             good_clients_idx = sorted(np.argsort(anomaly_scores)[:self.to_keep])
             malicious_clients_idx = sorted(np.argsort(anomaly_scores)[self.to_keep:])
@@ -167,27 +166,36 @@ class GlobalFlanders(RobustStrategy):
 
         return parameters_aggregated, metrics_aggregated
 
-    def mar(self, X, pred_step, maxiter = 100, window = 0):
-        m, n, T = X.shape
-        if window > 0:
-            T = window
-        B = np.random.randn(n, n).astype(np.longdouble)
-        for it in tqdm(range(maxiter)):
-            temp0 = B.T @ B
-            temp1 = np.zeros((m, m)).astype(np.longdouble)
-            temp2 = np.zeros((m, m)).astype(np.longdouble)
-            for t in range(1, T):
-                temp1 += X[:, :, t] @ B @ X[:, :, t - 1].T
-                temp2 += X[:, :, t - 1] @ temp0 @ X[:, :, t - 1].T
-            A = temp1 @ np.linalg.inv(temp2)
-            temp0 = A.T @ A
-            temp1 = np.zeros((n, n))
-            temp2 = np.zeros((n, n))
-            for t in range(1, T):
-                temp1 += X[:, :, t].T @ A @ X[:, :, t - 1]
-                temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
-            B = temp1 @ np.linalg.inv(temp2)
-        tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
-        for s in tqdm(range(pred_step)):
-            tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
-        return tensor[:, :, - pred_step :]
+def mar(X, pred_step, maxiter = 100, window = 0):
+    m, n, T = X.shape
+    if window > 0:
+        start = T - window
+    B = np.random.randn(n, n)
+    for it in tqdm(range(maxiter)):
+        temp0 = B.T @ B
+        temp1 = np.zeros((m, m))
+        temp2 = np.zeros((m, m))
+        for t in range(start, T):
+            temp1 += X[:, :, t] @ B @ X[:, :, t - 1].T
+            temp2 += X[:, :, t - 1] @ temp0 @ X[:, :, t - 1].T
+        A = temp1 @ np.linalg.inv(temp2)
+        temp0 = A.T @ A
+        temp1 = np.zeros((n, n))
+        temp2 = np.zeros((n, n))
+        for t in range(start, T):
+            temp1 += X[:, :, t].T @ A @ X[:, :, t - 1]
+            temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
+        B = temp1 @ np.linalg.inv(temp2)
+    tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
+    for s in tqdm(range(pred_step)):
+        tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
+    return tensor[:, :, - pred_step :]
+
+#M = load_all_time_series(dir="clients_params", window=5)
+#M = np.transpose(M, (0, 2, 1))
+#M_hat = M[:,:,-1].copy()
+#pred_step = 1
+#Mr = mar(M[:,:,:-1], pred_step, window=4, maxiter=60)
+#delta = np.subtract(M_hat, Mr[:,:,0])
+#anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
+#print("Anomaly scores: ", anomaly_scores)

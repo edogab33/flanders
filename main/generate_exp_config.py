@@ -19,6 +19,7 @@ def generate_d(
     sampling=[0],
 ):
     d = {
+        "window":window,
         "pool_size": pool_size,
         "fraction_fit": fraction_fit,
         "fraction_evaluate": fraction_evaluate,
@@ -94,6 +95,7 @@ def all_combinations():
 
 #d = all_combinations()
 d = generate_d(
+    window=[40,40,40],
     pool_size=[5,10,10],
     fraction_fit=[1,1,1],
     fraction_evaluate=[0,0,0],
@@ -108,7 +110,7 @@ d = generate_d(
     strategy_name=["flanders", "avg", "flanders"],
     dataset_name=["mnist", "income", "income"],
     num_rounds=[50,50,50],
-    sampling=[50,0,0]
+    sampling=[50,0,0],
 )
 df = pd.DataFrame(data=d)
 df.to_csv("experiments_config.csv", index=False)
