@@ -124,14 +124,16 @@ class GlobalFlanders(RobustStrategy):
             M_hat = M[:,:,-1].copy()
             pred_step = 1
             Mr = self.mar(M[:,:,:-1], pred_step, window=self.window-1)
-            select_matrix_error = np.square(np.subtract(M_hat, Mr[:,:,0]))
-            num_broken = len(select_matrix_error[select_matrix_error > self.threshold])
-            print("Overall anomaly score: ", num_broken)
+            #select_matrix_error = np.square(np.subtract(M_hat, Mr[:,:,0]))
+            #num_broken = len(select_matrix_error[select_matrix_error > self.threshold])
+            #print("Overall anomaly score: ", num_broken)
 
-            anomaly_scores = []
-            # Compute anomaly score for each client
-            for client in select_matrix_error:
-                anomaly_scores.append(np.sum(client))
+            #anomaly_scores = []
+            ## Compute anomaly score for each client
+            #for client in select_matrix_error:
+            #    anomaly_scores.append(np.sum(client))
+            delta = np.subtract(M_hat, Mr[:,:,0])
+            anomaly_scores = np.square(np.sum(np.abs(delta)**2,axis=-1)**(1./2))
             print("Anomaly scores: ", anomaly_scores)
             good_clients_idx = sorted(np.argsort(anomaly_scores)[:self.to_keep])
             malicious_clients_idx = sorted(np.argsort(anomaly_scores)[self.to_keep:])
