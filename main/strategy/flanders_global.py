@@ -169,11 +169,11 @@ class GlobalFlanders(RobustStrategy):
         m, n, T = X.shape
         if window > 0:
             T = window
-        B = np.random.randn(n, n)
+        B = np.random.randn(n, n).astype(np.longdouble)
         for it in tqdm(range(maxiter)):
             temp0 = B.T @ B
-            temp1 = np.zeros((m, m))
-            temp2 = np.zeros((m, m))
+            temp1 = np.zeros((m, m)).astype(np.longdouble)
+            temp2 = np.zeros((m, m)).astype(np.longdouble)
             for t in range(1, T):
                 temp1 += X[:, :, t] @ B @ X[:, :, t - 1].T
                 temp2 += X[:, :, t - 1] @ temp0 @ X[:, :, t - 1].T

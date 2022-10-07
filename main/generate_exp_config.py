@@ -1,6 +1,7 @@
 import pandas as pd
 
 def generate_d(
+    window = [40],
     pool_size=[10],
     fraction_fit=[1],
     fraction_evaluate=[0],
