@@ -123,14 +123,8 @@ class GlobalFlanders(RobustStrategy):
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = mar(M[:,:,:-1], pred_step, maxiter=1, window=self.window-1)
-            #select_matrix_error = np.square(np.subtract(M_hat, Mr[:,:,0]))
-            #num_broken = len(select_matrix_error[select_matrix_error > self.threshold])
-            #print("Overall anomaly score: ", num_broken)
-            #anomaly_scores = []
-            ## Compute anomaly score for each client
-            #for client in select_matrix_error:
-            #    anomaly_scores.append(np.sum(client))
+            Mr = mar(M[:,:,:-1], pred_step, maxiter=10, window=self.window-1)
+
             delta = np.subtract(M_hat, Mr[:,:,0])
             anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
             print("Anomaly scores: ", anomaly_scores)
@@ -148,7 +142,7 @@ class GlobalFlanders(RobustStrategy):
             #fig, ax = plt.subplots(1,3, figsize=(10,5))
             #ax[0].matshow(M_hat)
             #ax[1].matshow(Mr[:,:,0])
-            #ax[2].matshow(select_matrix_error)
+            #ax[2].matshow(delta)
             #plt.show()
 
             # Aplly FedAvg for the remaining clients
