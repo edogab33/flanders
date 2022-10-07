@@ -9,21 +9,30 @@ from flwr.common import (
     parameters_to_ndarrays,
 )
 
-def save_params(parameters, cid, remove_last=False):
-        new_params = parameters
-        # Save parameters in client_params/cid_params
-        path = f"clients_params/{cid}_params.npy"
-        if os.path.exists("clients_params") == False:
-            os.mkdir("clients_params")
-        if os.path.exists(path):
-            # load old parameters
-            old_params = np.load(path, allow_pickle=True)
-            if remove_last:
-                old_params = old_params[:-1]
-            # add new parameters
-            new_params = np.vstack((old_params, new_params))
-        # save parameters
-        np.save(path, new_params)
+def save_params(parameters, cid, remove_last=False, rrl=False):
+    """
+    Args:
+    - parameters (ndarray): decoded parameters to append at the end of the file
+    - cid (int): identifier of the client
+    - remove_last (bool): if True, remove the last saved parameters and replace with "parameters"
+    - rrl (bool): if True, remove the last saved parameters and replace with the ones saved before this round
+    """
+    new_params = parameters
+    # Save parameters in client_params/cid_params
+    path = f"clients_params/{cid}_params.npy"
+    if os.path.exists("clients_params") == False:
+        os.mkdir("clients_params")
+    if os.path.exists(path):
+        # load old parameters
+        old_params = np.load(path, allow_pickle=True)
+        if remove_last:
+            old_params = old_params[:-1]
+            if rrl:
+                new_params = old_params[-1:]
+        # add new parameters
+        new_params = np.vstack((old_params, new_params))
+    # save parameters
+    np.save(path, new_params)
 
 def save_results(loss, accuracy, config=None):
     # Save results as npy file
