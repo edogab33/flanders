@@ -34,7 +34,6 @@ def mar(X, pred_step, maxiter = 100, window = 0):
             raise ValueError("NaN values in tensor")
         return tensor[:, :, - pred_step :]
     except:
-        print("Error in MAR")
         tensor = mar(X, pred_step, maxiter = int(maxiter*0.75), window = window)
         return tensor
 

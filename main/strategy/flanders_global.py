@@ -194,6 +194,8 @@ def mar(X, pred_step, maxiter = 100, window = 0):
         return tensor[:, :, - pred_step :]
     except:
         print("[!!] Error in MAR - decreasing number of iterations")
+        if int(maxiter*0.75) == 0:
+            raise ValueError("Could not find a solution for MAR.")
         return mar(X, pred_step, maxiter = int(maxiter*0.75), window = window)
 
 def cap_values(matrix):
