@@ -168,15 +168,15 @@ def mar(X, pred_step, maxiter = 100, window = 0):
     B = np.random.randn(n, n)
     for it in tqdm(range(maxiter)):
         temp0 = B.T @ B
-        temp1 = np.zeros((m, m), dtype=np.float128)
-        temp2 = np.zeros((m, m), dtype=np.float128)
+        temp1 = np.zeros((m, m), dtype=np.longdouble)
+        temp2 = np.zeros((m, m), dtype=np.longdouble)
         for t in range(start, T):
             temp1 += X[:, :, t] @ B @ X[:, :, t - 1].T
             temp2 += X[:, :, t - 1] @ temp0 @ X[:, :, t - 1].T
         A = temp1 @ np.linalg.inv(temp2)
         temp0 = A.T @ A
-        temp1 = np.zeros((n, n), dtype=np.float128)
-        temp2 = np.zeros((n, n), dtype=np.float128)
+        temp1 = np.zeros((n, n), dtype=np.longdouble)
+        temp2 = np.zeros((n, n), dtype=np.longdouble)
         for t in range(start, T):
             temp1 += X[:, :, t].T @ A @ X[:, :, t - 1]
             temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
