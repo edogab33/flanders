@@ -167,20 +167,28 @@ def mar(X, pred_step, maxiter = 100, window = 0):
         start = T - window
     B = np.random.randn(n, n)
     for it in tqdm(range(maxiter)):
+        B = cap_values(B)
         temp0 = B.T @ B
+        temp0 = cap_values(temp0)
+        temp0 = np.linalg.inv(temp0)
         temp1 = np.zeros((m, m))
         temp2 = np.zeros((m, m))
         for t in range(start, T):
             temp1 += X[:, :, t] @ B @ X[:, :, t - 1].T
             temp2 += X[:, :, t - 1] @ temp0 @ X[:, :, t - 1].T
+            temp1 = cap_values(temp1)
+            temp2 = cap_values(temp2)
         A = temp1 @ np.linalg.inv(temp2)
+        A = cap_values(A)
         temp0 = A.T @ A
+        temp0 = cap_values(temp0)
         temp1 = np.zeros((n, n))
         temp2 = np.zeros((n, n))
         for t in range(start, T):
             temp1 += X[:, :, t].T @ A @ X[:, :, t - 1]
             temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
-        temp2 = cap_values(temp2)
+            temp1 = cap_values(temp1)
+            temp2 = cap_values(temp2)
         B = temp1 @ np.linalg.inv(temp2)
     tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
     for s in tqdm(range(pred_step)):
@@ -193,6 +201,8 @@ def cap_values(matrix):
     hitting the limit of the floating point precision
     and to avoid singular matrices
     """
+    matrix = np.nan_to_num(matrix, nan=np.finfo(np.float64).max)
+    matrix[matrix > np.finfo(np.float64).max] = np.finfo(np.float64).max
     matrix[matrix < np.finfo(np.float64).tiny] = np.finfo(np.float64).tiny
     return matrix
 
