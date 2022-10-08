@@ -181,8 +181,7 @@ def mar(X, pred_step, maxiter = 100, window = 0):
             temp1 += X[:, :, t].T @ A @ X[:, :, t - 1]
             temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
         np.set_printoptions(threshold=np.inf)
-        for r in temp2:
-            print(r)
+        print(temp2)
         B = temp1 @ np.linalg.inv(temp2)
     tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
     for s in tqdm(range(pred_step)):
