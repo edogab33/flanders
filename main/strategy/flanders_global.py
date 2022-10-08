@@ -119,6 +119,7 @@ class GlobalFlanders(RobustStrategy):
         results, others, clients_state = super().init_fit(server_round, results, failures)
 
         if server_round > self.warmup_rounds:
+            #M = load_all_time_series(dir="clients_params", window=self.window)
             M = load_all_time_series(dir="clients_params", window=self.window)
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
@@ -132,7 +133,7 @@ class GlobalFlanders(RobustStrategy):
             malicious_clients_idx = sorted(np.argsort(anomaly_scores)[self.to_keep:])
             results = np.array(results)[good_clients_idx].tolist()
 
-            print("Clients kept: ")
+            print("Kept clients: ")
             print(good_clients_idx)
             print("Clients: ")
             print(clients_state)
@@ -162,38 +163,38 @@ class GlobalFlanders(RobustStrategy):
         return parameters_aggregated, metrics_aggregated
 
 def mar(X, pred_step, maxiter = 100, window = 0):
+    print("ALS iterations: ", maxiter)
     m, n, T = X.shape
     if window > 0:
         start = T - window
-    B = np.random.randn(n, n)
-    for it in tqdm(range(maxiter)):
-        B = cap_values(B)
-        temp0 = B.T @ B
-        temp0 = cap_values(temp0)
-        temp0 = np.linalg.inv(temp0)
-        temp1 = np.zeros((m, m))
-        temp2 = np.zeros((m, m))
-        for t in range(start, T):
-            temp1 += X[:, :, t] @ B @ X[:, :, t - 1].T
-            temp2 += X[:, :, t - 1] @ temp0 @ X[:, :, t - 1].T
-            temp1 = cap_values(temp1)
+    try:
+        B = np.random.randn(n, n)
+        for it in range(maxiter):
+            temp0 = B.T @ B
+            temp1 = np.zeros((m, m))
+            temp2 = np.zeros((m, m))
+            for t in tqdm(range(start, T)):
+                temp1 += X[:, :, t] @ B @ X[:, :, t - 1].T
+                temp2 += X[:, :, t - 1] @ temp0 @ X[:, :, t - 1].T
+            #print(temp2)
+            A = temp1 @ np.linalg.inv(temp2)
+            temp0 = A.T @ A
+            temp1 = np.zeros((n, n))
+            temp2 = np.zeros((n, n))
+            for t in range(start, T):
+                temp1 += X[:, :, t].T @ A @ X[:, :, t - 1]
+                temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
             temp2 = cap_values(temp2)
-        A = temp1 @ np.linalg.inv(temp2)
-        A = cap_values(A)
-        temp0 = A.T @ A
-        temp0 = cap_values(temp0)
-        temp1 = np.zeros((n, n))
-        temp2 = np.zeros((n, n))
-        for t in range(start, T):
-            temp1 += X[:, :, t].T @ A @ X[:, :, t - 1]
-            temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
-            temp1 = cap_values(temp1)
-            temp2 = cap_values(temp2)
-        B = temp1 @ np.linalg.inv(temp2)
-    tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
-    for s in tqdm(range(pred_step)):
-        tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
-    return tensor[:, :, - pred_step :]
+            B = temp1 @ np.linalg.inv(temp2)
+        tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
+        for s in tqdm(range(pred_step)):
+            tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
+        if np.isnan(tensor).any():
+            raise ValueError("NaN values in tensor")
+        return tensor[:, :, - pred_step :]
+    except:
+        print("[!!] Error in MAR - decreasing number of iterations")
+        return mar(X, pred_step, maxiter = int(maxiter*0.75), window = window)
 
 def cap_values(matrix):
     """
@@ -201,8 +202,7 @@ def cap_values(matrix):
     hitting the limit of the floating point precision
     and to avoid singular matrices
     """
-    matrix = np.nan_to_num(matrix, nan=np.finfo(np.float64).max)
-    matrix[matrix > np.finfo(np.float64).max] = np.finfo(np.float64).max
+    #matrix = np.nan_to_num(matrix, nan=np.finfo(np.float64).max)
     matrix[matrix < np.finfo(np.float64).tiny] = np.finfo(np.float64).tiny
     return matrix
 
