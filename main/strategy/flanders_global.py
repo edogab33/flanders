@@ -123,7 +123,7 @@ class GlobalFlanders(RobustStrategy):
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = mar(M[:,:,:-1], pred_step, maxiter=8, window=self.window-1)
+            Mr = mar(M[:,:,:-1], pred_step, maxiter=100, window=self.window-1)
 
             delta = np.subtract(M_hat, Mr[:,:,0])
             anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
@@ -180,10 +180,7 @@ def mar(X, pred_step, maxiter = 100, window = 0):
         for t in range(start, T):
             temp1 += X[:, :, t].T @ A @ X[:, :, t - 1]
             temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
-        #np.finfo(np.float64).tiny
         temp2 = cap_values(temp2)
-        print(temp2)
-        print(temp2.dtype)
         B = temp1 @ np.linalg.inv(temp2)
     tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
     for s in tqdm(range(pred_step)):
@@ -191,9 +188,11 @@ def mar(X, pred_step, maxiter = 100, window = 0):
     return tensor[:, :, - pred_step :]
 
 def cap_values(matrix):
-    # Cap values of matrices in order to avoid
-    # hitting the limit of the floating point precision
-    # and to avoid singular matrices
+    """
+    Cap values of matrices in order to avoid
+    hitting the limit of the floating point precision
+    and to avoid singular matrices
+    """
     matrix[matrix < np.finfo(np.float64).tiny] = np.finfo(np.float64).tiny
     return matrix
 
