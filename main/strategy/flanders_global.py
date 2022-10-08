@@ -123,7 +123,7 @@ class GlobalFlanders(RobustStrategy):
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = mar(M[:,:,:-1], pred_step, maxiter=10, window=self.window-1)
+            Mr = mar(M[:,:,:-1], pred_step, maxiter=8, window=self.window-1)
 
             delta = np.subtract(M_hat, Mr[:,:,0])
             anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
@@ -168,20 +168,20 @@ def mar(X, pred_step, maxiter = 100, window = 0):
     B = np.random.randn(n, n)
     for it in tqdm(range(maxiter)):
         temp0 = B.T @ B
-        temp1 = np.zeros((m, m))
-        temp2 = np.zeros((m, m))
+        temp1 = np.zeros((m, m), dtype=np.float128)
+        temp2 = np.zeros((m, m), dtype=np.float128)
         for t in range(start, T):
             temp1 += X[:, :, t] @ B @ X[:, :, t - 1].T
             temp2 += X[:, :, t - 1] @ temp0 @ X[:, :, t - 1].T
         A = temp1 @ np.linalg.inv(temp2)
         temp0 = A.T @ A
-        temp1 = np.zeros((n, n))
-        temp2 = np.zeros((n, n))
+        temp1 = np.zeros((n, n), dtype=np.float128)
+        temp2 = np.zeros((n, n), dtype=np.float128)
         for t in range(start, T):
             temp1 += X[:, :, t].T @ A @ X[:, :, t - 1]
             temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
-        np.set_printoptions(threshold=np.inf)
         print(temp2)
+        print(temp2.dtype)
         B = temp1 @ np.linalg.inv(temp2)
     tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
     for s in tqdm(range(pred_step)):
