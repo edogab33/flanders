@@ -224,11 +224,12 @@ class RobustStrategy(fl.server.strategy.FedAvg):
 
             # Update saved parameters time series after the attack
             for proxy, fitres in results:
-                if self.sampling > 0:
-                    params = flatten_params(parameters_to_ndarrays(fitres.parameters))[self.params_indexes]
-                else:
-                    params = flatten_params(parameters_to_ndarrays(fitres.parameters))
-                save_params(params, fitres.metrics['cid'], remove_last=True)
+                if fitres.metrics['malicious']:
+                    if self.sampling > 0:
+                        params = flatten_params(parameters_to_ndarrays(fitres.parameters))[self.params_indexes]
+                    else:
+                        params = flatten_params(parameters_to_ndarrays(fitres.parameters))
+                    save_params(params, fitres.metrics['cid'], remove_last=True)
         else:
             results = ordered_results
             others = {}

@@ -2,6 +2,7 @@ import numpy as np
 import os
 import json
 import pandas as pd
+from natsort import natsorted
 from typing import Dict, Optional, Tuple, List
 from flwr.common import (
     Parameters,
@@ -30,7 +31,7 @@ def save_params(parameters, cid, remove_last=False, rrl=False):
         if remove_last:
             old_params = old_params[:-1]
             if rrl:
-                new_params = old_params[-1:]
+                new_params = old_params[-1]
         # add new parameters
         new_params = np.vstack((old_params, new_params))
     # save parameters
@@ -78,7 +79,7 @@ def load_all_time_series(dir="", window=0):
         - n := number of parameters
         """
         files = os.listdir(dir)
-        files.sort()
+        files = natsorted(files)
         data = []
         for file in files:
             data.append(np.load(os.path.join(dir, file), allow_pickle=True))
@@ -95,8 +96,8 @@ def load_time_series(dir="", cid=0):
     files.sort()
     data = []
     for file in files:
-        if file == f"{cid}.npy":
-            data.append(np.load(os.path.join(dir, file), allow_pickle=True))
+        if file == f"{cid}_params.npy":
+            data = np.load(os.path.join(dir, file), allow_pickle=True)
     return np.array(data)
 
 def flatten_params(params):

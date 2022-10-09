@@ -1,5 +1,5 @@
 from cmath import log
-from strategy.utilities import load_all_time_series
+from strategy.utilities import load_all_time_series, load_time_series
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
@@ -19,7 +19,6 @@ def mar(X, pred_step, maxiter = 100, window = 0):
                 temp1 += X[:, :, t] @ B @ X[:, :, t - 1].T
                 temp2 += X[:, :, t - 1] @ temp0 @ X[:, :, t - 1].T
             temp2 = cap_values(temp2)
-            print(temp2)
             A = temp1 @ np.linalg.inv(temp2)
             temp0 = A.T @ A
             temp1 = np.zeros((n, n))
@@ -52,24 +51,30 @@ def cap_values(matrix):
     return matrix
 
 tensor = load_all_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params")
-print(tensor.shape)
-tensor = np.transpose(tensor, (1, 0, 2))
+#print(tensor.shape)
+#tensor = np.transpose(tensor, (0, 2, 1))
 
 
-print(tensor.shape)
+#print(tensor.shape)
 #M_hat = tensor[:,:,-1].copy()
-#Mr = mar(tensor[:,:,:-1], 1, maxiter=50, window=4)
-##print(Mr)
+#Mr = mar(tensor[:,:,:-1], 1, maxiter=50, window=29)
+#print(Mr)
 #delta = np.subtract(M_hat, Mr[:,:,0])
 #anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
-#good_clients_idx = sorted(np.argsort(anomaly_scores)[:3])
+#good_clients_idx = sorted(np.argsort(anomaly_scores)[:5])
 #print("Anomaly scores: ", anomaly_scores)
 #print("Kept clients: ")
 #print(good_clients_idx)
 
+#fig, ax = plt.subplots(1,3, figsize=(10,5))
+#ax[0].matshow(M_hat)
+#ax[1].matshow(Mr[:,:,0])
+#ax[2].matshow(delta)
+#plt.show()
+
 #tensor = np.transpose(tensor, (1, 0, 2))
 #print(tensor)
-tensor = tensor.reshape(*tensor.shape[:-2], -1)
+#tensor = tensor.reshape(*tensor.shape[:-2], -1)
 #max_value = np.max(tensor, axis=1)
 #min_value = np.min(tensor, axis=1)
 #tensor = (np.transpose(tensor) - min_value)/(max_value - min_value + 1e-6)
@@ -77,6 +82,11 @@ tensor = tensor.reshape(*tensor.shape[:-2], -1)
 
 #tensor = np.transpose(tensor, (1, 0, 2))
 #tensor = tensor.reshape(*tensor.shape[:-2], -1)
-print(tensor.shape)
-plt.plot(tensor[:])
+#print(tensor.shape)
+#plt.plot(tensor[:])
+#plt.show()
+
+m = load_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params", cid=4)
+print(m.shape)
+plt.plot(m[:])
 plt.show()
