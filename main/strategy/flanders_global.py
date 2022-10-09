@@ -124,7 +124,7 @@ class GlobalFlanders(RobustStrategy):
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = mar(M[:,:,:-1], pred_step, maxiter=100, window=self.window-1)
+            Mr = mar(M[:,:,:-1], pred_step, maxiter=50, window=self.window-1)
 
             delta = np.subtract(M_hat, Mr[:,:,0])
             anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
@@ -194,9 +194,9 @@ def mar(X, pred_step, maxiter = 100, window = 0):
         return tensor[:, :, - pred_step :]
     except:
         print("[!!] Error in MAR - decreasing number of iterations")
-        if int(maxiter*0.75) == 0:
+        if int(maxiter*0.5) == 0:
             raise ValueError("Could not find a solution for MAR.")
-        return mar(X, pred_step, maxiter = int(maxiter*0.75), window = window)
+        return mar(X, pred_step, maxiter = int(maxiter*0.5), window = window)
 
 def cap_values(matrix):
     """

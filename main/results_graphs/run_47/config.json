@@ -1,0 +1,1 @@
+{"strategy": "flanders", "fraction_mal": 2, "magnitude": 0, "frac_fit": 1, "frac_eval": 0, "min_fit_clients": 5, "min_eval_clients": 0, "min_available_clients": 5, "num_clients": 5, "num_malicious": 2, "attack": "lie", "iid": true, "dataset_name": "mnist", "confusion_matrix": [[17, 5], [5, 28]], "warmup_rounds": 5, "round": 16, "auc": 0.5788103474479618}
