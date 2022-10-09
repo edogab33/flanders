@@ -126,7 +126,7 @@ class GlobalFlanders(RobustStrategy):
             print(M.shape)
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = mar(M[:,:,:-1], pred_step, maxiter=50, window=self.window-1)
+            Mr = mar(M[:,:,:-1], pred_step, maxiter=25, window=self.window-1)
 
             delta = np.subtract(M_hat, Mr[:,:,0])
             anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
