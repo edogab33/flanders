@@ -20,7 +20,8 @@ def save_params(parameters, cid, remove_last=False, rrl=False):
     """
     new_params = parameters
     # Clip parameters
-    new_params[new_params > 1e+3] = 1e+3
+    random_num = np.random.randint(900, 1000)
+    new_params[new_params > 1e+3] = random_num
     # Save parameters in client_params/cid_params
     path = f"clients_params/{cid}_params.npy"
     if os.path.exists("clients_params") == False:

@@ -1,1 +1,1 @@
-strategy,fraction_mal,magnitude,frac_fit,frac_eval,min_fit_clients,min_eval_clients,min_available_clients,num_clients,num_malicious,attack,iid,dataset_name,confusion_matrix,warmup_rounds,round,auc,accuracy,loss
+strategy,fraction_mal,magnitude,frac_fit,frac_eval,min_fit_clients,min_eval_clients,min_available_clients,num_clients,num_malicious,attack,iid,dataset_name,confusion_matrix,warmup_rounds,round,auc,accuracy,lossflanders,10,0,1,0,30,0,30,1,0,minmax,True,mnist,"[[0, 0], [0, 0]]",20,0,0.4921703423542777,0.0847,720.9994425773621

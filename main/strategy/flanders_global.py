@@ -146,7 +146,7 @@ class GlobalFlanders(RobustStrategy):
             #ax[0].matshow(M_hat)
             #ax[1].matshow(Mr[:,:,0])
             #ax[2].matshow(delta)
-            #plt.show()
+            #plt.savefig("results_graphs/run_2/"+str(server_round)+"_matrices.png")
 
             # Aplly FedAvg for the remaining clients
             parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
