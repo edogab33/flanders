@@ -121,9 +121,7 @@ class GlobalFlanders(RobustStrategy):
         clients_state = {k: clients_state[k] for k in sorted(clients_state)}
         if server_round > self.warmup_rounds:
             M = load_all_time_series(dir="clients_params", window=self.window)
-            print(M.shape)
             M = np.transpose(M, (0, 2, 1))
-            print(M.shape)
             M_hat = M[:,:,-1].copy()
             pred_step = 1
             Mr = mar(M[:,:,:-1], pred_step, maxiter=25, window=self.window-1)
