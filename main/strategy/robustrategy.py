@@ -198,17 +198,6 @@ class RobustStrategy(fl.server.strategy.FedAvg):
                     self.aggregated_parameters = parameters_to_ndarrays(ordered_results[int(key)][1].parameters)
                     break
 
-        if self.root_dataset == None:    
-            # Load the root dataset
-            if self.dataset_name == "circles":
-                self.root_dataset = get_circles(32, n_samples=10000, is_train=True)
-            elif self.dataset_name == "mnist":
-                testset = MNIST("", train=False, download=True, transform=transforms.ToTensor())
-                self.root_dataset = torch.utils.data.DataLoader(testset, batch_size=32, shuffle=False, num_workers=1)
-            elif self.dataset_name == "cifar":
-                _, testset = get_cifar_10()
-                self.root_dataset = torch.utils.data.DataLoader(testset, batch_size=50)
-
         if server_round > self.warmup_rounds:
             results, others = self.attack_fn(
                 ordered_results, clients_state, magnitude=self.magnitude,
