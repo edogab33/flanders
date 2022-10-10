@@ -168,58 +168,45 @@ class GlobalFlanders(RobustStrategy):
 
         return parameters_aggregated, metrics_aggregated
 
-def mar(X, pred_step, maxiter = 100, window = 0):
-    print("ALS iterations: ", maxiter)
+def mar(X, pred_step, alpha=0.01, beta=0.01, maxiter=100):
+   
     m, n, T = X.shape
-
-    X_norm = (X-np.min(X))/np.max(X)
-    if window > 0:
-        start = T - window
+    A = np.random.randn(m, m)
     B = np.random.randn(n, n)
-
+    X_norm = (X-np.min(X))/np.max(X)
+   
     for it in range(maxiter):
+       
+        print("ITERATION N. {} OUT OF {}...".format(it+1,maxiter))
         temp0 = B.T @ B
-        temp0 /= np.linalg.norm(temp0)
         temp1 = np.zeros((m, m))
         temp2 = np.zeros((m, m))
+        identity_m = np.identity(m)
+       
+        for t in range(1, T):
+            temp1 += X_norm[:, :, t] @ B @ X_norm[:, :, t - 1].T
+            temp2 += X_norm[:, :, t - 1] @ temp0 @ X_norm[:, :, t - 1].T
 
-        for t in tqdm(range(start, T)):
-            temp1 += np.around(X_norm[:, : , t] @ B @ X_norm[:, : , t - 1].T, 5)
-            temp1 /= np.linalg.norm(temp1)
-            temp2 += np.around(X_norm[:, :, t - 1] @ temp0 @ X_norm[:, :, t - 1].T, 5)
-            temp2 /= np.linalg.norm(temp2)
-        temp2 = np.around(temp2, 5)
-        #temp2 = cap_values(temp2)
+        temp2 += (alpha * identity_m)
         A = temp1 @ np.linalg.inv(temp2)
-        #print("matrix A: ", A)
+       
         temp0 = A.T @ A
         temp1 = np.zeros((n, n))
         temp2 = np.zeros((n, n))
+        identity_n = np.identity(n)
+       
+        for t in range(1, T):
+            temp1 += X_norm[:, :, t].T @ A @ X_norm[:, :, t - 1]
+            temp2 += X_norm[:, :, t - 1].T @ temp0 @ X_norm[:, :, t - 1]
 
-        for t in range(start, T):
-            temp1 += np.around(X_norm[:, :, t].T @ A @ X_norm[:, :, t - 1], 5)
-            temp1 /= np.linalg.norm(temp1)
-            temp2 += np.around(X_norm[:, :, t - 1].T @ temp0 @ X_norm[:, :, t - 1], 5)
-            temp2 /= np.linalg.norm(temp2)
-        temp2 = np.around(temp2, 5)
-        #temp2 = cap_values(temp2)
-        print("temp2: ", temp2)
-        if np.isnan(temp2).any():
-            print("NaN values in temp2")
-        if temp2[temp2 < np.finfo(np.float64).tiny].any():
-            print("Small values in temp2")
+        temp2 += (beta * identity_n)
         B = temp1 @ np.linalg.inv(temp2)
-        #print("matrix B: ", B)
+   
     tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
-    for s in tqdm(range(pred_step)):
+    for s in range(pred_step):
         tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
-    if np.isnan(tensor).any():
-        print("NaN values in tensor")
-    if tensor[tensor < np.finfo(np.float64).tiny].any():
-        print("Small values in tensor")
-
     return tensor[:, :, - pred_step :]
-
+    
 def cap_values(matrix):
     """
     Cap values of matrices in order to avoid
