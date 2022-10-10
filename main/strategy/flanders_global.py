@@ -190,7 +190,7 @@ def mar(X, pred_step, maxiter = 100, window = 0):
             temp2 /= np.linalg.norm(temp2)
 
         A = temp1 @ np.linalg.inv(temp2)
-        print("matrix A: ", A)
+        #print("matrix A: ", A)
         temp0 = A.T @ A
         temp1 = np.zeros((n, n))
         temp2 = np.zeros((n, n))
@@ -201,13 +201,16 @@ def mar(X, pred_step, maxiter = 100, window = 0):
             temp2 += X_norm[:, :, t - 1].T @ temp0 @ X_norm[:, :, t - 1]
             temp2 /= np.linalg.norm(temp2)
 
+        print("temp2: ", temp2)
         B = temp1 @ np.linalg.inv(temp2)
-        print("matrix B: ", B)
+        #print("matrix B: ", B)
     tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
     for s in tqdm(range(pred_step)):
         tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
     if np.isnan(tensor).any():
         print("NaN values in tensor")
+    if tensor[tensor < np.finfo(np.float64).tiny].any():
+        print("Small values in tensor")
 
     return tensor[:, :, - pred_step :]
 
