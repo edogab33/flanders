@@ -2,6 +2,7 @@ from http import server
 import flwr as fl
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
 
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
@@ -11,7 +12,9 @@ from strategy.utilities import (
     save_params, 
     flatten_params
 )
-from neural_networks.dataset_utils import get_circles
+
+from torchvision.datasets import MNIST
+from neural_networks.dataset_utils import get_mnist, do_fl_partitioning, get_dataloader, get_circles, get_cifar_10, get_partitioned_income
 
 from flwr.common import (
     FitIns,
@@ -200,11 +203,11 @@ class RobustStrategy(fl.server.strategy.FedAvg):
             if self.dataset_name == "circles":
                 self.root_dataset = get_circles(32, n_samples=10000, is_train=True)
             elif self.dataset_name == "mnist":
-                #TODO: Implement
-                pass
+                testset = MNIST("", train=False, download=True, transform=transforms.ToTensor())
+                self.root_dataset = torch.utils.data.DataLoader(testset, batch_size=32, shuffle=False, num_workers=1)
             elif self.dataset_name == "cifar":
-                #TODO: Implement
-                pass
+                _, testset = get_cifar_10()
+                self.root_dataset = torch.utils.data.DataLoader(testset, batch_size=50)
 
         if server_round > self.warmup_rounds:
             results, others = self.attack_fn(

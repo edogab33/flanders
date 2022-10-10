@@ -177,7 +177,7 @@ def minmax_attack(
     params_avg = [np.mean(param, axis=0) for param in zip(*params)]
 
     # Decide what perturbation to use according to the
-    # resutlts presented in the paper.
+    # results presented in the paper.
     if dataset_name == "mnist":
         # Apply sign perturbation
         perturbation_vect = [-np.sign(params_avg[i]) for i in range(len(params_avg))]
