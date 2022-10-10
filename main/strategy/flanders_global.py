@@ -119,52 +119,55 @@ class GlobalFlanders(RobustStrategy):
         results, others, clients_state = super().init_fit(server_round, results, failures)
         # Reorder clients_sate by key
         clients_state = {k: clients_state[k] for k in sorted(clients_state)}
-        #if server_round >= 1:
-        win = self.window
-        if server_round < self.window:
-            win = server_round
-        M = load_all_time_series(dir="clients_params", window=win)
-        M = np.transpose(M, (0, 2, 1))
-        M_hat = M[:,:,-1].copy()
-        pred_step = 1
-        Mr = mar(M[:,:,:-1], pred_step, maxiter=50, window=win-1)
+        if server_round > 1:
+            win = self.window
+            if server_round < self.window:
+                win = server_round
+            M = load_all_time_series(dir="clients_params", window=win)
+            M = np.transpose(M, (0, 2, 1))
+            M_hat = M[:,:,-1].copy()
+            pred_step = 1
+            Mr = mar(M[:,:,:-1], pred_step, maxiter=50, window=win-1)
 
-        delta = np.subtract(M_hat, Mr[:,:,0])
-        anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
-        print("Anomaly scores: ", anomaly_scores)
-        good_clients_idx = sorted(np.argsort(anomaly_scores)[:self.to_keep])
-        malicious_clients_idx = sorted(np.argsort(anomaly_scores)[self.to_keep:])
-        results = np.array(results)[good_clients_idx].tolist()      
+            delta = np.subtract(M_hat, Mr[:,:,0])
+            anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
+            print("Anomaly scores: ", anomaly_scores)
+            good_clients_idx = sorted(np.argsort(anomaly_scores)[:self.to_keep])
+            malicious_clients_idx = sorted(np.argsort(anomaly_scores)[self.to_keep:])
+            results = np.array(results)[good_clients_idx].tolist()
 
-        print("Kept clients: ")
-        print(good_clients_idx)
-        print("Clients: ")
-        print(clients_state)        
+            print("Kept clients: ")
+            print(good_clients_idx)
+            print("Clients: ")
+            print(clients_state)
 
-        self.cm = update_confusion_matrix(self.cm, clients_state, good_clients_idx, malicious_clients_idx)  
+            self.cm = update_confusion_matrix(self.cm, clients_state, good_clients_idx, malicious_clients_idx)
 
-        dirs = [f for f in os.listdir("results_graphs/") if not f.startswith('.')]
-        longest_string = len(max(dirs, key=len))
-        idx = -2 if longest_string > 5 else -1      
-        highest_number = str(max([int(x[idx:]) for x in dirs if x[idx:].isdigit()]))        
-        fig, ax = plt.subplots(1,3, figsize=(10,5))
-        ax[0].matshow(M_hat)
-        ax[1].matshow(Mr[:,:,0])
-        ax[2].matshow(delta)
-        plt.savefig("results_graphs/run_"+highest_number+"/"+str(server_round)+"_matrices.png")     
-        
-        # Aplly FedAvg for the remaining clients
-        parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)      
-        # For clients detected as malicious, set their parameters to be the averaged ones in their files
-        # otherwise the forecasting in next round won't be reliable
-        for idx in malicious_clients_idx:
-            if self.sampling > 0:
-                new_params = flatten_params(parameters_to_ndarrays(parameters_aggregated))[self.params_indexes]
-            else:
-                new_params = flatten_params(parameters_to_ndarrays(parameters_aggregated))
-            save_params(new_params, idx, remove_last=True, rrl=True)
-        #else:
-        #    parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
+            dirs = [f for f in os.listdir("results_graphs/") if not f.startswith('.')]
+            longest_string = len(max(dirs, key=len))
+            idx = -2 if longest_string > 5 else -1
+
+            highest_number = str(max([int(x[idx:]) for x in dirs if x[idx:].isdigit()]))
+
+            fig, ax = plt.subplots(1,3, figsize=(10,5))
+            ax[0].matshow(M_hat)
+            ax[1].matshow(Mr[:,:,0])
+            ax[2].matshow(delta)
+            plt.savefig("results_graphs/run_"+highest_number+"/"+str(server_round)+"_matrices.png")
+
+            # Aplly FedAvg for the remaining clients
+            parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
+
+            # For clients detected as malicious, set their parameters to be the averaged ones in their files
+            # otherwise the forecasting in next round won't be reliable
+            for idx in malicious_clients_idx:
+                if self.sampling > 0:
+                    new_params = flatten_params(parameters_to_ndarrays(parameters_aggregated))[self.params_indexes]
+                else:
+                    new_params = flatten_params(parameters_to_ndarrays(parameters_aggregated))
+                save_params(new_params, idx, remove_last=True, rrl=True)
+        else:
+            parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
         return parameters_aggregated, metrics_aggregated
 
