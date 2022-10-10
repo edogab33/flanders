@@ -184,11 +184,11 @@ def mar(X, pred_step, maxiter = 100, window = 0):
         temp2 = np.zeros((m, m))
 
         for t in tqdm(range(start, T)):
-            temp1 += round(X_norm[:, : , t] @ B @ X_norm[:, : , t - 1].T, 5)
+            temp1 += np.around(X_norm[:, : , t] @ B @ X_norm[:, : , t - 1].T, 5)
             temp1 /= np.linalg.norm(temp1)
-            temp2 += round(X_norm[:, :, t - 1] @ temp0 @ X_norm[:, :, t - 1].T, 5)
+            temp2 += np.around(X_norm[:, :, t - 1] @ temp0 @ X_norm[:, :, t - 1].T, 5)
             temp2 /= np.linalg.norm(temp2)
-        
+        temp2 = np.around(temp2, 5)
         #temp2 = cap_values(temp2)
         A = temp1 @ np.linalg.inv(temp2)
         #print("matrix A: ", A)
@@ -197,11 +197,11 @@ def mar(X, pred_step, maxiter = 100, window = 0):
         temp2 = np.zeros((n, n))
 
         for t in range(start, T):
-            temp1 += round(X_norm[:, :, t].T @ A @ X_norm[:, :, t - 1], 5)
+            temp1 += np.around(X_norm[:, :, t].T @ A @ X_norm[:, :, t - 1], 5)
             temp1 /= np.linalg.norm(temp1)
-            temp2 += round(X_norm[:, :, t - 1].T @ temp0 @ X_norm[:, :, t - 1], 5)
+            temp2 += np.around(X_norm[:, :, t - 1].T @ temp0 @ X_norm[:, :, t - 1], 5)
             temp2 /= np.linalg.norm(temp2)
-
+        temp2 = np.around(temp2, 5)
         #temp2 = cap_values(temp2)
         print("temp2: ", temp2)
         if np.isnan(temp2).any():
