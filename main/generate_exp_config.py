@@ -39,11 +39,11 @@ def generate_d(
     return d
 
 def all_combinations():
-    attacks = ["minmax"]
-    strategies = ["flanders", "median", "trimmedmean", "krum", "multikrum", "fltrust", "avg"]
+    attacks = ["minmax", "lie", "gaussian"]
+    strategies = ["krum", "trimmedmean", "flanders"]
     datasets = ["mnist"]
-    malicious_num = [0, 5, 10, 20, 30, 50]
-    to_keep = [10, 25, 50]
+    malicious_num = [35]
+    to_keep = [50]
 
     d = {
         "window":[],
@@ -69,7 +69,7 @@ def all_combinations():
             for attack in attacks:
                 for malicious in malicious_num:
                     for k in to_keep:
-                        d["window"].append(70)
+                        d["window"].append(10)
                         d["pool_size"].append(100)
                         d["fraction_fit"].append(1)
                         d["fraction_evaluate"].append(0)
@@ -80,13 +80,13 @@ def all_combinations():
                             d["magnitude"].append(0.5)
                         else:
                             d["magnitude"].append(0)
-                        d["warmup_rounds"].append(70)
+                        d["warmup_rounds"].append(10)
                         d["to_keep"].append(k)
                         d["threshold"].append(1e-5)
                         d["attack_name"].append(attack)
                         d["strategy_name"].append(strategy)
                         d["dataset_name"].append(dataset)
-                        d["num_rounds"].append(100)
+                        d["num_rounds"].append(20)
                         if strategy == "flanders" and (dataset == "cifar" or dataset == "mnist"):
                             d["sampling"].append(1000)
                         else:
