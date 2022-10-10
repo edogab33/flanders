@@ -1,5 +1,5 @@
 window,pool_size,fraction_fit,fraction_evaluate,malicious_clients,min_fit_clients,min_evaluate_clients,magnitude,warmup_rounds,to_keep,threshold,attack_name,strategy_name,dataset_name,num_rounds,sampling
-10,100,1,0,25,10,0,0,10,25,1e-05,minmax,flanders,mnist,20,
+10,100,1,0,25,10,0,0,10,25,1e-05,minmax,flanders,mnist,20,10000
 70,100,1,0,5,100,0,0,70,25,1e-05,minmax,flanders,mnist,100,1000
 70,100,1,0,5,100,0,0,70,50,1e-05,minmax,flanders,mnist,100,1000
 70,100,1,0,10,100,0,0,70,10,1e-05,minmax,flanders,mnist,100,1000
