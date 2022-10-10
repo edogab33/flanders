@@ -170,12 +170,6 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         if not self.accept_failures and failures:
             return None, {}
 
-        # For test_strategy
-        #weights_results = [
-        #    (fit_res.parameters, fit_res.num_examples)
-        #    for _, fit_res in results
-        #]
-
         clients_state = {}      # dictionary of clients representing wether they are malicious or not
 
         # Save parameters of each client as time series

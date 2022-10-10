@@ -223,7 +223,7 @@ def minmax_attack(
         # Take the maximum distance between any benign client and any malicious one
         max_dist_m = np.max(M_m)
 
-        # Take the maximum distance between any two benigm cliets
+        # Take the maximum distance between any two benign clients
         max_dist_b = np.max(M_b)
 
         # Compute lambda

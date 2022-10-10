@@ -111,7 +111,6 @@ def income_evaluate(
     x_test = x_test[0]
     y_test = y_test[0]
     y_pred = model.predict(x_test)
-    #accuracy = model.score(x_test, y_test)
     accuracy = accuracy_score(y_test, y_pred)
     loss = log_loss(y_test, model.predict_proba(x_test))
     auc = roc_auc_score(y_test, model.predict_proba(x_test)[:,1])
@@ -223,7 +222,7 @@ if __name__ == "__main__":
         min_evaluate_clients=min_evaluate_clients,
         magnitude=magnitude,
         warmup_rounds=warmup_rounds,                        # Used only in GlobalFlanders
-        to_keep=to_keep,                                    # Used in Flanders and Krum/MultiKrum
+        to_keep=to_keep,                                    # Used in Flanders, Krum/MultiKrum, TrimmedMean
         threshold=threshold,                                # 1e-5 for fang attack and minmax attacks. Used also in Flanders
         min_available_clients=pool_size,                    # All clients should be available
         on_fit_config_fn=fit_config,

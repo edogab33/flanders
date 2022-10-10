@@ -141,6 +141,12 @@ class TrimmedMean(RobustStrategy):
         closest_idx = np.argsort(dist_w)[:self.to_keep]
         closest_w = [weights_results[i] for i in closest_idx]
 
+        clients_state = {k: clients_state[k] for k in sorted(clients_state)}
+        print("Kept clients: ")
+        print(closest_idx)
+        print("Clients: ")
+        print(clients_state)
+
         # Compute the mean of the k closest parameters
         parameters_aggregated = ndarrays_to_parameters(aggregate(closest_w))
 
