@@ -124,7 +124,7 @@ class GlobalFlanders(RobustStrategy):
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = mar(M[:,:,:-1], pred_step, maxiter=25, window=self.window-1)
+            Mr = mar(M[:,:,:-1], pred_step, maxiter=100, window=self.window-1)
 
             delta = np.subtract(M_hat, Mr[:,:,0])
             anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
@@ -140,11 +140,17 @@ class GlobalFlanders(RobustStrategy):
 
             self.cm = update_confusion_matrix(self.cm, clients_state, good_clients_idx, malicious_clients_idx)
 
-            #fig, ax = plt.subplots(1,3, figsize=(10,5))
-            #ax[0].matshow(M_hat)
-            #ax[1].matshow(Mr[:,:,0])
-            #ax[2].matshow(delta)
-            #plt.savefig("results_graphs/run_2/"+str(server_round)+"_matrices.png")
+            dirs = [f for f in os.listdir("results_graphs/") if not f.startswith('.')]
+            longest_string = len(max(dirs, key=len))
+            idx = -2 if longest_string > 5 else -1
+
+            highest_number = str(max([int(x[idx:]) for x in dirs if x[idx:].isdigit()]))
+
+            fig, ax = plt.subplots(1,3, figsize=(10,5))
+            ax[0].matshow(M_hat)
+            ax[1].matshow(Mr[:,:,0])
+            ax[2].matshow(delta)
+            plt.savefig("results_graphs/run_"+highest_number+"/"+str(server_round)+"_matrices.png")
 
             # Aplly FedAvg for the remaining clients
             parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
@@ -165,38 +171,45 @@ class GlobalFlanders(RobustStrategy):
 def mar(X, pred_step, maxiter = 100, window = 0):
     print("ALS iterations: ", maxiter)
     m, n, T = X.shape
+
+    X_norm = (X-np.min(X))/np.max(X)
     if window > 0:
         start = T - window
-    try:
-        B = np.random.randn(n, n)
-        for it in range(maxiter):
-            temp0 = B.T @ B
-            temp1 = np.zeros((m, m))
-            temp2 = np.zeros((m, m))
-            for t in tqdm(range(start, T)):
-                temp1 += X[:, :, t] @ B @ X[:, :, t - 1].T
-                temp2 += X[:, :, t - 1] @ temp0 @ X[:, :, t - 1].T
-            #print(temp2)
-            A = temp1 @ np.linalg.inv(temp2)
-            temp0 = A.T @ A
-            temp1 = np.zeros((n, n))
-            temp2 = np.zeros((n, n))
-            for t in range(start, T):
-                temp1 += X[:, :, t].T @ A @ X[:, :, t - 1]
-                temp2 += X[:, :, t - 1].T @ temp0 @ X[:, :, t - 1]
-            temp2 = cap_values(temp2)
-            B = temp1 @ np.linalg.inv(temp2)
-        tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
-        for s in tqdm(range(pred_step)):
-            tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
-        if np.isnan(tensor).any():
-            raise ValueError("NaN values in tensor")
-        return tensor[:, :, - pred_step :]
-    except:
-        print("[!!] Error in MAR - decreasing number of iterations")
-        if int(maxiter*0.5) == 0:
-            raise ValueError("Could not find a solution for MAR.")
-        return mar(X, pred_step, maxiter = int(maxiter*0.5), window = window)
+    B = np.random.randn(n, n)
+
+    for it in range(maxiter):
+        temp0 = B.T @ B
+        temp0 /= np.linalg.norm(temp0)
+        temp1 = np.zeros((m, m))
+        temp2 = np.zeros((m, m))
+
+        for t in tqdm(range(start, T)):
+            temp1 += X_norm[:, : , t] @ B @ X_norm[:, : , t - 1].T
+            temp1 /= np.linalg.norm(temp1)
+            temp2 += X_norm[:, :, t - 1] @ temp0 @ X_norm[:, :, t - 1].T
+            temp2 /= np.linalg.norm(temp2)
+
+        A = temp1 @ np.linalg.inv(temp2)
+        print("matrix A: ", A)
+        temp0 = A.T @ A
+        temp1 = np.zeros((n, n))
+        temp2 = np.zeros((n, n))
+
+        for t in range(start, T):
+            temp1 += X_norm[:, :, t].T @ A @ X_norm[:, :, t - 1]
+            temp1 /= np.linalg.norm(temp1)
+            temp2 += X_norm[:, :, t - 1].T @ temp0 @ X_norm[:, :, t - 1]
+            temp2 /= np.linalg.norm(temp2)
+
+        B = temp1 @ np.linalg.inv(temp2)
+        print("matrix B: ", B)
+    tensor = np.append(X, np.zeros((m, n, pred_step)), axis = 2)
+    for s in tqdm(range(pred_step)):
+        tensor[:, :, T + s] = A @ tensor[:, :, T + s - 1] @ B.T
+    if np.isnan(tensor).any():
+        print("NaN values in tensor")
+
+    return tensor[:, :, - pred_step :]
 
 def cap_values(matrix):
     """
