@@ -124,7 +124,7 @@ class GlobalFlanders(RobustStrategy):
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = mar(M[:,:,:-1], pred_step, maxiter=100, window=self.window-1)
+            Mr = mar(M[:,:,:-1], pred_step, maxiter=50, window=self.window-1)
 
             delta = np.subtract(M_hat, Mr[:,:,0])
             anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
@@ -173,20 +173,19 @@ def mar(X, pred_step, alpha=0.01, beta=0.01, maxiter=100, window=0):
     m, n, T = X.shape
     if window > 0:
         start = T - window
-        
+
     A = np.random.randn(m, m)
     B = np.random.randn(n, n)
     X_norm = (X-np.min(X))/np.max(X)
    
     for it in range(maxiter):
        
-        print("ITERATION N. {} OUT OF {}...".format(it+1,maxiter))
         temp0 = B.T @ B
         temp1 = np.zeros((m, m))
         temp2 = np.zeros((m, m))
         identity_m = np.identity(m)
        
-        for t in range(start, T):
+        for t in tqdm(range(start, T)):
             temp1 += X_norm[:, :, t] @ B @ X_norm[:, :, t - 1].T
             temp2 += X_norm[:, :, t - 1] @ temp0 @ X_norm[:, :, t - 1].T
 
@@ -198,7 +197,7 @@ def mar(X, pred_step, alpha=0.01, beta=0.01, maxiter=100, window=0):
         temp2 = np.zeros((n, n))
         identity_n = np.identity(n)
        
-        for t in range(start, T):
+        for t in tqdm(range(start, T)):
             temp1 += X_norm[:, :, t].T @ A @ X_norm[:, :, t - 1]
             temp2 += X_norm[:, :, t - 1].T @ temp0 @ X_norm[:, :, t - 1]
 
