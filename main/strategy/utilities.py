@@ -19,9 +19,6 @@ def save_params(parameters, cid, remove_last=False, rrl=False):
     - rrl (bool): if True, remove the last saved parameters and replace with the ones saved before this round
     """
     new_params = parameters
-    # Clip parameters
-    random_num = np.random.randint(900, 1000)
-    new_params[new_params > 1e+3] = random_num
     # Save parameters in client_params/cid_params
     path = f"clients_params/{cid}_params.npy"
     if os.path.exists("clients_params") == False:
