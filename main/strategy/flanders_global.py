@@ -168,9 +168,12 @@ class GlobalFlanders(RobustStrategy):
 
         return parameters_aggregated, metrics_aggregated
 
-def mar(X, pred_step, alpha=0.01, beta=0.01, maxiter=100):
+def mar(X, pred_step, alpha=0.01, beta=0.01, maxiter=100, window=0):
    
     m, n, T = X.shape
+    if window > 0:
+        start = T - window
+        
     A = np.random.randn(m, m)
     B = np.random.randn(n, n)
     X_norm = (X-np.min(X))/np.max(X)
@@ -183,7 +186,7 @@ def mar(X, pred_step, alpha=0.01, beta=0.01, maxiter=100):
         temp2 = np.zeros((m, m))
         identity_m = np.identity(m)
        
-        for t in range(1, T):
+        for t in range(start, T):
             temp1 += X_norm[:, :, t] @ B @ X_norm[:, :, t - 1].T
             temp2 += X_norm[:, :, t - 1] @ temp0 @ X_norm[:, :, t - 1].T
 
@@ -195,7 +198,7 @@ def mar(X, pred_step, alpha=0.01, beta=0.01, maxiter=100):
         temp2 = np.zeros((n, n))
         identity_n = np.identity(n)
        
-        for t in range(1, T):
+        for t in range(start, T):
             temp1 += X_norm[:, :, t].T @ A @ X_norm[:, :, t - 1]
             temp2 += X_norm[:, :, t - 1].T @ temp0 @ X_norm[:, :, t - 1]
 
