@@ -202,11 +202,11 @@ def minmax_attack(
     # Compute lambda (that is gamma in the paper)
     lambda_succ = 0
     l = lambda_init
-    step = lambda_init * 0.5
+    step = lambda_init
     while abs(lambda_succ - l) > threshold and step > threshold and malicious_num > 0:
         # Compute malicious gradients
         perturbation_vect = [l * perturbation_vect[i] for i in range(len(perturbation_vect))]
-        corrupted_params = [params_avg[i] + perturbation_vect[i] for i in range(len(params_avg))]
+        corrupted_params = [params_avg[i] - perturbation_vect[i] for i in range(len(params_avg))]
 
         # Set corrupted clients' updates to corrupted_params
         params_c = [corrupted_params if states[i] else params[i] for i in range(len(params))]
@@ -227,7 +227,7 @@ def minmax_attack(
         max_dist_b = np.max(M_b)
 
         # Compute lambda
-        if max_dist_m < max_dist_b:
+        if max_dist_m <= max_dist_b:
             lambda_succ = l
             l += step * 0.5
         else:
