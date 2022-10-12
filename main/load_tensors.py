@@ -80,13 +80,13 @@ tensor = load_all_time_series(dir="/Users/eddie/Documents/Università/ComputerSc
 #tensor = (np.transpose(tensor) - min_value)/(max_value - min_value + 1e-6)
 #print(tensor)
 
-#tensor = np.transpose(tensor, (1, 0, 2))
-#tensor = tensor.reshape(*tensor.shape[:-2], -1)
-#print(tensor.shape)
-#plt.plot(tensor[:])
-#plt.show()
-
-m = load_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params", cid=4)
-print(m.shape)
-plt.plot(m[:])
+tensor = np.transpose(tensor, (1, 0, 2))
+tensor = tensor.reshape(*tensor.shape[:-2], -1)
+print(tensor.shape)
+plt.plot(tensor[:])
 plt.show()
+
+#m = load_time_series(dir="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/clients_params", cid=4)
+#print(m.shape)
+#plt.plot(m[:])
+#plt.show()

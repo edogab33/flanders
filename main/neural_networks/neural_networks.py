@@ -15,19 +15,36 @@ def roc_auc_multiclass(y_true, y_pred):
 
 # Source: https://github.com/python-engineer/pytorchTutorial/blob/master/13_feedforward.py
 class MnistNet(nn.Module):
-    def __init__(self, input_size=784, hidden_size=500, num_classes=10):
+    def __init__(self):
         super(MnistNet, self).__init__()
-        self.input_size = input_size
-        self.l1 = nn.Linear(input_size, hidden_size)
-        self.relu = nn.ReLU()
-        self.l2 = nn.Linear(hidden_size, num_classes)
-    
+        # number of hidden nodes in each layer (512)
+        hidden_1 = 128
+        hidden_2 = 256
+        # linear layer (784 -> hidden_1)
+        self.fc1 = nn.Linear(28 * 28, hidden_1)
+        # linear layer (n_hidden -> hidden_2)
+        self.fc2 = nn.Linear(hidden_1, hidden_2)
+        # linear layer (n_hidden -> 10)
+        self.fc3 = nn.Linear(hidden_2, 10)
+        # dropout layer (p=0.2)
+        # dropout prevents overfitting of data
+        self.dropout = nn.Dropout(0.2)
+
     def forward(self, x):
-        out = self.l1(x)
-        out = self.relu(out)
-        out = self.l2(out)
-        # no activation and no softmax at the end
-        return out
+        # flatten image input
+        x = x.view(-1, 28 * 28)
+        # add hidden layer, with relu activation function
+        x = F.relu(self.fc1(x))
+        # add dropout layer
+        x = self.dropout(x)
+        # add hidden layer, with relu activation function
+        x = F.relu(self.fc2(x))
+        # add dropout layer
+        x = self.dropout(x)
+        # add output layer
+        x = self.fc3(x)
+        x = F.log_softmax(x, dim=1)
+        return x
 
 def train_mnist(model, dataloader, epochs, device):
     n_total_steps = len(dataloader)

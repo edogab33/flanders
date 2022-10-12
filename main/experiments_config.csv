@@ -1,5 +1,5 @@
 window,pool_size,fraction_fit,fraction_evaluate,malicious_clients,min_fit_clients,min_evaluate_clients,magnitude,warmup_rounds,to_keep,threshold,attack_name,strategy_name,dataset_name,num_rounds,sampling
-10,10,1,0,5,10,0,0.0,10,5,1e-05,minmax,krum,circles,50,0
+10,10,1,0,9,10,0,0.0,1,5,1e-05,minmax,krum,mnist,50,0
 10,100,1,0,35,100,0,0.0,10,50,1e-05,fang,krum,mnist,20,0
 10,100,1,0,35,100,0,0.5,10,50,1e-05,gaussian,krum,mnist,20,0
 10,100,1,0,35,100,0,0.0,10,50,1e-05,minmax,trimmedmean,mnist,20,0
