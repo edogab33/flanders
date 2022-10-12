@@ -260,6 +260,9 @@ if __name__ == "__main__":
     ray_init_args = {"include_dashboard": False}
 
     # Prepare directory for logs
+    run_dir = "results_graphs/run_0"
+    if not os.path.exists(run_dir):
+        os.makedirs(run_dir)
     dirs = [f for f in os.listdir("results_graphs/") if not f.startswith('.')]
     # find the highest number in a list composed by strings that have a number as final char
     longest_string = len(max(dirs, key=len))
