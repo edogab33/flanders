@@ -25,6 +25,7 @@ from strategy.flanders_global import GlobalFlanders
 from strategy.krum import Krum
 from strategy.multikrum import MultiKrum
 from strategy.trimmedmean import TrimmedMean
+from strategy.bulyan import Bulyan
 from strategy.generate_dataset_fg import GenerateDataset
 
 from attacks import fang_attack, gaussian_attack, lie_attack, no_attack, minmax_attack
@@ -207,7 +208,7 @@ if __name__ == "__main__":
     elif strategy_name == "flanders":
         strategy_fn = GlobalFlanders
     elif strategy_name == "bulyan":
-        pass
+        strategy_fn = Bulyan
 
     client_resources = {
         "num_cpus": args.num_client_cpus

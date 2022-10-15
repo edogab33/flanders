@@ -34,7 +34,7 @@ than or equal to the values of `min_fit_clients` and `min_evaluate_clients`.
 
 class GlobalFlanders(RobustStrategy):
     """
-    Aggregation function based on MSCRED anomaly detection.
+    Aggregation function based on MAR.
     This is the Global Approach, where parameters trained by 
     each client are analyzed to detect anomalies within the client itself.
     """

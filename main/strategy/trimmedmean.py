@@ -5,6 +5,7 @@ from functools import reduce
 from logging import WARNING
 from typing import Callable, Dict, List, Optional, Tuple, Union
 from strategy.robustrategy import RobustStrategy
+from strategy.fedmedian import compute_median_vect
 
 from flwr.common import (
     FitRes,
@@ -17,7 +18,6 @@ from flwr.common import (
 )
 from flwr.common.logger import log
 from flwr.server.client_proxy import ClientProxy
-
 from flwr.server.strategy.aggregate import aggregate
 
 WARNING_MIN_AVAILABLE_CLIENTS_TOO_LOW = """
@@ -112,12 +112,6 @@ class TrimmedMean(RobustStrategy):
         if not self.accept_failures and failures:
             return None, {}
 
-        # For test_strategy
-        #weights_results = [
-        #    (fit_res.parameters, fit_res.num_examples)
-        #    for _, fit_res in results
-        #]
-
         results, others, clients_state = super().init_fit(server_round, results, failures)
         
         weights_results = [
@@ -126,7 +120,7 @@ class TrimmedMean(RobustStrategy):
         ]
 
         # Compute median of the parameters
-        w_median = self._compute_median(weights_results)
+        w_median = compute_median_vect(weights_results)
         
         # Take the k closest parameters around w_median
         dist_w = np.zeros((len(weights_results)))
@@ -159,9 +153,3 @@ class TrimmedMean(RobustStrategy):
             log(WARNING, "No fit_metrics_aggregation_fn provided")
 
         return parameters_aggregated, metrics_aggregated
-
-    def _compute_median(self, results: List[Tuple[int, float]]) -> NDArrays:
-        """Compute median of weights."""
-        weights = [weights for weights, _ in results]   # list of weights
-        median = [[np.apply_along_axis(np.median, 0, l2) for l2 in zip(*l)] for l in zip(*weights)]
-        return median

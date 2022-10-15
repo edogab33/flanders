@@ -143,7 +143,7 @@ def krum(results: List[Tuple[List, int]], m: int, to_keep: int, num_closest=0):
     M = _compute_distances(weights)                                         # matrix of distances
     if num_closest == 0:
         num_closest = len(weights) - m - 2                                  # number of closest points to use
-    closest_indices = _get_closest_indices(M, num_closest)                  # indices of closest points
+    closest_indices = _get_closest_indices(M, num_closest)                  # indices of closest points. TODO: num_closest = to_keep?
     scores = [np.sum(M[i,closest_indices[i]]) for i in range(len(M))]       # scores i->j for each i
     print("scores krum: "+str(scores))
     best_index = np.argmin(scores)                                          # index of the best score

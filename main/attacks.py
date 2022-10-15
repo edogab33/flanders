@@ -163,6 +163,7 @@ def minmax_attack(
     ) -> List[Tuple[ClientProxy, FitRes]]:
     """
     Implementation of Min-Max agnostic attack.
+    
     From: 
     "Manipulating the Byzantine: Optimizing Model Poisoning Attacks and Defenses for Federated Learning"
     (Shejwalkar et al., 2021)
@@ -203,7 +204,8 @@ def minmax_attack(
     lambda_succ = 0
     l = lambda_init
     step = lambda_init
-    while abs(lambda_succ - l) > threshold and malicious_num > 0:
+    stop = False
+    while abs(lambda_succ - l) > threshold and malicious_num > 0 and not stop:
         # Compute malicious gradients
         perturbation_vect = [l * perturbation_vect[i] for i in range(len(perturbation_vect))]
         corrupted_params = [params_avg[i] - perturbation_vect[i] for i in range(len(params_avg))]
@@ -228,13 +230,14 @@ def minmax_attack(
 
         # Compute lambda
         if max_dist_m <= max_dist_b:
+            stop = True
             lambda_succ = l
             l += step * 0.5
         else:
             l -= step * 0.5
         step *= 0.5
 
-    print("lambda: ", l)
+    print("lambda: ", lambda_succ)
     print("step ", step)
 
     #fig, ax = plt.subplots(1,3, figsize=(10,5))

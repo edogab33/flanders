@@ -13,7 +13,7 @@ def roc_auc_multiclass(y_true, y_pred):
     y_pred = lb.transform(y_pred)
     return roc_auc_score(y_true, y_pred, multi_class="ovr")
 
-# Source: https://github.com/python-engineer/pytorchTutorial/blob/master/13_feedforward.py
+# Source: https://github.com/bladesteam/blades/blob/master/src/blades/models/mnist/mlp.py
 class MnistNet(nn.Module):
     def __init__(self):
         super(MnistNet, self).__init__()
