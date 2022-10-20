@@ -94,13 +94,6 @@ class MnistClient(fl.client.NumPyClient):
 
         new_parameters = self.get_parameters(config={})
 
-        #if "malicious" in config:
-        #    if config["malicious"]:
-        #        magnitude = config["magnitude"]
-        #        # Add random perturbation.
-        #        perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
-        #        new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
-
         # Return local model and statistics
         return new_parameters, len(trainloader.dataset), {"malicious": config["malicious"], "cid": self.cid}
 
@@ -209,7 +202,7 @@ class ToyClient(fl.client.NumPyClient):
 
     def fit(self, parameters, config):
         set_params(self.net, parameters)
-        print(get_params(self.net))
+
         # Load data for this client and get trainloader
         num_workers = len(ray.worker.get_resource_ids()["CPU"])
         trainloader = get_circles(32, n_samples=10000, workers=num_workers, is_train=True)
@@ -218,7 +211,7 @@ class ToyClient(fl.client.NumPyClient):
         train_toy(self.net, trainloader, epochs=config["epochs"], device=self.device)
 
         new_parameters = self.get_parameters(config={})
-        print(get_params(self.net))
+
         # Return local model and statistics
         return new_parameters, len(trainloader.dataset), {"malicious": config["malicious"], "cid": self.cid}
 

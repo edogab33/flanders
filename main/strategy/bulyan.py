@@ -1,3 +1,4 @@
+from functools import reduce
 from random import sample
 import flwr as fl
 import numpy as np
@@ -113,11 +114,11 @@ class Bulyan(RobustStrategy):
 
         # Convert results
         weights_results = [
-            (parameters_to_ndarrays(fit_res.parameters), fit_res.config["cid"])
+            (parameters_to_ndarrays(fit_res.parameters), fit_res.metrics["cid"])
             for _, fit_res in results
         ]
 
-        theta = self.sample_size - 2*self.m[-1]
+        theta = self.sample_size[-1] - 2*self.m[-1]
         if theta <= 0:
             theta = 1
         beta = theta - 2*self.m[-1]
@@ -131,7 +132,7 @@ class Bulyan(RobustStrategy):
         median_vect = compute_median_vect(S)
 
         # Take the beta closest params to the median
-        distances= np.zeros((len(S)))
+        distances = np.zeros((len(S)))
         for i in range(len(S)):
             dist = [
                 np.abs(S[i][0][j] - median_vect[j]) for j in range(len(self.aggregated_parameters))
@@ -140,11 +141,14 @@ class Bulyan(RobustStrategy):
             for k in dist:
                 norm_sums += np.linalg.norm(k)
             distances[i] = norm_sums
-        closest_idx = np.argsort(M)[:beta]
-        M = [S[i] for i in closest_idx]
+        closest_idx = np.argsort(distances)[:beta]
+        M = [S[i][0] for i in closest_idx]
 
         # Apply FevAvg on M
-        parameters_aggregated = ndarrays_to_parameters(aggregate(M))
+        parameters_aggregated: NDArrays = [
+            reduce(np.add, layers) / beta
+            for layers in zip(*M)
+        ]
 
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
@@ -154,4 +158,4 @@ class Bulyan(RobustStrategy):
         elif server_round == 1:  # Only log this warning once
             log(WARNING, "No fit_metrics_aggregation_fn provided")
 
-        return parameters_aggregated, metrics_aggregated
+        return ndarrays_to_parameters(parameters_aggregated), metrics_aggregated
