@@ -132,7 +132,6 @@ class RobustStrategy(fl.server.strategy.FedAvg):
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
     ) -> List[Tuple[ClientProxy, FitIns]]:
-        
         """Configure the next round of training."""
         config = {}
         if self.on_fit_config_fn is not None:
