@@ -8,9 +8,9 @@ import os
 import pandas as pd
 
 from typing import Dict, Callable, Optional, Tuple, List
-from neural_networks.dataset_utils import get_mnist, do_fl_partitioning, get_dataloader, get_circles, get_cifar_10, get_partitioned_income
+from neural_networks.dataset_utils import get_mnist, do_fl_partitioning, get_dataloader, get_circles, get_cifar_10, get_partitioned_house, get_partitioned_income
 from neural_networks.neural_networks import MnistNet, ToyNN, roc_auc_multiclass, test_toy, train_mnist, test_mnist, train_toy
-from clients import CifarClient, IncomeClient, ToyClient, set_params, get_params, MnistClient, set_sklearn_model_params, get_sklearn_model_params
+from clients import CifarClient, HouseClient, IncomeClient, ToyClient, set_params, get_params, MnistClient, set_sklearn_model_params, get_sklearn_model_params
 from neural_networks.neural_networks import CifarNet, test_cifar
 from strategy.utilities import save_results
 
@@ -37,8 +37,7 @@ from flwr.common import (
 )
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, log_loss
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import accuracy_score, log_loss, roc_auc_score, mean_squared_error
 
 
 parser = argparse.ArgumentParser(description="Flower Simulation with PyTorch")
@@ -122,6 +121,25 @@ def income_evaluate(
 
     return loss, {"accuracy": accuracy, "auc": auc}
 
+def house_evaluate(
+    server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
+) -> Optional[Tuple[float, float]]:
+    """Use the entire House test set for evaluation."""
+    model = LogisticRegression()
+    model = set_sklearn_model_params(model, parameters)
+    model.classes_ = np.array([0.0, 1.0])
+
+    _, x_test, _, y_test = get_partitioned_house("neural_networks/house_prices.csv", 1)
+    x_test = x_test[0]
+    y_test = y_test[0]
+    y_pred = model.predict(x_test)
+    loss = np.sqrt(mean_squared_error(y_train,y_pred))
+
+    config["round"] = server_round
+    config["auc"] = "N/A"
+    save_results(loss, 0, config=config)
+
+    return loss, {"auc": "N/A"}
 
 def circles_evaluate(
     server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
@@ -179,8 +197,9 @@ if __name__ == "__main__":
     elif dataset_name == "income":
         evaluate_fn = income_evaluate
         client_func = IncomeClient
-    elif dataset_name == "houses":
-        pass
+    elif dataset_name == "house":
+        evaluate_fn = house_evaluate
+        client_func = HouseClient
 
     if attack_name == "no attack":
         attack_fn = no_attack
@@ -246,6 +265,9 @@ if __name__ == "__main__":
     elif dataset_name == "income":
         # Income dataset
         X_train, X_test, y_train, y_test = get_partitioned_income("neural_networks/adult.csv", pool_size)
+    elif dataset_name == "house":
+        # House prediction dataset
+        X_train, X_test, y_train, y_test = get_partitioned_house("neural_networks/house_prices.csv", pool_size)
 
     def client_fn(cid: int):
         cid = int(cid)
@@ -254,6 +276,8 @@ if __name__ == "__main__":
             return CifarClient(cid, fed_dir)
         elif dataset_name == "income":
             return IncomeClient(cid, X_train[cid], y_train[cid], X_test[cid], y_test[cid])
+        elif dataset_name == "house":
+            return HouseClient(cid, X_train[cid], y_train[cid], X_test[cid], y_test[cid])
         else:
             return client_func(cid, pool_size)
 

@@ -338,3 +338,27 @@ def get_partitioned_income(path: str, pool_size: int):
         y_test.append(ytest)
 
     return X_train, X_test, y_train, y_test
+
+def get_partitioned_house(path: str, pool_size: int):
+    # Split Income dataset for each client
+    data=pd.read_csv(path)
+    Y=data["SalePrice"]
+    data=data.loc[:,data.columns!="SalePrice"]
+
+    X_train, X_test, y_train, y_test = [], [], [], []
+    train_size = int((len(data) * 0.8) // pool_size)
+    test_size = int((len(data) * 0.2) // pool_size)
+    for i in range(pool_size):
+        xtrain, xtest, ytrain, ytest = train_test_split(
+            data, Y, 
+            train_size=train_size, 
+            test_size=test_size, 
+            random_state=i, 
+            shuffle=True
+        )
+        X_train.append(xtrain)
+        X_test.append(xtest)
+        y_train.append(ytrain)
+        y_test.append(ytest)
+
+    return X_train, X_test, y_train, y_test

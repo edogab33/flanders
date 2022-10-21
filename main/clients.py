@@ -9,8 +9,10 @@ from typing import Dict, List, Union, Tuple
 from pathlib import Path
 from neural_networks.dataset_utils import get_mnist, do_fl_partitioning, get_dataloader, get_circles
 from neural_networks.neural_networks import CifarNet, train_cifar, test_cifar, MnistNet, ToyNN, test_toy, train_mnist, test_mnist, train_toy
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.metrics import accuracy_score, log_loss
+from sklearn.pipeline import Pipeline
+from sklearn.decomposition import PCA
 
 XY = Tuple[np.ndarray, np.ndarray]
 LogRegParams = Union[XY, Tuple[np.ndarray]]
@@ -27,6 +29,7 @@ def set_params(model: torch.nn.ModuleList, params: List[np.ndarray]):
 
 def get_sklearn_model_params(model: LogisticRegression) -> LogRegParams:
     """Returns the paramters of a sklearn LogisticRegression model."""
+    print(model)
     if model.fit_intercept:
         params = [
             model.coef_,
@@ -47,7 +50,7 @@ def set_sklearn_model_params(
         model.intercept_ = params[1]
     return model
 
-def set_sklearn_initial_params(model: LogisticRegression):
+def set_initial_params_logistic_regr(model: LogisticRegression):
     """
     Sets initial parameters as zeros. Required since model params are
     uninitialized until model.fit is called.
@@ -58,11 +61,26 @@ def set_sklearn_initial_params(model: LogisticRegression):
     """
     n_classes = 2
     n_features = 14
-    model.classes_ = np.array([i for i in range(10)])
+    model.classes_ = np.array([i for i in range(2)])
 
     model.coef_ = np.zeros((n_classes, n_features))
     if model.fit_intercept:
         model.intercept_ = np.zeros((n_classes,))
+    return model
+
+def set_initial_params_linear_regr(model: LinearRegression):
+    """
+    Sets initial parameters as zeros. Required since model params are
+    uninitialized until model.fit is called.
+
+    But server asks for initial parameters from clients at launch. 
+    Refer to sklearn.linear_model.LinearRegression documentation for more
+    information.
+    """
+    n_features = 237
+    model.coef_ = np.zeros((n_features,))
+    if model.fit_intercept:
+        model.intercept_ = np.zeros((1,))
     return model
 
 
@@ -113,6 +131,7 @@ class MnistClient(fl.client.NumPyClient):
         # Return statistics
         return float(loss), len(testloader), {"accuracy": float(accuracy)}
 
+
 # Flower client, adapted from Pytorch quickstart example
 class CifarClient(fl.client.NumPyClient):
     def __init__(self, cid: str, fed_dir_data: str):
@@ -161,10 +180,11 @@ class CifarClient(fl.client.NumPyClient):
 
         return float(loss), len(valloader.dataset), {"accuracy": float(accuracy)}
 
+
 class IncomeClient(fl.client.NumPyClient):
     def __init__(self, cid: str, x_train, y_train, x_test, y_test):
         self.model = LogisticRegression(penalty="l1", solver="liblinear", max_iter=500, warm_start=True)
-        set_sklearn_initial_params(self.model)
+        set_initial_params_logistic_regr(self.model[1])
         self.cid = cid
         self.x_train = x_train
         self.y_train = y_train
@@ -188,6 +208,29 @@ class IncomeClient(fl.client.NumPyClient):
         accuracy = accuracy_score(y_pred, self.y_test)
         loss = log_loss(self.y_test, self.model.predict_proba(self.x_test))
         return float(loss), len(self.x_test), {"accuracy": float(accuracy)}
+
+
+class HouseClient(fl.client.NumPyClient):
+    def __init__(self, cid: str, x_train, y_train, x_test, y_test):
+        self.model = Pipeline([("pca", PCA(n_components=50)), ("LR",LinearRegression())])
+        set_initial_params_linear_regr(self.model[1])
+        self.cid = cid
+        self.x_train = x_train
+        self.y_train = y_train
+        self.x_test = x_test
+        self.y_test = y_test
+
+    def get_parameters(self, config: Dict[str, Scalar]):
+        return get_sklearn_model_params(self.model[1])
+
+    def fit(self, parameters, config):
+        self.model = set_sklearn_model_params(self.model[1], parameters)
+        self.model.fit(self.x_train, self.y_train)
+        new_parameters = get_sklearn_model_params(self.model)
+        return new_parameters, len(self.x_train), {"malicious": config["malicious"], "cid": self.cid}
+    
+    def evaluate(self, parameters, config):
+        return 0, 0, {"accuracy": 0}
 
 
 class ToyClient(fl.client.NumPyClient):
