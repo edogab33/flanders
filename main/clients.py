@@ -9,7 +9,7 @@ from typing import Dict, List, Union, Tuple
 from pathlib import Path
 from neural_networks.dataset_utils import get_mnist, do_fl_partitioning, get_dataloader, get_circles
 from neural_networks.neural_networks import CifarNet, train_cifar, test_cifar, MnistNet, ToyNN, test_toy, train_mnist, test_mnist, train_toy
-from sklearn.linear_model import LogisticRegression, LinearRegression
+from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge
 from sklearn.metrics import accuracy_score, log_loss
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
@@ -29,7 +29,6 @@ def set_params(model: torch.nn.ModuleList, params: List[np.ndarray]):
 
 def get_sklearn_model_params(model: LogisticRegression) -> LogRegParams:
     """Returns the paramters of a sklearn LogisticRegression model."""
-    print(model)
     if model.fit_intercept:
         params = [
             model.coef_,
@@ -55,29 +54,29 @@ def set_initial_params_logistic_regr(model: LogisticRegression):
     Sets initial parameters as zeros. Required since model params are
     uninitialized until model.fit is called.
 
-    But server asks for initial parameters from clients at launch. 
+    Server asks for initial parameters from clients at launch. 
     Refer to sklearn.linear_model.LogisticRegression documentation for more
     information.
     """
     n_classes = 2
     n_features = 14
-    model.classes_ = np.array([i for i in range(2)])
+    model.classes_ = np.array([i for i in range(n_classes)])
 
     model.coef_ = np.zeros((n_classes, n_features))
     if model.fit_intercept:
         model.intercept_ = np.zeros((n_classes,))
     return model
 
-def set_initial_params_linear_regr(model: LinearRegression):
+def set_initial_params_linear_regr(model: Ridge):
     """
     Sets initial parameters as zeros. Required since model params are
     uninitialized until model.fit is called.
 
-    But server asks for initial parameters from clients at launch. 
+    Server asks for initial parameters from clients at launch. 
     Refer to sklearn.linear_model.LinearRegression documentation for more
     information.
     """
-    n_features = 237
+    n_features = 18
     model.coef_ = np.zeros((n_features,))
     if model.fit_intercept:
         model.intercept_ = np.zeros((1,))
@@ -212,8 +211,8 @@ class IncomeClient(fl.client.NumPyClient):
 
 class HouseClient(fl.client.NumPyClient):
     def __init__(self, cid: str, x_train, y_train, x_test, y_test):
-        self.model = Pipeline([("pca", PCA(n_components=50)), ("LR",LinearRegression())])
-        set_initial_params_linear_regr(self.model[1])
+        self.model = Ridge(alpha=1, max_iter=500, solver="sag")
+        set_initial_params_linear_regr(self.model)
         self.cid = cid
         self.x_train = x_train
         self.y_train = y_train
@@ -221,10 +220,10 @@ class HouseClient(fl.client.NumPyClient):
         self.y_test = y_test
 
     def get_parameters(self, config: Dict[str, Scalar]):
-        return get_sklearn_model_params(self.model[1])
+        return get_sklearn_model_params(self.model)
 
     def fit(self, parameters, config):
-        self.model = set_sklearn_model_params(self.model[1], parameters)
+        self.model = set_sklearn_model_params(self.model, parameters)
         self.model.fit(self.x_train, self.y_train)
         new_parameters = get_sklearn_model_params(self.model)
         return new_parameters, len(self.x_train), {"malicious": config["malicious"], "cid": self.cid}

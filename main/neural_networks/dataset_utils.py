@@ -13,6 +13,7 @@ from sklearn.datasets import make_circles
 from sklearn.preprocessing import OrdinalEncoder
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
 
 class Data(torch.utils.data.Dataset):
     def __init__(self, X, y):
@@ -341,9 +342,9 @@ def get_partitioned_income(path: str, pool_size: int):
 
 def get_partitioned_house(path: str, pool_size: int):
     # Split Income dataset for each client
-    data=pd.read_csv(path)
-    Y=data["SalePrice"]
-    data=data.loc[:,data.columns!="SalePrice"]
+    data = pd.read_csv(path)
+    Y = data['median_house_value'].values
+    data = data.drop(['median_house_value'] , axis = 1).values
 
     X_train, X_test, y_train, y_test = [], [], [], []
     train_size = int((len(data) * 0.8) // pool_size)
@@ -356,6 +357,10 @@ def get_partitioned_house(path: str, pool_size: int):
             random_state=i, 
             shuffle=True
         )
+        sd = preprocessing.RobustScaler()
+        xtrain = sd.fit_transform(xtrain)
+        xtest = sd.fit_transform(xtest)
+
         X_train.append(xtrain)
         X_test.append(xtest)
         y_train.append(ytrain)

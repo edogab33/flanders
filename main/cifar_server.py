@@ -36,8 +36,8 @@ from flwr.common import (
     parameters_to_ndarrays,
 )
 
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, log_loss, roc_auc_score, mean_squared_error
+from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge
+from sklearn.metrics import accuracy_score, log_loss, roc_auc_score, mean_squared_error, mean_absolute_percentage_error
 
 
 parser = argparse.ArgumentParser(description="Flower Simulation with PyTorch")
@@ -114,7 +114,7 @@ def income_evaluate(
     accuracy = accuracy_score(y_test, y_pred)
     loss = log_loss(y_test, model.predict_proba(x_test))
     auc = roc_auc_score(y_test, model.predict_proba(x_test)[:,1])
-
+    
     config["round"] = server_round
     config["auc"] = auc
     save_results(loss, accuracy, config=config)
@@ -125,21 +125,20 @@ def house_evaluate(
     server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
 ) -> Optional[Tuple[float, float]]:
     """Use the entire House test set for evaluation."""
-    model = LogisticRegression()
+    model = Ridge(alpha=1)
     model = set_sklearn_model_params(model, parameters)
-    model.classes_ = np.array([0.0, 1.0])
-
-    _, x_test, _, y_test = get_partitioned_house("neural_networks/house_prices.csv", 1)
+    _, x_test, _, y_test = get_partitioned_house("neural_networks/houses_preprocessed.csv", 1)
     x_test = x_test[0]
     y_test = y_test[0]
     y_pred = model.predict(x_test)
-    loss = np.sqrt(mean_squared_error(y_train,y_pred))
+    loss = np.sqrt(mean_squared_error(y_test, y_pred))
+    mape = mean_absolute_percentage_error(y_test, y_pred)
 
     config["round"] = server_round
-    config["auc"] = "N/A"
-    save_results(loss, 0, config=config)
+    config["auc"] = mape
+    save_results(loss, mape, config=config)
 
-    return loss, {"auc": "N/A"}
+    return loss, {"auc": mape}
 
 def circles_evaluate(
     server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
@@ -267,7 +266,7 @@ if __name__ == "__main__":
         X_train, X_test, y_train, y_test = get_partitioned_income("neural_networks/adult.csv", pool_size)
     elif dataset_name == "house":
         # House prediction dataset
-        X_train, X_test, y_train, y_test = get_partitioned_house("neural_networks/house_prices.csv", pool_size)
+        X_train, X_test, y_train, y_test = get_partitioned_house("neural_networks/houses_preprocessed.csv", pool_size)
 
     def client_fn(cid: int):
         cid = int(cid)
