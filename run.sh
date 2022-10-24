@@ -2,7 +2,7 @@
 
 for i in `seq 0 127`; do
     echo "Starting experiment # $i"
-    python cifar_server.py --exp_num=$i --seed=123;
+    python main.py --seed=123 --exp_num=$i;
 done
 
 # This will allow you to use CTRL+C to stop all background processes
