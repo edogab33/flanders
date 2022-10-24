@@ -9,7 +9,7 @@ from typing import Dict, List, Union, Tuple
 from pathlib import Path
 from neural_networks.dataset_utils import get_mnist, do_fl_partitioning, get_dataloader, get_circles
 from neural_networks.neural_networks import CifarNet, train_cifar, test_cifar, MnistNet, ToyNN, test_toy, train_mnist, test_mnist, train_toy
-from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge
+from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge, Lasso
 from sklearn.metrics import accuracy_score, log_loss
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
@@ -67,7 +67,7 @@ def set_initial_params_logistic_regr(model: LogisticRegression):
         model.intercept_ = np.zeros((n_classes,))
     return model
 
-def set_initial_params_linear_regr(model: Ridge):
+def set_initial_params_linear_regr(model: Lasso):
     """
     Sets initial parameters as zeros. Required since model params are
     uninitialized until model.fit is called.
@@ -211,7 +211,7 @@ class IncomeClient(fl.client.NumPyClient):
 
 class HouseClient(fl.client.NumPyClient):
     def __init__(self, cid: str, x_train, y_train, x_test, y_test):
-        self.model = Ridge(alpha=1, max_iter=500, solver="sag")
+        self.model = Lasso(alpha=1, max_iter=1000, warm_start=True)
         set_initial_params_linear_regr(self.model)
         self.cid = cid
         self.x_train = x_train
