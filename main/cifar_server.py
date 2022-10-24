@@ -5,6 +5,7 @@ from flwr.common.typing import Scalar
 import torch
 import numpy as np
 import os
+import random
 import pandas as pd
 
 from typing import Dict, Callable, Optional, Tuple, List
@@ -45,6 +46,7 @@ parser = argparse.ArgumentParser(description="Flower Simulation with PyTorch")
 parser.add_argument("--num_client_cpus", type=int, default=1)
 parser.add_argument("--num_rounds", type=int, default=100)
 parser.add_argument("--exp_num", type=int, default=0)
+parser.add_argument("--seed", type=int, default=None)
 
 def fit_config(server_round: int) -> Dict[str, Scalar]:
     """Return a configuration with static batch size and (local) epochs."""
@@ -163,10 +165,23 @@ if __name__ == "__main__":
 
     # parse input arguments
     args = parser.parse_args()
-    
+    SEED = args.seed
     config = pd.read_csv("experiments_config.csv")
     config = config.to_dict("records")[args.exp_num]
-    print(config)
+    print("Loading configuration: ", config)
+
+    # Set random seed globally
+    np.random.seed(SEED)
+    np.random.set_state(np.random.RandomState(SEED).get_state())
+    random.seed(SEED)
+    torch.manual_seed(SEED)
+    torch.cuda.manual_seed(SEED)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+    print("RANDOM STATES 1")
+    print(np.random.get_state())
+
     pool_size = config.get("pool_size", 10)  # number of dataset partions (= number of total clients)
     fraction_fit = config.get("fraction_fit", 1)
     fraction_evaluate = config.get("fraction_evaluate", 0)
@@ -259,7 +274,7 @@ if __name__ == "__main__":
         # Cifar-10 dataset
         train_path, testset = get_cifar_10()
         fed_dir = do_fl_partitioning(
-            train_path, pool_size=pool_size, alpha=1000, num_classes=10, val_ratio=0.1
+            train_path, pool_size=pool_size, alpha=1000, num_classes=10, val_ratio=0.1, seed=SEED
         )
     elif dataset_name == "income":
         # Income dataset

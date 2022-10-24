@@ -14,6 +14,7 @@ from sklearn.preprocessing import OrdinalEncoder
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
+from sklearn.utils import check_random_state
 
 class Data(torch.utils.data.Dataset):
     def __init__(self, X, y):
@@ -68,14 +69,14 @@ def get_random_id_splits(total: int, val_ratio: float, shuffle: bool = True):
     return indices[split:], indices[:split]
 
 
-def do_fl_partitioning(path_to_dataset, pool_size, alpha, num_classes, val_ratio=0.0):
+def do_fl_partitioning(path_to_dataset, pool_size, alpha, num_classes, val_ratio=0.0, seed=None):
     """Torchvision (e.g. CIFAR-10) datasets using LDA."""
 
     images, labels = torch.load(path_to_dataset)
     idx = np.array(range(len(images)))
     dataset = [idx, labels]
     partitions, _ = create_lda_partitions(
-        dataset, num_partitions=pool_size, concentration=alpha, accept_imbalanced=True
+        dataset, num_partitions=pool_size, concentration=alpha, accept_imbalanced=True, seed=seed
     )
 
     # Show label distribution for first partition (purely informative)
@@ -341,6 +342,8 @@ def get_partitioned_income(path: str, pool_size: int):
     return X_train, X_test, y_train, y_test
 
 def get_partitioned_house(path: str, pool_size: int):
+    print("RANDOM STATES 2")
+    print(np.random.get_state())
     # Split Income dataset for each client
     data = pd.read_csv(path)
     Y = data['median_house_value'].values
