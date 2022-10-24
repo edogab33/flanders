@@ -1,5 +1,6 @@
-# Introduction
+# flwr_MSCRED
+An aggregation function based on MSCRED to detect malicious clients attempting to perform model poisoning.
 
-In main there are all the files used to run the Federated Learning environment.
+# Run
 
-In MSCRED there are two notebooks: one is used to train and test the MSCRED algorithm. In the other notebook there is the NN used in the clients so that we can save the learned parameters at each epoch and use it as dataset for MSCRED.
+To test the code configurate the strategy and the server in server.py and run `python server.py --num_rounds=[x]`

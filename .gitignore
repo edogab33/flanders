@@ -1,0 +1,12 @@
+**/MNIST
+explore_params.py
+**/histories
+**/matrix_data
+checkpoints
+results_graphs
+../MSCRED
+**/data
+**/model_ckpt
+clients_params
+**/cifar_nn
+load_tensors.py
