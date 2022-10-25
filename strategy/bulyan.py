@@ -144,6 +144,13 @@ class Bulyan(RobustStrategy):
         closest_idx = np.argsort(distances)[:beta]
         M = [S[i][0] for i in closest_idx]
 
+        for idx in closest_idx:
+            if clients_state[idx]:
+                self.malicious_selected = True
+                break
+            else:
+                self.malicious_selected = False
+
         # Apply FevAvg on M
         parameters_aggregated: NDArrays = [
             reduce(np.add, layers) / beta

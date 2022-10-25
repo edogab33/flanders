@@ -114,6 +114,7 @@ class MaliciousFedAvg(RobustStrategy):
         #save_history_stack(weights_results, server_round)
 
         parameters_aggregated = ndarrays_to_parameters(aggregate(weights_results))
+        self.malicious_selected = True if self.malicious_clients > 0 else False
 
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}

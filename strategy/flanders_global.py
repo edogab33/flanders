@@ -136,6 +136,13 @@ class GlobalFlanders(RobustStrategy):
             malicious_clients_idx = sorted(np.argsort(anomaly_scores)[self.to_keep:])
             results = np.array(results)[good_clients_idx].tolist()
 
+            for idx in good_clients_idx:
+                if clients_state[idx]:
+                    self.malicious_selected = True
+                    break
+                else:
+                    self.malicious_selected = False
+
             print("Kept clients: ")
             print(good_clients_idx)
             print("Clients: ")

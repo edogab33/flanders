@@ -135,6 +135,13 @@ class TrimmedMean(RobustStrategy):
         closest_idx = np.argsort(dist_w)[:self.to_keep]
         closest_w = [weights_results[i] for i in closest_idx]
 
+        for idx in closest_idx:
+            if clients_state[idx]:
+                self.malicious_selected = True
+                break
+            else:
+                self.malicious_selected = False
+
         clients_state = {k: clients_state[k] for k in sorted(clients_state)}
         print("Kept clients: ")
         print(closest_idx)

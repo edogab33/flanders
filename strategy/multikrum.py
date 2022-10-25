@@ -133,6 +133,13 @@ class MultiKrum(RobustStrategy):
         weights_results = [weights_results[idx] for idx in best_indices]
         parameters_aggregated = ndarrays_to_parameters(aggregate(weights_results))
 
+        for idx in best_indices:
+            if clients_state[idx]:
+                self.malicious_selected = True
+                break
+            else:
+                self.malicious_selected = False
+
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
         if self.fit_metrics_aggregation_fn:
