@@ -124,5 +124,7 @@ class FedMedian(RobustStrategy):
 def compute_median_vect(results: List[Tuple[NDArrays, float]]) -> NDArrays:
     """Compute median of weights."""
     weights = [weights for weights, _ in results]   # list of weights
-    median = [[np.apply_along_axis(np.median, 0, l2) for l2 in zip(*l)] for l in zip(*weights)]
-    return median
+    median_w = [
+        np.median(np.asarray(l), axis=0) for l in zip(*weights)
+    ]
+    return median_w
