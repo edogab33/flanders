@@ -37,7 +37,7 @@ from flwr.common import (
     parameters_to_ndarrays,
 )
 
-from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge, Lasso
+from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge, Lasso, ElasticNet
 from sklearn.metrics import accuracy_score, log_loss, roc_auc_score, mean_squared_error, mean_absolute_percentage_error
 
 
@@ -127,7 +127,7 @@ def house_evaluate(
     server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
 ) -> Optional[Tuple[float, float]]:
     """Use the entire House test set for evaluation."""
-    model = Lasso(alpha=1)
+    model = ElasticNet(alpha=1, warm_start=True)
     model = set_sklearn_model_params(model, parameters)
     _, x_test, _, y_test = get_partitioned_house("datasets/houses_preprocessed.csv", 1)
     x_test = x_test[0]
