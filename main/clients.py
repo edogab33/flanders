@@ -9,10 +9,8 @@ from typing import Dict, List, Union, Tuple
 from pathlib import Path
 from neural_networks.dataset_utils import get_mnist, do_fl_partitioning, get_dataloader, get_circles
 from neural_networks.neural_networks import CifarNet, train_cifar, test_cifar, MnistNet, ToyNN, test_toy, train_mnist, test_mnist, train_toy
-from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge, Lasso, ElasticNet
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, log_loss
-from sklearn.pipeline import Pipeline
-from sklearn.decomposition import PCA
 
 XY = Tuple[np.ndarray, np.ndarray]
 LogRegParams = Union[XY, Tuple[np.ndarray]]
@@ -26,6 +24,19 @@ def get_params(model: torch.nn.ModuleList) -> List[np.ndarray]:
     return [param.grad for param in model.parameters()]
 
 def set_params(model: torch.nn.ModuleList, params: List[np.ndarray]):
+    """Set model gradients from a list of NumPy ndarrays."""
+    for param, grad in zip(model.parameters(), params):
+        param.grad = torch.from_numpy(grad)
+
+def get_params_weights(model: torch.nn.ModuleList) -> List[np.ndarray]:
+    """Get model gradients as a list of NumPy ndarrays."""
+    print([param.grad for name,param in model.named_parameters()])
+    grads = [param.grad for param in model.parameters()]
+    if grads[0] is None:
+        return [0 for _ in range(len(grads))]
+    return [param.grad for param in model.parameters()]
+
+def set_params_weights(model: torch.nn.ModuleList, params: List[np.ndarray]):
     """Set model gradients from a list of NumPy ndarrays."""
     for param, grad in zip(model.parameters(), params):
         param.grad = torch.from_numpy(grad)
@@ -62,37 +73,22 @@ def set_sklearn_model_params(
         model.intercept_ = params[1]
     return model
 
-def set_initial_params_logistic_regr(model: LogisticRegression):
+def set_sklearn_initial_params(model: LogisticRegression):
     """
     Sets initial parameters as zeros. Required since model params are
     uninitialized until model.fit is called.
 
-    Server asks for initial parameters from clients at launch. 
+    But server asks for initial parameters from clients at launch. 
     Refer to sklearn.linear_model.LogisticRegression documentation for more
     information.
     """
     n_classes = 2
     n_features = 14
-    model.classes_ = np.array([i for i in range(n_classes)])
+    model.classes_ = np.array([i for i in range(10)])
 
     model.coef_ = np.zeros((n_classes, n_features))
     if model.fit_intercept:
         model.intercept_ = np.zeros((n_classes,))
-    return model
-
-def set_initial_params_linear_regr(model: ElasticNet):
-    """
-    Sets initial parameters as zeros. Required since model params are
-    uninitialized until model.fit is called.
-
-    Server asks for initial parameters from clients at launch. 
-    Refer to sklearn.linear_model.LinearRegression documentation for more
-    information.
-    """
-    n_features = 18
-    model.coef_ = np.zeros((n_features,))
-    if model.fit_intercept:
-        model.intercept_ = np.zeros((1,))
     return model
 
 
@@ -114,7 +110,7 @@ class MnistClient(fl.client.NumPyClient):
         # Load data for this client and get trainloader
         num_workers = len(ray.worker.get_resource_ids()["CPU"])
 
-        trainloader = get_mnist("datasets", 32, self.cid, nb_clients=self.pool_size, is_train=True, workers=num_workers)
+        trainloader = get_mnist("./cifar_nn/data", 32, self.cid, nb_clients=self.pool_size, is_train=True, workers=num_workers)
 
         # Send model to device
         self.net.to(self.device)
@@ -124,6 +120,13 @@ class MnistClient(fl.client.NumPyClient):
 
         new_parameters = self.get_parameters(config={})
 
+        #if "malicious" in config:
+        #    if config["malicious"]:
+        #        magnitude = config["magnitude"]
+        #        # Add random perturbation.
+        #        perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
+        #        new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
+
         # Return local model and statistics
         return new_parameters, len(trainloader.dataset), {"malicious": config["malicious"], "cid": self.cid}
 
@@ -132,7 +135,7 @@ class MnistClient(fl.client.NumPyClient):
 
         # Load data for this client and get trainloader
         num_workers = len(ray.worker.get_resource_ids()["CPU"])
-        testloader = get_mnist("datasets", 32, self.cid, nb_clients=self.pool_size, is_train=False, workers=num_workers)
+        testloader = get_mnist("./cifar_nn/data", 32, self.cid, nb_clients=self.pool_size, is_train=False, workers=num_workers)
 
         # Send model to device
         self.net.to(self.device)
@@ -142,7 +145,6 @@ class MnistClient(fl.client.NumPyClient):
 
         # Return statistics
         return float(loss), len(testloader), {"accuracy": float(accuracy)}
-
 
 # Flower client, adapted from Pytorch quickstart example
 class CifarClient(fl.client.NumPyClient):
@@ -192,11 +194,10 @@ class CifarClient(fl.client.NumPyClient):
 
         return float(loss), len(valloader.dataset), {"accuracy": float(accuracy)}
 
-
 class IncomeClient(fl.client.NumPyClient):
     def __init__(self, cid: str, x_train, y_train, x_test, y_test):
-        self.model = LogisticRegression(penalty="l1", solver="liblinear", max_iter=500, warm_start=True)
-        set_initial_params_logistic_regr(self.model)
+        self.model = LogisticRegression(penalty="l2", max_iter=500, warm_start=True)
+        set_sklearn_initial_params(self.model)
         self.cid = cid
         self.x_train = x_train
         self.y_train = y_train
@@ -222,29 +223,6 @@ class IncomeClient(fl.client.NumPyClient):
         return float(loss), len(self.x_test), {"accuracy": float(accuracy)}
 
 
-class HouseClient(fl.client.NumPyClient):
-    def __init__(self, cid: str, x_train, y_train, x_test, y_test):
-        self.model = ElasticNet(alpha=1, max_iter=1, warm_start=True)
-        set_initial_params_linear_regr(self.model)
-        self.cid = cid
-        self.x_train = x_train
-        self.y_train = y_train
-        self.x_test = x_test
-        self.y_test = y_test
-
-    def get_parameters(self, config: Dict[str, Scalar]):
-        return get_sklearn_model_params(self.model)
-
-    def fit(self, parameters, config):
-        self.model = set_sklearn_model_params(self.model, parameters)
-        self.model.fit(self.x_train, self.y_train)
-        new_parameters = get_sklearn_model_params(self.model)
-        return new_parameters, len(self.x_train), {"malicious": config["malicious"], "cid": self.cid}
-    
-    def evaluate(self, parameters, config):
-        return 0, 0, {"accuracy": 0}
-
-
 class ToyClient(fl.client.NumPyClient):
     def __init__(self, cid: str, pool_size: int):
         self.cid = cid
@@ -266,6 +244,13 @@ class ToyClient(fl.client.NumPyClient):
         train_toy(self.net, trainloader, epochs=config["epochs"], device=self.device)
 
         new_parameters = self.get_parameters(config={})
+
+        #if "malicious" in config:
+        #    if config["malicious"]:
+        #        magnitude = config["magnitude"]
+        #        # Add random perturbation.
+        #        perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
+        #        new_parameters = np.apply_along_axis(perturbate, 0, new_parameters).tolist()
 
         # Return local model and statistics
         return new_parameters, len(trainloader.dataset), {"malicious": config["malicious"], "cid": self.cid}
