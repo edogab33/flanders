@@ -5,9 +5,9 @@ requires = [
 build-backend = "poetry.masonry.api"
 
 [tool.poetry]
-name = "flwr_mscred"
+name = "flanders"
 version = "0.1.0"
-description = "Federated Learning with Flower and PyTorch Lightning"
+description = "Federated Learning leveraging Anomaly Deetection for Robust and Secure Aggregation (FLANDERS)"
 authors = ["Edoardo Gabrielli <gabrielli.1693726@studenti.uniroma1.it>"]
 
 [tool.poetry.dependencies]

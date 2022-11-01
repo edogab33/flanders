@@ -297,7 +297,6 @@ if __name__ == "__main__":
         else:
             return client_func(cid, pool_size)
 
-    # (optional) specify Ray config
     ray_init_args = {"include_dashboard": False}
 
     # Delete previous tensor in client_params
