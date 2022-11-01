@@ -72,6 +72,7 @@ def mnist_evaluate(
     testloader = DataLoader(testset, batch_size=32, shuffle=False, num_workers=1)
     loss, accuracy, auc = test_mnist(model, testloader, device=device)
 
+    config["id"] = args.exp_num
     config["round"] = server_round
     config["auc"] = auc
     save_results(loss, accuracy, config=config)
@@ -94,6 +95,7 @@ def cifar_evaluate(
     testloader = torch.utils.data.DataLoader(testset, batch_size=50)
     loss, accuracy, auc = test_cifar(model, testloader, device=device)
 
+    config["id"] = args.exp_num
     config["round"] = server_round
     config["auc"] = auc
     save_results(loss, accuracy, config=config)
@@ -117,6 +119,7 @@ def income_evaluate(
     loss = log_loss(y_test, model.predict_proba(x_test))
     auc = roc_auc_score(y_test, model.predict_proba(x_test)[:,1])
     
+    config["id"] = args.exp_num
     config["round"] = server_round
     config["auc"] = auc
     save_results(loss, accuracy, config=config)
@@ -136,6 +139,7 @@ def house_evaluate(
     loss = np.sqrt(mean_squared_error(y_test, y_pred))
     mape = mean_absolute_percentage_error(y_test, y_pred)
 
+    config["id"] = args.exp_num
     config["round"] = server_round
     config["auc"] = mape
     save_results(loss, mape, config=config)
@@ -155,6 +159,7 @@ def circles_evaluate(
     testloader = get_circles(32, n_samples=10000, workers=1, is_train=False)
     loss, accuracy = test_toy(model, testloader, device=device)
 
+    config["id"] = args.exp_num
     config["round"] = server_round
     save_results(loss, accuracy, config=config)
 
@@ -294,17 +299,6 @@ if __name__ == "__main__":
 
     # (optional) specify Ray config
     ray_init_args = {"include_dashboard": False}
-
-    # Prepare directory for logs
-    run_dir = "results_graphs/run_0"
-    if not os.path.exists(run_dir):
-        os.makedirs(run_dir)
-    dirs = [f for f in os.listdir("results_graphs/") if not f.startswith('.')]
-    # find the highest number in a list composed by strings that have a number as final char
-    longest_string = len(max(dirs, key=len))
-    idx = -2 if longest_string > 5 else -1
-    highest_number = max([int(x[idx:]) for x in dirs if x[idx:].isdigit()])
-    os.makedirs("results_graphs/run_"+str(highest_number+1), exist_ok=True)
 
     # Delete previous tensor in client_params
     tensor_dir = "clients_params/"

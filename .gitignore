@@ -10,3 +10,4 @@ results_graphs
 clients_params
 **/cifar_nn
 load_tensors.py
+results

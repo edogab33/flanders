@@ -1,5 +1,5 @@
 window,pool_size,fraction_fit,fraction_evaluate,malicious_clients,min_fit_clients,min_evaluate_clients,magnitude,warmup_rounds,to_keep,threshold,attack_name,strategy_name,dataset_name,num_rounds,sampling
-0,10,1,0,5,10,0,0.0,1,5,1e-05,no attack,median,house,50,0
+0,10,1,0,5,10,0,0.0,1,5,1e-05,no attack,median,circles,50,0
 0,10,1,0,2,10,0,0.0,1,5,1e-05,no attack,avg,house,50,0
 0,10,1,0,2,10,0,0.0,1,5,1e-05,no attack,avg,mnist,2,0
 0,10,1,0,2,10,0,0.0,1,5,1e-05,no attack,avg,cifar,2,0
