@@ -40,7 +40,7 @@ than or equal to the values of `min_fit_clients` and `min_evaluate_clients`.
 """
 
 
-class GlobalFlanders(RobustStrategy):
+class MSCRED(RobustStrategy):
     """
     Aggregation function based on MSCRED anomaly detection.
     This is the Global Approach, where parameters trained by 

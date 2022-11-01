@@ -9,9 +9,35 @@ import random
 import pandas as pd
 
 from typing import Dict, Callable, Optional, Tuple, List
-from neural_networks.dataset_utils import get_mnist, do_fl_partitioning, get_dataloader, get_circles, get_cifar_10, get_partitioned_house, get_partitioned_income
-from neural_networks.neural_networks import MnistNet, ToyNN, roc_auc_multiclass, test_toy, train_mnist, test_mnist, train_toy
-from clients import CifarClient, HouseClient, IncomeClient, ToyClient, set_params, get_params, MnistClient, set_sklearn_model_params, get_sklearn_model_params
+from neural_networks.dataset_utils import (
+    get_mnist, 
+    do_fl_partitioning, 
+    get_dataloader, 
+    get_circles, 
+    get_cifar_10, 
+    get_partitioned_house, 
+    get_partitioned_income
+)
+from neural_networks.neural_networks import (
+    MnistNet, 
+    ToyNN, 
+    roc_auc_multiclass, 
+    test_toy, 
+    train_mnist, 
+    test_mnist, 
+    train_toy
+)
+from clients import (
+    CifarClient, 
+    HouseClient, 
+    IncomeClient, 
+    ToyClient, 
+    set_params, 
+    get_params, 
+    MnistClient, 
+    set_sklearn_model_params, 
+    get_sklearn_model_params
+)
 from neural_networks.neural_networks import CifarNet, test_cifar
 from strategy.utilities import save_results
 
@@ -27,9 +53,16 @@ from strategy.krum import Krum
 from strategy.multikrum import MultiKrum
 from strategy.trimmedmean import TrimmedMean
 from strategy.bulyan import Bulyan
+from strategy.mscred import MSCRED
 from strategy.generate_dataset_fg import GenerateDataset
 
-from attacks import fang_attack, gaussian_attack, lie_attack, no_attack, minmax_attack
+from attacks import (
+    fang_attack, 
+    gaussian_attack, 
+    lie_attack, 
+    no_attack, 
+    minmax_attack
+)
 
 from flwr.server.strategy.fedavg import FedAvg
 from flwr.common import (
@@ -244,6 +277,8 @@ if __name__ == "__main__":
         strategy_fn = GlobalFlanders
     elif strategy_name == "bulyan":
         strategy_fn = Bulyan
+    elif strategy_name == "mscred":
+        strategy_fn = MSCRED
 
     client_resources = {
         "num_cpus": args.num_client_cpus
