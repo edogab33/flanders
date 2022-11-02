@@ -23,7 +23,7 @@ def save_params(parameters, cid, remove_last=False, rrl=False):
     """
     new_params = parameters
     # Save parameters in client_params/cid_params
-    path = f"clients_params/{cid}_params.npy"
+    path = f"strategy/clients_params/{cid}_params.npy"
     if os.path.exists("clients_params") == False:
         os.mkdir("clients_params")
     if os.path.exists(path):

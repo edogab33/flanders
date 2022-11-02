@@ -169,6 +169,6 @@ def generate_reconstructed_matrices(
         print ("reconstructed matrices generation finish.")
     tf.reset_default_graph()
 
-#generate_train_test_data(params_time_series="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/strategy/histories/history.csv",
+#generate_train_test_data(params_time_series="/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/strategy/mscred/histories/history.csv",
 #    matrix_data_path= "/Users/eddie/Documents/Università/ComputerScience/Thesis/flwr-pytorch/main/strategy/mscred/matrix_data/",
 #    test_start=40, test_end=51, step_max=5, win_size=[10], gap_time=1)

@@ -65,7 +65,7 @@ class FedMedian(RobustStrategy):
         """
         Parameters
         ----------
-        fravtion_malicious : float, otional
+        fraction_malicious : float, otional
             Fraction of malicious clients. Defaults to 0.
         """
 

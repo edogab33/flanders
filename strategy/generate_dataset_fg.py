@@ -101,7 +101,7 @@ class GenerateDataset(RobustStrategy):
             print(np.mean(flattened_params))
             params = np.append(params, np.mean(flattened_params))
 
-        # check that strategy/histoies directory exists and load history if it does
+        # check that strategy/histories directory exists and load history if it does
         history = np.load("strategy/histories/history.npy") if os.path.exists("strategy/histories/history.npy") else np.array([])
         history = np.vstack((history, params)) if history.size else params
         np.save("strategy/histories/history.npy", history)

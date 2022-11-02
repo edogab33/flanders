@@ -277,7 +277,7 @@ class RobustStrategy(fl.server.strategy.FedAvg):
 
         Output: the best parameters vector.
         """
-        weights = [np.array(w) for w, _ in results]             # list of weights
+        weights = [np.array(w) for w, _ in results]                         # list of weights
         M = self._compute_distances(weights)                                # matrix of distances
         num_closest = len(weights) - self.m[-1] - 2                         # number of closest points to use
         closest_indices = self._get_closest_indices(M, num_closest)         # indices of closest points
