@@ -335,7 +335,7 @@ if __name__ == "__main__":
     ray_init_args = {"include_dashboard": False}
 
     # Delete previous tensor in client_params
-    tensor_dir = "clients_params/"
+    tensor_dir = "strategy/clients_params/"
     if os.path.exists(tensor_dir):
         shutil.rmtree(tensor_dir)
 

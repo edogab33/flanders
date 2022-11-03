@@ -138,6 +138,8 @@ class FLTrust(RobustStrategy):
 
         g0_flattened = flatten_params(g0)
         for i in zip(flattened, g0_flattened):
+            print(i[0])
+            print(i[1])
             c_i.append(spatial.distance.cosine(i[0], i[1]))
 
         # Apply ReLU to obtain cosine similarities

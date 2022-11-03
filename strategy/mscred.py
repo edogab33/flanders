@@ -148,7 +148,8 @@ class Mscred(RobustStrategy):
             anomaly_scores = np.array(eval.evaluate(threshold=self.threshold, test_matrix_id=server_round-1))
             print(anomaly_scores)
             # Keep only the 'to_keep' clients with lower socres
-            print(sorted(np.argsort(anomaly_scores)[:self.to_keep]))
+            print("States: ", clients_state)
+            print("Clients to keep: ", np.argsort(anomaly_scores)[:self.to_keep])
             results = np.array(results)[sorted(np.argsort(anomaly_scores)[:self.to_keep])].tolist()
 
         # TODO: save history without malicious clients (?)

@@ -152,11 +152,10 @@ def krum(results: List[Tuple[List, int]], m: int, to_keep: int, num_closest=0):
 
 def _compute_distances(weights: NDArrays) -> NDArrays:
     """
-    Compute the distance between the vectors.
+    Compute distances between vectors.
     Input: weights - list of weights vectors
     Output: distances - matrix M of squared distances between the vectors
     """
-    #weights = np.array(weights)
     w = np.array([flatten_params(p) for p in weights])
     M = np.zeros((len(weights), len(weights)))
     for i in range(len(w)):
