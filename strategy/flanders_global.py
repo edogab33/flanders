@@ -150,17 +150,11 @@ class GlobalFlanders(RobustStrategy):
 
             self.cm = update_confusion_matrix(self.cm, clients_state, good_clients_idx, malicious_clients_idx)
 
-            dirs = [f for f in os.listdir("results_graphs/") if not f.startswith('.')]
-            longest_string = len(max(dirs, key=len))
-            idx = -2 if longest_string > 5 else -1
-
-            highest_number = str(max([int(x[idx:]) for x in dirs if x[idx:].isdigit()]))
-
-            fig, ax = plt.subplots(1,3, figsize=(10,5))
-            ax[0].matshow(M_hat)
-            ax[1].matshow(Mr[:,:,0])
-            ax[2].matshow(delta)
-            plt.savefig("results_graphs/run_"+highest_number+"/"+str(server_round)+"_matrices.png")
+            #fig, ax = plt.subplots(1,3, figsize=(10,5))
+            #ax[0].matshow(M_hat)
+            #ax[1].matshow(Mr[:,:,0])
+            #ax[2].matshow(delta)
+            #plt.savefig("results_graphs/run_"+highest_number+"/"+str(server_round)+"_matrices.png")
 
             # Aplly FedAvg for the remaining clients
             parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
