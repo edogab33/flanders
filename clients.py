@@ -99,7 +99,7 @@ class MnistClient(fl.client.NumPyClient):
         set_params(self.net, parameters)
 
         # Load data for this client and get trainloader
-        num_workers = len(ray.worker.get_resource_ids()["CPU"])
+        num_workers = 4
 
         trainloader = get_mnist("datasets", 32, self.cid, nb_clients=self.pool_size, is_train=True, workers=num_workers)
 
@@ -151,7 +151,7 @@ class CifarClient(fl.client.NumPyClient):
         set_params(self.net, parameters)
 
         # Load data for this client and get trainloader
-        num_workers = len(ray.worker.get_resource_ids()["CPU"])
+        num_workers = 4
         trainloader = get_dataloader(
             self.fed_dir,
             self.cid,
@@ -246,7 +246,8 @@ class ToyClient(fl.client.NumPyClient):
         set_params(self.net, parameters)
 
         # Load data for this client and get trainloader
-        num_workers = len(ray.worker.get_resource_ids()["CPU"])
+        #num_workers = len(ray.worker.get_resource_ids()["CPU"])
+        num_workers = 1
         trainloader = get_circles(32, n_samples=10000, workers=num_workers, is_train=True)
 
         self.net.to(self.device)
@@ -261,7 +262,8 @@ class ToyClient(fl.client.NumPyClient):
         set_params(self.net, parameters)
 
         # Load data for this client and get trainloader
-        num_workers = len(ray.worker.get_resource_ids()["CPU"])
+        #num_workers = len(ray.worker.get_resource_ids()["CPU"])
+        num_workers = 1
         testloader = get_circles(32, n_samples=10000, workers=num_workers, is_train=False)
 
         # Send model to device

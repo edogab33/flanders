@@ -1,3 +1,4 @@
+from http import server
 from locale import normalize
 import flwr as fl
 import numpy as np
@@ -19,6 +20,27 @@ from flwr.common import (
 from flwr.common.logger import log
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.strategy.aggregate import aggregate
+
+from clients import (
+    CifarClient, 
+    HouseClient, 
+    IncomeClient, 
+    ToyClient, 
+    set_params, 
+    get_params, 
+    MnistClient, 
+    set_sklearn_model_params, 
+    get_sklearn_model_params
+)
+from neural_networks.dataset_utils import (
+    get_mnist, 
+    do_fl_partitioning, 
+    get_dataloader, 
+    get_circles, 
+    get_cifar_10, 
+    get_partitioned_house, 
+    get_partitioned_income
+)
 
 from scipy import spatial
 
@@ -104,6 +126,42 @@ class FLTrust(RobustStrategy):
                 attack_fn = attack_fn,
                 threshold = threshold
             )
+        
+        self.previous_params = []
+
+        if dataset_name == "circles":
+            client_func = ToyClient
+        elif dataset_name == "mnist":
+            client_func = MnistClient
+        elif dataset_name == "cifar":
+            client_func = CifarClient
+        elif dataset_name == "income":
+            client_func = IncomeClient
+        elif dataset_name == "house":
+            client_func = HouseClient
+
+        if dataset_name == "cifar":
+            # Cifar-10 dataset
+            train_path, testset = get_cifar_10()
+            fed_dir = do_fl_partitioning(
+                train_path, pool_size=1, alpha=1000, num_classes=10, val_ratio=0.1
+            )
+        elif dataset_name == "income":
+            # Income dataset
+            X_train, X_test, y_train, y_test = get_partitioned_income("datasets/adult.csv", 1)
+        elif dataset_name == "house":
+            # House prediction dataset
+            X_train, X_test, y_train, y_test = get_partitioned_house("datasets/houses_preprocessed.csv", 1)
+
+        # create a single client instance
+        if dataset_name == "cifar":
+            self.client = CifarClient(0, fed_dir)
+        elif dataset_name == "income":
+            self.client = IncomeClient(0, X_train[0], y_train[0], X_test[0], y_test[0])
+        elif dataset_name == "house":
+            self.client = HouseClient(0, X_train[0], y_train[0], X_test[0], y_test[0])
+        else:
+            self.client = client_func(0, 1)
     
     def aggregate_fit(
         self,
@@ -120,16 +178,17 @@ class FLTrust(RobustStrategy):
             for _, fitres in results
         ]
 
-        # Take a parameter vector from one benign client
-        g0 = []
-        for key,val in clients_state.items():
-            if val == False:
-                g0 = weights_results[int(key)][0]
-                break
-        if g0 == []:
-            print("WARNING: No benign client found!")
+        if server_round == 1:
+            # Take a parameter vector from one benign client
+            for key,val in clients_state.items():
+                if val == False:
+                    self.previous_params = weights_results[int(key)][0]
+                    break
 
-        self.aggregated_parameters = g0
+        # Take one step of learning
+        g0, _, _ = self.client.fit(self.previous_params, {"epochs": 1, "malicious": False})
+        self.previous_params = g0
+
         print("client state: ", clients_state)
         
         # Compute cosine similarities between g0 and all other clients
@@ -137,10 +196,8 @@ class FLTrust(RobustStrategy):
         flattened = [flatten_params(x[0]) for x in weights_results]
 
         g0_flattened = flatten_params(g0)
-        for i in zip(flattened, g0_flattened):
-            print(i[0])
-            print(i[1])
-            c_i.append(spatial.distance.cosine(i[0], i[1]))
+        for i in range(len(flattened)):
+            c_i.append(spatial.distance.cosine(flattened[i], g0_flattened))
 
         # Apply ReLU to obtain cosine similarities
         trust_scores = [x if x > 0 else 0 for x in c_i]
