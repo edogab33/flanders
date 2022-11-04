@@ -1,3 +1,4 @@
+from http import server
 import flwr as fl
 import numpy as np
 import os
@@ -108,10 +109,13 @@ class Mscred(RobustStrategy):
         results: List[Tuple[ClientProxy, FitRes]],
         failures: List[Union[Tuple[ClientProxy, FitRes], BaseException]],
     ) -> Tuple[Optional[Parameters], Dict[str, Scalar]]:
-        """Apply MSCRED to exclude malicious clients from the average."""
+        """Apply MSCRED (np.mean version) to exclude malicious clients from the average."""
         
         results, others, clients_state = super().init_fit(server_round, results, failures)
         HPATH = "strategy/mscred_utils/histories/"
+
+        if server_round == 1:
+            os.rmdir(HPATH)
         if not os.path.exists(HPATH):
             os.makedirs(HPATH)
         weights_results = {
@@ -122,10 +126,7 @@ class Mscred(RobustStrategy):
         params = np.asarray([])
         for cid in weights_results:
             flattened_params = np.concatenate([w.flatten() for w in weights_results[cid]])
-            print(np.mean(flattened_params))
             params = np.append(params, np.mean(flattened_params))
-
-        #np.save("params_ts.npy", params)
 
         # check that strategy/histoies directory exists and load history if it does
         history = np.load(HPATH+"history.npy") if os.path.exists(HPATH+"history.npy") else np.array([])
