@@ -123,7 +123,7 @@ class GlobalFlanders(RobustStrategy):
             win = self.window
             if server_round < self.window:
                 win = server_round
-            M = load_all_time_series(dir="clients_params", window=win)
+            M = load_all_time_series(dir="strategy/clients_params", window=win)
             M = np.transpose(M, (0, 2, 1))
             M_hat = M[:,:,-1].copy()
             pred_step = 1
@@ -223,7 +223,7 @@ def cap_values(matrix):
     matrix[matrix < np.finfo(np.float64).tiny] = np.finfo(np.float64).tiny
     return matrix
 
-#M = load_all_time_series(dir="clients_params", window=5)
+#M = load_all_time_series(dir="strategy/clients_params", window=5)
 #M = np.transpose(M, (0, 2, 1))
 #M_hat = M[:,:,-1].copy()
 #pred_step = 1
