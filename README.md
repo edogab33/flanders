@@ -1,5 +1,5 @@
-# flwr_MSCRED
-An aggregation function based on MSCRED to detect malicious clients attempting to perform model poisoning.
+# FLANDERS
+A novel agggregation aggregation function to detect malicious clients attempting to perform model poisoning.
 
 # Run
 
