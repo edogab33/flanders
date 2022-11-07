@@ -115,7 +115,10 @@ class Mscred(RobustStrategy):
         HPATH = "strategy/mscred_utils/histories/"
 
         if server_round == 1:
-            os.rmdir(HPATH)
+            if os.path.exists(HPATH + "history.csv"):
+                os.remove(HPATH + "history.csv")
+            if os.path.exists(HPATH + "history.npy"):
+                os.remove(HPATH + "history.npy")
         if not os.path.exists(HPATH):
             os.makedirs(HPATH)
         weights_results = {

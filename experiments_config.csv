@@ -1,5 +1,17 @@
 window,pool_size,fraction_fit,fraction_evaluate,malicious_clients,min_fit_clients,min_evaluate_clients,magnitude,warmup_rounds,to_keep,threshold,attack_name,strategy_name,dataset_name,num_rounds,sampling
-0,10,1,0,4,10,0,0.0,10,5,1e-05,no attack,fltrust,mnist,50,0
-0,10,1,0,2,10,0,0.0,1,5,1e-05,no attack,avg,house,50,0
-0,10,1,0,2,10,0,0.0,1,5,1e-05,no attack,avg,mnist,2,0
-0,10,1,0,2,10,0,0.0,1,5,1e-05,no attack,avg,cifar,2,0
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,bulyan,income,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,lie,avg,mnist,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,fang,avg,mnist,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,minmax,avg,mnist,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,krum,mnist,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,trimmedmean,mnist,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,multikrum,mnist,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,bulyan,mnist,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,fltrust,mnist,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,trimmedmean,mnist,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,median,mnist,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,flanders,mnist,20,100
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,mscred,mnist,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,avg,income,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,avg,house,20,0
+10,10,1,0,3,10,0,2,10,5,1e-05,gaussian,avg,cifar,20,0
