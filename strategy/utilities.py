@@ -38,6 +38,25 @@ def save_params(parameters, cid, remove_last=False, rrl=False):
     # save parameters
     np.save(path, new_params)
 
+def save_predicted_params(parameters, cid):
+    """
+    Args:
+    - parameters (ndarray): decoded parameters to append at the end of the file
+    - cid (int): identifier of the client
+    """
+    new_params = parameters
+    # Save parameters in client_params/cid_params
+    path = f"strategy/clients_predicted_params/{cid}_params.npy"
+    if os.path.exists("strategy/clients_predicted_params") == False:
+        os.mkdir("strategy/clients_predicted_params")
+    if os.path.exists(path):
+        # load old parameters
+        old_params = np.load(path, allow_pickle=True)
+        # add new parameters
+        new_params = np.vstack((old_params, new_params))
+    # save parameters
+    np.save(path, new_params)
+
 def save_results(loss, accuracy, config=None):
     # Generate csv
     config["accuracy"] = accuracy

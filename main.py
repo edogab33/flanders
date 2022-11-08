@@ -339,6 +339,11 @@ if __name__ == "__main__":
     if os.path.exists(tensor_dir):
         shutil.rmtree(tensor_dir)
 
+    # Delete previous tensor in client_predicted_params
+    tensor_dir = "strategy/clients_predicted_params/"
+    if os.path.exists(tensor_dir):
+        shutil.rmtree(tensor_dir)
+
     # start simulation
     fl.simulation.start_simulation(
         client_fn=client_fn,

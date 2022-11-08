@@ -9,6 +9,7 @@ from typing import Callable, Dict, List, Optional, Tuple, Union
 from strategy.robustrategy import RobustStrategy
 from strategy.utilities import (
     save_params, 
+    save_predicted_params,
     load_all_time_series, 
     load_time_series, 
     update_confusion_matrix, 
@@ -124,14 +125,22 @@ class GlobalFlanders(RobustStrategy):
             if server_round < self.window:
                 win = server_round
             M = load_all_time_series(dir="strategy/clients_params", window=win)
-            M = np.transpose(M, (0, 2, 1))
+            M = np.transpose(M, (0, 2, 1))  # (clients, params, time)
+
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = mar(M[:,:,:-1], pred_step, maxiter=50, window=win-1)
+            Mr = mar(M[:,:,:-1], pred_step, maxiter=100)
+
+            for c in range(len(Mr)):
+                params = flatten_params(Mr[c])
+                if self.sampling > 0:
+                    params = params[self.params_indexes]
+                save_predicted_params(params, c)
 
             delta = np.subtract(M_hat, Mr[:,:,0])
-            anomaly_scores = np.sum(np.abs(delta)**2,axis=-1)**(1./2)
+            anomaly_scores = np.sum(delta**2,axis=-1)**(1./2)
             print("Anomaly scores: ", anomaly_scores)
+
             good_clients_idx = sorted(np.argsort(anomaly_scores)[:self.to_keep])
             malicious_clients_idx = sorted(np.argsort(anomaly_scores)[self.to_keep:])
             results = np.array(results)[good_clients_idx].tolist()
@@ -139,6 +148,7 @@ class GlobalFlanders(RobustStrategy):
             for idx in good_clients_idx:
                 if clients_state[idx]:
                     self.malicious_selected = True
+                    print("[!] Malicious client(s) selected")
                     break
                 else:
                     self.malicious_selected = False
@@ -150,11 +160,11 @@ class GlobalFlanders(RobustStrategy):
 
             self.cm = update_confusion_matrix(self.cm, clients_state, good_clients_idx, malicious_clients_idx)
 
-            #fig, ax = plt.subplots(1,3, figsize=(10,5))
-            #ax[0].matshow(M_hat)
-            #ax[1].matshow(Mr[:,:,0])
-            #ax[2].matshow(delta)
-            #plt.savefig("results_graphs/run_"+highest_number+"/"+str(server_round)+"_matrices.png")
+            _, ax = plt.subplots(1,3, figsize=(10,5))
+            ax[0].matshow(M_hat)
+            ax[1].matshow(Mr[:,:,0])
+            ax[2].matshow(delta)
+            plt.savefig("results/"+str(server_round)+"_matrices.png")
 
             # Aplly FedAvg for the remaining clients
             parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
@@ -166,15 +176,16 @@ class GlobalFlanders(RobustStrategy):
                     new_params = flatten_params(parameters_to_ndarrays(parameters_aggregated))[self.params_indexes]
                 else:
                     new_params = flatten_params(parameters_to_ndarrays(parameters_aggregated))
-                save_params(new_params, idx, remove_last=True, rrl=True)
+                save_params(new_params, idx, remove_last=True, rrl=False)
         else:
             parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
         return parameters_aggregated, metrics_aggregated
 
-def mar(X, pred_step, alpha=0.01, beta=0.01, maxiter=100, window=0):
+def mar(X, pred_step, alpha=0.1, beta=0.1, maxiter=100, window=0):
    
     m, n, T = X.shape
+    start = 0
     if window > 0:
         start = T - window
 

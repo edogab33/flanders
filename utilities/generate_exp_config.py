@@ -39,11 +39,11 @@ def generate_d(
     return d
 
 def all_combinations():
-    attacks = ["gaussian"]
-    strategies = ["krum", "trimmedmean", "flanders", "multikrum", "avg", "bulyan", "fltrust", "trimmedmean", "median", "flanders", "mscred"]
-    datasets = ["mnist"]
-    malicious_num = [3]
-    to_keep = [5]
+    attacks = ["gaussian", "fang", "lie", "no attack", "minmax"]
+    strategies = ["flanders"]
+    datasets = ["income"]
+    malicious_num = [5]
+    to_keep = [25]
 
     d = {
         "window":[],
@@ -69,18 +69,18 @@ def all_combinations():
             for attack in attacks:
                 for malicious in malicious_num:
                     for k in to_keep:
-                        d["window"].append(10)
-                        d["pool_size"].append(10)
+                        d["window"].append(30)
+                        d["pool_size"].append(100)
                         d["fraction_fit"].append(1)
                         d["fraction_evaluate"].append(0)
                         d["malicious_clients"].append(malicious)
-                        d["min_fit_clients"].append(10)
+                        d["min_fit_clients"].append(100)
                         d["min_evaluate_clients"].append(0)
                         if attack == "gaussian":
                             d["magnitude"].append(2)
                         else:
                             d["magnitude"].append(0)
-                        d["warmup_rounds"].append(10)
+                        d["warmup_rounds"].append(30)
                         d["to_keep"].append(k)
                         d["threshold"].append(1e-5)
                         d["attack_name"].append(attack)

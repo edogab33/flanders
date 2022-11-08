@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in `seq 0 18`; do
+for i in `seq 0 6`; do
     echo "Starting experiment # $i"
     python main.py --seed=123 --exp_num=$i;
 done
