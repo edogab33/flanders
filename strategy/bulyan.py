@@ -121,19 +121,28 @@ class Bulyan(RobustStrategy):
         theta = self.sample_size[-1] - 2*self.m[-1]
         if theta <= 0:
             theta = 1
+        print("theta: ", theta)
         beta = theta - 2*self.m[-1]
+        if beta <= 0:
+            beta = 1
+        print("beta: ", beta)
 
-        S = []                                                              # S must be List[Tuple[NDArrays, int]]
+        S = {}                                                                      # S must be Dict[int, Tuple[NDArrays, int]]
+        tracker = np.arange(len(weights_results))                                   # List of idx to keep track of the order of clients
         for _ in range(theta):
             _, idx, _, _ = krum(weights_results, self.m[-1], self.to_keep)
-            S.append(weights_results[idx])                                  # weights_results is ordered according to "cid"
+            S[tracker[idx]] = weights_results[idx]                                  # weights_results is ordered according to "cid"
+
+            # remove idx from tracker and weights_results
+            tracker = np.delete(tracker, idx)
+            weights_results.pop(idx)
 
         # Compute median parameter vector across S
-        median_vect = compute_median_vect(S)
+        median_vect = compute_median_vect(S.values())
 
         # Take the beta closest params to the median
-        distances = np.zeros((len(S)))
-        for i in range(len(S)):
+        distances = {}
+        for i in S.keys():
             dist = [
                 np.abs(S[i][0][j] - median_vect[j]) for j in range(len(self.aggregated_parameters))
             ]
@@ -141,8 +150,11 @@ class Bulyan(RobustStrategy):
             for k in dist:
                 norm_sums += np.linalg.norm(k)
             distances[i] = norm_sums
-        closest_idx = np.argsort(distances)[:beta]
+
+        closest_idx = sorted(distances, key=distances.get)[:beta]
         M = [S[i][0] for i in closest_idx]
+        print("selected ", closest_idx)
+        print("states ", clients_state)
 
         for idx in closest_idx:
             if clients_state[idx]:

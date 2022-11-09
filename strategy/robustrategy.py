@@ -218,7 +218,9 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         else:
             results = ordered_results
             others = {}
-        
+
+        # Sort clients states
+        clients_state = {k: clients_state[k] for k in sorted(clients_state)}
         return results, others, clients_state
 
     def aggregate_fit(

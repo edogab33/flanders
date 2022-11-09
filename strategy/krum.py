@@ -114,7 +114,6 @@ class Krum(RobustStrategy):
             (parameters_to_ndarrays(fitres.parameters), fitres.num_examples)
             for _, fitres in results
         ]
-
         clients_state = {k: clients_state[k] for k in sorted(clients_state)}
         #save_history_average(weights_results)
         print("client states ", clients_state)
@@ -134,18 +133,25 @@ class Krum(RobustStrategy):
 
         return ndarrays_to_parameters(self.aggregated_parameters), metrics_aggregated
 
-def krum(results: List[Tuple[List, int]], m: int, to_keep: int, num_closest=0):
+def krum(results: List[Tuple[List, int]], m: int, to_keep: int, num_closest=None):
     """
     Get the best parameters vector according to the Krum function.
     Output: the best parameters vector.
     """
     weights = [w for w, _ in results]                                       # list of weights
     M = _compute_distances(weights)                                         # matrix of distances
-    if num_closest == 0:
+
+    if not num_closest:
         num_closest = len(weights) - m - 2                                  # number of closest points to use
+    if num_closest <= 0:
+        num_closest = 1
+    elif num_closest > len(weights):
+        num_closest = len(weights)
+
     closest_indices = _get_closest_indices(M, num_closest)                  # indices of closest points. TODO: num_closest = to_keep?
     scores = [np.sum(M[i,closest_indices[i]]) for i in range(len(M))]       # scores i->j for each i
     print("scores krum: "+str(scores))
+    
     best_index = np.argmin(scores)                                          # index of the best score
     best_indices = np.argsort(scores)[::-1][len(scores)-to_keep:]           # indices of best scores (multikrum)
     return weights[best_index], best_index, best_indices, scores            # best weights vector

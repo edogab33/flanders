@@ -33,7 +33,7 @@ def gaussian_attack(
     for proxy, fitres in ordered_results:
         if states[fitres.metrics["cid"]]:
             params = parameters_to_ndarrays(fitres.parameters)
-            perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
+            perturbate = lambda a: a * np.random.normal(loc=0, scale=magnitude, size=len(a))
             if dataset_name == "income":
                 new_params = [perturbate(layer) for layer in params]
             else:
@@ -50,7 +50,6 @@ def lie_attack(
     """
     Implementation of Omniscent LIE attack, Baruch et al. (2019)
     """
-    dataset_name = kwargs.get("dataset_name", "no name")
     results = ordered_results.copy()
     params = [parameters_to_ndarrays(fitres.parameters) for _, fitres in results]
     grads_mean = [np.mean(layer, axis=0) for layer in zip(*params)]
@@ -59,6 +58,8 @@ def lie_attack(
     n = len(ordered_results)                                        # number of clients
     m = sum(val == True for val in states.values())                 # number of corrupted clients
     s = math.floor((n / 2) + 1) - m                                 # number of supporters
+    if s < 0:
+        s = 1
     z_max = norm.ppf((n - m - s) / (n - m))
     for proxy, fitres in ordered_results:
         if states[fitres.metrics["cid"]]:

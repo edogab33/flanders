@@ -118,8 +118,7 @@ class GlobalFlanders(RobustStrategy):
         Apply MAR forecasting to exclude malicious clients from the average.
         """
         results, others, clients_state = super().init_fit(server_round, results, failures)
-        # Reorder clients_sate by key
-        clients_state = {k: clients_state[k] for k in sorted(clients_state)}
+
         if server_round > 1:
             win = self.window
             if server_round < self.window:
