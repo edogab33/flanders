@@ -8,6 +8,7 @@ results_graphs
 **/data
 **/model_ckpt
 clients_params
+clients_predicted_params
 **/cifar_nn
 load_tensors.py
 results

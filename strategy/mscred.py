@@ -122,7 +122,7 @@ class Mscred(RobustStrategy):
         if not os.path.exists(HPATH):
             os.makedirs(HPATH)
         weights_results = {
-            proxy.cid: np.asarray(parameters_to_ndarrays(fit_res.parameters))
+            proxy.cid: parameters_to_ndarrays(fit_res.parameters)
             for proxy, fit_res in results
         }
         
