@@ -182,7 +182,7 @@ class CifarClient(fl.client.NumPyClient):
 
 class IncomeClient(fl.client.NumPyClient):
     def __init__(self, cid: str, x_train, y_train, x_test, y_test):
-        self.model = LogisticRegression(penalty="l1", solver="liblinear", max_iter=500, warm_start=True)
+        self.model = LogisticRegression(penalty="l1", solver="liblinear", max_iter=1, warm_start=True)
         set_initial_params_logistic_regr(self.model)
         self.cid = cid
         self.x_train = x_train
