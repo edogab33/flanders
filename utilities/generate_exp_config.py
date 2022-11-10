@@ -62,6 +62,7 @@ def all_combinations():
         "dataset_name": [],
         "num_rounds": [],
         "sampling": [],
+        "configs": [],
     }
 
     for dataset in datasets:
@@ -91,6 +92,8 @@ def all_combinations():
                             d["sampling"].append(100)
                         else:
                             d["sampling"].append(0)
+                        if strategy == "flanders":
+                            d["configs"].append({"alpha": 1, "beta": 1})
     return d
 
 d = all_combinations()

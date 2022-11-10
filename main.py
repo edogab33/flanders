@@ -234,6 +234,11 @@ if __name__ == "__main__":
     num_rounds = config.get("num_rounds", 50)
     sampling = config.get("sampling", 0)
 
+    configs = {
+        "alpha": config.get("alpha", 0.1),
+        "beta": config.get("beta", 0.1)
+    }
+
     if dataset_name == "circles":
         evaluate_fn = circles_evaluate
         client_func = ToyClient
@@ -304,6 +309,7 @@ if __name__ == "__main__":
         dataset_name=dataset_name,                          # mnist, cifar, income, circles
         window=window,                                      # Used in Flanders
         sampling=sampling,                                  # Used in Flanders
+        configs=configs,
         #initial_parameters=initial_parameters
     )
 

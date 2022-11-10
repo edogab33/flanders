@@ -61,6 +61,7 @@ class GlobalFlanders(RobustStrategy):
         min_available_clients: int = 2,
         window: int = 0,
         sampling: str = None,
+        configs: Optional[Dict[str, str]] = None,
         evaluate_fn: Optional[
             Callable[
                 [int, NDArrays, Dict[str, Scalar]],
@@ -108,6 +109,9 @@ class GlobalFlanders(RobustStrategy):
                 sampling=sampling
             )
 
+        self.alpha = configs.get("alpha", 0.1)
+        self.beta = configs.get("beta", 0.1)
+
     def aggregate_fit(
         self,
         server_round: int,
@@ -128,7 +132,7 @@ class GlobalFlanders(RobustStrategy):
 
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = mar(M[:,:,:-1], pred_step, maxiter=100)
+            Mr = mar(M[:,:,:-1], pred_step, maxiter=100, alpha=self.alpha, beta=self.beta)
 
             for c in range(len(Mr)):
                 params = flatten_params(Mr[c])
@@ -170,12 +174,13 @@ class GlobalFlanders(RobustStrategy):
 
             # For clients detected as malicious, set their parameters to be the averaged ones in their files
             # otherwise the forecasting in next round won't be reliable
-            for idx in malicious_clients_idx:
-                if self.sampling > 0:
-                    new_params = flatten_params(parameters_to_ndarrays(parameters_aggregated))[self.params_indexes]
-                else:
-                    new_params = flatten_params(parameters_to_ndarrays(parameters_aggregated))
-                save_params(new_params, idx, remove_last=True, rrl=False)
+            if self.warmup_rounds > server_round:
+                for idx in malicious_clients_idx:
+                    if self.sampling > 0:
+                        new_params = flatten_params(parameters_to_ndarrays(parameters_aggregated))[self.params_indexes]
+                    else:
+                        new_params = flatten_params(parameters_to_ndarrays(parameters_aggregated))
+                    save_params(new_params, idx, remove_last=True, rrl=False)
         else:
             parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
