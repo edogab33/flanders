@@ -33,7 +33,7 @@ def gaussian_attack(
     for proxy, fitres in ordered_results:
         if states[fitres.metrics["cid"]]:
             params = parameters_to_ndarrays(fitres.parameters)
-            perturbate = lambda a: a * np.random.normal(loc=0, scale=magnitude, size=len(a))
+            perturbate = lambda a: a + np.random.normal(loc=0, scale=magnitude, size=len(a))
             if dataset_name == "income":
                 new_params = [perturbate(layer) for layer in params]
             else:
