@@ -205,8 +205,7 @@ def minmax_attack(
     lambda_succ = 0
     l = lambda_init
     step = lambda_init
-    stop = False
-    while abs(lambda_succ - l) > threshold and malicious_num > 0 and not stop:
+    while abs(lambda_succ - l) > threshold and malicious_num > 0:
         # Compute malicious gradients
         perturbation_vect = [l * perturbation_vect[i] for i in range(len(perturbation_vect))]
         corrupted_params = [params_avg[i] - perturbation_vect[i] for i in range(len(params_avg))]
@@ -231,7 +230,6 @@ def minmax_attack(
 
         # Compute lambda
         if max_dist_m <= max_dist_b:
-            stop = True
             lambda_succ = l
             l += step * 0.5
         else:

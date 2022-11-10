@@ -128,7 +128,7 @@ class GlobalFlanders(RobustStrategy):
 
             M_hat = M[:,:,-1].copy()
             pred_step = 1
-            Mr = mar(M[:,:,:-1], pred_step, maxiter=50)
+            Mr = mar(M[:,:,:-1], pred_step, maxiter=100)
 
             for c in range(len(Mr)):
                 params = flatten_params(Mr[c])
@@ -181,7 +181,7 @@ class GlobalFlanders(RobustStrategy):
 
         return parameters_aggregated, metrics_aggregated
 
-def mar(X, pred_step, alpha=0.1, beta=0.1, maxiter=100, window=0):
+def mar(X, pred_step, alpha=1, beta=1, maxiter=100, window=0):
    
     m, n, T = X.shape
     start = 0
