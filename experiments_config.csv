@@ -1,5 +1,5 @@
 window,pool_size,fraction_fit,fraction_evaluate,malicious_clients,min_fit_clients,min_evaluate_clients,magnitude,warmup_rounds,to_keep,threshold,attack_name,strategy_name,dataset_name,num_rounds,sampling,configs
-30,10,1,0,2,10,0,2,30,5,1e-05,fang,flanders,income,50,0,"{'alpha': 1, 'beta': 1}"
+30,10,1,0,2,10,0,2,30,5,1e-05,fang,mscred,income,50,0,"{'alpha': 1, 'beta': 1}"
 30,100,1,0,5,100,0,0,30,25,1e-05,fang,flanders,income,20,0,"{'alpha': 1, 'beta': 1}"
 30,100,1,0,5,100,0,0,30,25,1e-05,lie,flanders,income,20,0,"{'alpha': 1, 'beta': 1}"
 30,100,1,0,5,100,0,0,30,25,1e-05,no attack,flanders,income,20,0,"{'alpha': 1, 'beta': 1}"

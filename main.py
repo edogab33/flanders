@@ -1,9 +1,9 @@
 import argparse
 import shutil
+import numpy as np
 import flwr as fl
 from flwr.common.typing import Scalar
 import torch
-import numpy as np
 import os
 import random
 import pandas as pd
