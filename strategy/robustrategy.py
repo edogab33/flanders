@@ -150,8 +150,15 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         print("sample size: "+str(sample_size))
         print("num m: "+str(self.m[-1]))
 
+        if self.dataset_name == "cifar" and self.strategy_name == "fltrust":
+            config["batch_size"] = 64
         fit_ins_array = [
-            FitIns(parameters, dict(config, **{"malicious": True, "magnitude": self.magnitude}) if idx < self.m[-1] else dict(config, **{"malicious": False}))
+            FitIns(
+                parameters, 
+                dict(
+                    config, **{"malicious": True, "magnitude": self.magnitude}) if idx < self.m[-1] 
+                    else dict(config, **{"malicious": False})
+            )
             for idx,_ in enumerate(clients)
         ]
 

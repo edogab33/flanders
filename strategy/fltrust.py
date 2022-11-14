@@ -186,8 +186,8 @@ class FLTrust(RobustStrategy):
                     self.previous_params = weights_results[int(key)][0]
                     break
 
-        # Take one step of learning
-        g0, _, _ = self.client.fit(self.previous_params, {"epochs": 1, "malicious": False})
+        # Take one learning step
+        g0, _, _ = self.client.fit(self.previous_params, {"epochs": 1, "malicious": False, "batch_size":64})
         self.previous_params = g0
 
         print("client state: ", clients_state)

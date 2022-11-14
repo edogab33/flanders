@@ -125,7 +125,7 @@ def cifar_evaluate(
     model.to(device)
 
     _, testset = get_cifar_10()
-    testloader = torch.utils.data.DataLoader(testset, batch_size=50)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=32)
     loss, accuracy, auc = test_cifar(model, testloader, device=device)
 
     config["id"] = args.exp_num

@@ -99,7 +99,7 @@ class MnistClient(fl.client.NumPyClient):
         set_params(self.net, parameters)
 
         # Load data for this client and get trainloader
-        num_workers = 4
+        num_workers = 1
 
         trainloader = get_mnist("datasets", 32, self.cid, nb_clients=self.pool_size, is_train=True, workers=num_workers)
 
@@ -151,7 +151,7 @@ class CifarClient(fl.client.NumPyClient):
         set_params(self.net, parameters)
 
         # Load data for this client and get trainloader
-        num_workers = 4
+        num_workers = 1
         trainloader = get_dataloader(
             self.fed_dir,
             self.cid,
