@@ -129,13 +129,15 @@ class FLTrust(RobustStrategy):
             )
         
         self.previous_params = []
-
+        self.learning_rate = 1.0
         if dataset_name == "circles":
             client_func = ToyClient
         elif dataset_name == "mnist":
             client_func = MnistClient
+            self.learning_rate = 3e-4
         elif dataset_name == "cifar":
             client_func = CifarClient
+            self.learning_rate = 2e-4
         elif dataset_name == "income":
             client_func = IncomeClient
         elif dataset_name == "house":
@@ -218,9 +220,9 @@ class FLTrust(RobustStrategy):
         print("trust scores", trust_scores)
 
         # Aggregate parameters weighted by trust scores
-        update = aggregate(normalized_params)
-        for layer in range(len(update)):
-            self.aggregated_parameters[layer] = self.aggregated_parameters[layer] + update[layer]
+        global_model_update = aggregate(normalized_params)
+        for layer in range(len(global_model_update)):
+            self.aggregated_parameters[layer] = self.aggregated_parameters[layer] + global_model_update[layer] * self.learning_rate
 
         # Aggregate custom metrics if aggregation fn was provided
         metrics_aggregated = {}
