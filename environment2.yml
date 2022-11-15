@@ -23,9 +23,7 @@ dependencies:
   - idna=3.4
   - intel-openmp=2021.4.0
   - libcxx=14.0.6
-  - libffi=3.3
-  - libgfortran=5.0.0
-  - libgfortran5=11.3.0
+  - libffi=3.3 
   - libiconv=1.16
   - libprotobuf=3.20.1
   - llvm-openmp=14.0.6
@@ -55,8 +53,6 @@ dependencies:
   - setuptools=65.5.0
   - six=1.16.0
   - sqlite=3.39.3
-  - tensorboard-data-server=0.6.0
-  - tensorboard-plugin-wit=1.6.0
   - tk=8.6.12
   - typing-extensions=4.3.0
   - typing_extensions=4.3.0
@@ -111,10 +107,6 @@ dependencies:
     - ray==1.13.0
     - seaborn==0.12.0
     - sklearn==0.0
-    - tensorboard==1.15.0
-    - tensorflow==1.15.5
-    - tensorflow-estimator==1.15.1
-    - tensorflow-tensorboard==1.5.1
     - termcolor==2.0.1
     - threadpoolctl==3.1.0
     - torch==1.12.1

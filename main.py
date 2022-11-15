@@ -53,7 +53,6 @@ from strategy.krum import Krum
 from strategy.multikrum import MultiKrum
 from strategy.trimmedmean import TrimmedMean
 from strategy.bulyan import Bulyan
-from strategy.mscred import Mscred
 from strategy.generate_dataset_fg import GenerateDataset
 
 from attacks import (
@@ -282,8 +281,6 @@ if __name__ == "__main__":
         strategy_fn = GlobalFlanders
     elif strategy_name == "bulyan":
         strategy_fn = Bulyan
-    elif strategy_name == "mscred":
-        strategy_fn = Mscred
 
     client_resources = {
         "num_cpus": args.num_client_cpus
