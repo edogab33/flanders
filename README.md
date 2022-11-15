@@ -1,4 +1,4 @@
-# FLANDERS
+# FLANDERS (WIP!)
 A novel agggregation aggregation function to detect malicious clients attempting to perform model poisoning.
 
 # Run
