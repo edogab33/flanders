@@ -134,11 +134,11 @@ class GlobalFlanders(RobustStrategy):
             pred_step = 1
             Mr = mar(M[:,:,:-1], pred_step, maxiter=100, alpha=self.alpha, beta=self.beta)
 
-            for c in range(len(Mr)):
-                params = flatten_params(Mr[c])
-                if self.sampling > 0:
-                    params = params[self.params_indexes]
-                save_predicted_params(params, c)
+            #for c in range(len(Mr)):
+            #    params = flatten_params(Mr[c])
+            #    if self.sampling > 0:
+            #        params = params[self.params_indexes]
+            #    save_predicted_params(params, c)
 
             delta = np.subtract(M_hat, Mr[:,:,0])
             anomaly_scores = np.sum(delta**2,axis=-1)**(1./2)
