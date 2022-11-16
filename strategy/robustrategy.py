@@ -128,6 +128,8 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         self.window = window                                        # window size (num of timesteps loaded and window size for MAR)
         self.sampling = sampling                                    # number of params to sample
         self.params_indexes = []                                    # indexes of sampled parameters after round 1
+        #self.alpha = 0.1
+        #self.beta = 0.1
 
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager

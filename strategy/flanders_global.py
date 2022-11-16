@@ -132,6 +132,7 @@ class GlobalFlanders(RobustStrategy):
 
             M_hat = M[:,:,-1].copy()
             pred_step = 1
+            
             Mr = mar(M[:,:,:-1], pred_step, maxiter=100, alpha=self.alpha, beta=self.beta)
 
             #for c in range(len(Mr)):
