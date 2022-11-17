@@ -232,7 +232,6 @@ if __name__ == "__main__":
     window = config.get("window", 0)
     num_rounds = config.get("num_rounds", 50)
     sampling = config.get("sampling", 0)
-
     configs = {
         "alpha": config.get("alpha", 0.1),
         "beta": config.get("beta", 0.1)

@@ -66,11 +66,12 @@ def save_results(loss, accuracy, config=None):
     # check that dir exists
     if os.path.exists("results") == False:
         os.mkdir("results")
+    # Lock is needed when multiple clients are running concurrently
     with lock:
         if os.path.exists(csv_path):
             df.to_csv(csv_path, mode="a", header=False, index=False)
         else:
-            df.to_csv(csv_path, index=False)
+            df.to_csv(csv_path, index=False, header=True)
 
 def load_all_time_series(dir="", window=0):
         """

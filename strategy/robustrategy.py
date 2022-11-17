@@ -128,8 +128,8 @@ class RobustStrategy(fl.server.strategy.FedAvg):
         self.window = window                                        # window size (num of timesteps loaded and window size for MAR)
         self.sampling = sampling                                    # number of params to sample
         self.params_indexes = []                                    # indexes of sampled parameters after round 1
-        #self.alpha = 0.1
-        #self.beta = 0.1
+        self.alpha = 0.1
+        self.beta = 0.1
 
     def configure_fit(
         self, server_round: int, parameters: Parameters, client_manager: ClientManager
@@ -274,7 +274,8 @@ class RobustStrategy(fl.server.strategy.FedAvg):
             "frac_fit": self.fraction_fit, "frac_eval": self.fraction_evaluate, "min_fit_clients": self.min_fit_clients,
             "min_eval_clients": self.min_evaluate_clients, "min_available_clients": self.min_available_clients,
             "num_clients": self.sample_size[-1], "num_malicious": self.m[-1], "attack": self.attack_name, "iid": self.iid,
-            "dataset_name": self.dataset_name, "confusion_matrix": self.cm, "warmup_rounds": self.warmup_rounds}
+            "dataset_name": self.dataset_name, "confusion_matrix": self.cm, "warmup_rounds": self.warmup_rounds, 
+            "alpha": self.alpha, "beta": self.beta, "sampling": self.sampling, "threshold": self.threshold,}
 
         eval_res = evaluate_aggregated(self.evaluate_fn, server_round, parameters, config)
         if eval_res is None:
