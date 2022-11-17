@@ -28,7 +28,7 @@ Experiments conducted on several datasets under different FL settings demonstrat
 # Run
 
 ## Preliminaries
-To run the code is advised to create a conda environment and install all the dependences contained in environmennt.yml.
+To run the code is advised to create a conda environment and install all the dependences contained in environment.yml.
 [...]
 
 ## Configuration
