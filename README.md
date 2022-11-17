@@ -1,9 +1,9 @@
 # FLANDERS (WIP!)
 
 ## Why
-This repository is part of the work done for FLANDERS (read the abstract below) and serves as a way to reproduce and validate the results presented in the paper, but also useful to the Federated Learning community to quickly setup simulations in Flower with byzantine clients and return metrics. The contributions that this repository provides is listed below:
+This repository is part of the work done for FLANDERS (read the abstract below) and serves as a way to reproduce and validate the results presented in the paper, but also useful to the Federated Learning community to quickly setup simulations in Flower with byzantine clients and return metrics. The contributions that this repository provides are listed below:
 
-1. Defence baselines:
+1. Implementation of the following defence baselines:
     - FedMedian
     - TrimmedMean
     - Krum
@@ -12,11 +12,13 @@ This repository is part of the work done for FLANDERS (read the abstract below) 
     - FLTrust
     - FLANDERS
 
-2. Attacks:
+2. Implementation of the following attacks:
     - Gaussian Attack
     - LIE Attack
     - Fang Attack
     - MinMax Attack
+
+[Add citations]
 
 ## Abstract
 In this work, we propose FLANDERS, a novel federated learning (FL) aggregation scheme robust to Byzantine attacks.
