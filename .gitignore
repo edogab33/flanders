@@ -12,3 +12,4 @@ clients_predicted_params
 **/cifar_nn
 load_tensors.py
 results
+.DS_Store
