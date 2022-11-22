@@ -85,6 +85,8 @@ def all_combinations():
             for attack in attacks:
                 for malicious in malicious_num:
                     for k in to_keep:
+                        if strategy not in ['multikrum', 'flanders', 'trimmedmean']:
+                            continue
                         d["window"].append(window)
                         d["pool_size"].append(pool_size)
                         d["fraction_fit"].append(fraction_fit)
