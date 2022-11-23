@@ -41,11 +41,11 @@ def generate_d(
 def all_combinations():
     # Generate all combinations of the parameters with lists of same length
     attacks = ["gaussian", "fang", "lie", "no attack", "minmax"]
-    strategies = ["flanders"]
-    datasets = ["income"]
-    malicious_num = [5]
-    to_keep = [10]
-    warmup_rounds = 0
+    strategies = ["flanders", "krum"]
+    datasets = ["income", "house"]
+    malicious_num = [15, 30]
+    to_keep = [5, 10]
+    warmup_rounds = 1
     magnitude = 0
     threshold = 1e-5
     sampling = 0
@@ -84,8 +84,8 @@ def all_combinations():
         for strategy in strategies:
             for attack in attacks:
                 for malicious in malicious_num:
-                    for k in to_keep:
-                        if strategy not in ['multikrum', 'flanders', 'trimmedmean']:
+                    for i, k in enumerate(to_keep):
+                        if strategy not in ['multikrum', 'flanders', 'trimmedmean'] and i > 0:
                             continue
                         d["window"].append(window)
                         d["pool_size"].append(pool_size)

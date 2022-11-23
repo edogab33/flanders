@@ -183,7 +183,7 @@ def minmax_attack(
     # results presented in the paper.
     if dataset_name == "mnist":
         # Apply sign perturbation
-        perturbation_vect = [np.sign(params_avg[i]) for i in range(len(params_avg))]
+        perturbation_vect = [-np.sign(params_avg[i]) for i in range(len(params_avg))]
     elif dataset_name == "cifar":
         if agr_func == "krum":
             # Apply unit vector perturbation
@@ -193,19 +193,20 @@ def minmax_attack(
             perturbation_vect = [params_avg[i] / norm for i in range(len(params_avg))]
         else:
             # Apply std perturbation
-            perturbation_vect = [np.std(layer, axis=0) for layer in zip(*params)]
+            perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
     else:
         if agr_func == "fltrust":
-            perturbation_vect = [np.sign(params_avg[i]) for i in range(len(params_avg))]
+            perturbation_vect = [-np.sign(params_avg[i]) for i in range(len(params_avg))]
         else:
             # Apply std perturbation
             # TODO: check that experimentally std is the best as default
-            perturbation_vect = [np.std(layer, axis=0) for layer in zip(*params)]
+            perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
+
     # Compute lambda (that is gamma in the paper)
     lambda_succ = 0
     l = lambda_init
     step = lambda_init
-    while abs(lambda_succ - l) > threshold and malicious_num > 0:
+    while abs(lambda_succ - l) > threshold and step > threshold and malicious_num > 0:
         # Compute malicious gradients
         perturbation_vect = [l * perturbation_vect[i] for i in range(len(perturbation_vect))]
         corrupted_params = [params_avg[i] - perturbation_vect[i] for i in range(len(params_avg))]
@@ -235,19 +236,11 @@ def minmax_attack(
         else:
             l -= step * 0.5
         step *= 0.5
-
-    print("lambda: ", lambda_succ)
+    print("lambda: ", l)
     print("step ", step)
-
-    #fig, ax = plt.subplots(1,3, figsize=(10,5))
-    #ax[0].matshow(M)
-    #ax[1].matshow(M_b)
-    #ax[2].matshow(M_m)
-    #plt.show()
-
     # Compute the final malicious update
-    perturbation_vect = [lambda_succ * perturbation_vect[i] for i in range(len(perturbation_vect))]
-    corrupted_params = [params_avg[i] - perturbation_vect[i] for i in range(len(params_avg))]
+    perturbation_vect = [l * perturbation_vect[i] for i in range(len(perturbation_vect))]
+    corrupted_params = [params_avg[i] + perturbation_vect[i] for i in range(len(params_avg))]
     corrupted_params = ndarrays_to_parameters(corrupted_params)
     for proxy, fitres in ordered_results:
         if states[fitres.metrics["cid"]]:
