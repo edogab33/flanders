@@ -1,5 +1,5 @@
 window,pool_size,fraction_fit,fraction_evaluate,malicious_clients,min_fit_clients,min_evaluate_clients,magnitude,warmup_rounds,to_keep,threshold,attack_name,strategy_name,dataset_name,num_rounds,sampling,alpha,beta
-40,10,1,0,15,10,0,0,1,5,1e-05,gaussian,flanders,income,50,0,1,1
+40,10,1,0,5,10,0,0,1,5,1e-05,gaussian,bulyan,house,50,0,1,1
 40,10,1,0,15,10,0,0,1,10,1e-05,gaussian,flanders,income,50,0,1,1
 40,10,1,0,30,10,0,0,1,5,1e-05,gaussian,flanders,income,50,0,1,1
 40,10,1,0,30,10,0,0,1,10,1e-05,gaussian,flanders,income,50,0,1,1

@@ -170,7 +170,7 @@ def house_evaluate(
     y_pred = model.predict(x_test)
     loss = np.sqrt(mean_squared_error(y_test, y_pred))
     mape = mean_absolute_percentage_error(y_test, y_pred)
-
+    print("MAPE: ", mape)
     config["id"] = args.exp_num
     config["round"] = server_round
     config["auc"] = mape
