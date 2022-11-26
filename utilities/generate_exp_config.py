@@ -40,23 +40,23 @@ def generate_d(
 
 def all_combinations():
     # Generate all combinations of the parameters with lists of same length
-    attacks = ["gaussian", "fang", "lie", "no attack", "minmax"]
+    attacks = ["gaussian"]
     strategies = ["flanders", "krum"]
-    datasets = ["income", "house"]
-    malicious_num = [15, 30]
-    to_keep = [5, 10]
-    warmup_rounds = 1
-    magnitude = 0
+    datasets = ["income"]
+    malicious_num = [5, 10, 20, 30]
+    to_keep = [5, 10, 20, 30]
+    warmup_rounds = 30
+    magnitude = 10
     threshold = 1e-5
     sampling = 0
     window = 40
     alpha = 1
     beta = 1
     num_rounds = 50
-    pool_size = 10
+    pool_size = 50
     fraction_fit = 1
     fraction_evaluate = 0
-    min_fit_clients = 10
+    min_fit_clients = 50
     min_evaluate_clients = 0
 
     d = {

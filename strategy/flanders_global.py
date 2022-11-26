@@ -181,7 +181,7 @@ class GlobalFlanders(RobustStrategy):
                         new_params = flatten_params(parameters_to_ndarrays(parameters_aggregated))[self.params_indexes]
                     else:
                         new_params = flatten_params(parameters_to_ndarrays(parameters_aggregated))
-                    save_params(new_params, idx, remove_last=True, rrl=False)
+                    save_params(new_params, idx, remove_last=True, rrl=True)
         else:
             parameters_aggregated, metrics_aggregated = super().aggregate_fit(server_round, results, failures)
 
@@ -205,7 +205,7 @@ def mar(X, pred_step, alpha=1, beta=1, maxiter=100, window=0):
         temp2 = np.zeros((m, m))
         identity_m = np.identity(m)
        
-        for t in tqdm(range(start, T)):
+        for t in range(start, T):
             temp1 += X_norm[:, :, t] @ B @ X_norm[:, :, t - 1].T
             temp2 += X_norm[:, :, t - 1] @ temp0 @ X_norm[:, :, t - 1].T
 
@@ -217,7 +217,7 @@ def mar(X, pred_step, alpha=1, beta=1, maxiter=100, window=0):
         temp2 = np.zeros((n, n))
         identity_n = np.identity(n)
        
-        for t in tqdm(range(start, T)):
+        for t in range(start, T):
             temp1 += X_norm[:, :, t].T @ A @ X_norm[:, :, t - 1]
             temp2 += X_norm[:, :, t - 1].T @ temp0 @ X_norm[:, :, t - 1]
 

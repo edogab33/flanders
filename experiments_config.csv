@@ -1,81 +1,37 @@
 window,pool_size,fraction_fit,fraction_evaluate,malicious_clients,min_fit_clients,min_evaluate_clients,magnitude,warmup_rounds,to_keep,threshold,attack_name,strategy_name,dataset_name,num_rounds,sampling,alpha,beta
-40,10,1,0,5,10,0,0,1,5,1e-05,gaussian,bulyan,house,50,0,1,1
-40,10,1,0,15,10,0,0,1,10,1e-05,gaussian,flanders,income,50,0,1,1
-40,10,1,0,30,10,0,0,1,5,1e-05,gaussian,flanders,income,50,0,1,1
-40,10,1,0,30,10,0,0,1,10,1e-05,gaussian,flanders,income,50,0,1,1
-40,10,1,0,15,10,0,0,1,5,1e-05,fang,flanders,income,50,0,1,1
-40,10,1,0,15,10,0,0,1,10,1e-05,fang,flanders,income,50,0,1,1
-40,10,1,0,30,10,0,0,1,5,1e-05,fang,flanders,income,50,0,1,1
-40,10,1,0,30,10,0,0,1,10,1e-05,fang,flanders,income,50,0,1,1
-40,10,1,0,15,10,0,0,1,5,1e-05,lie,flanders,income,50,0,1,1
-40,10,1,0,15,10,0,0,1,10,1e-05,lie,flanders,income,50,0,1,1
-40,10,1,0,30,10,0,0,1,5,1e-05,lie,flanders,income,50,0,1,1
-40,10,1,0,30,10,0,0,1,10,1e-05,lie,flanders,income,50,0,1,1
-40,10,1,0,15,10,0,0,1,5,1e-05,no attack,flanders,income,50,0,1,1
-40,10,1,0,15,10,0,0,1,10,1e-05,no attack,flanders,income,50,0,1,1
-40,10,1,0,30,10,0,0,1,5,1e-05,no attack,flanders,income,50,0,1,1
-40,10,1,0,30,10,0,0,1,10,1e-05,no attack,flanders,income,50,0,1,1
-40,10,1,0,15,10,0,0,1,5,1e-05,minmax,flanders,income,50,0,1,1
-40,10,1,0,15,10,0,0,1,10,1e-05,minmax,flanders,income,50,0,1,1
-40,10,1,0,30,10,0,0,1,5,1e-05,minmax,flanders,income,50,0,1,1
-40,10,1,0,30,10,0,0,1,10,1e-05,minmax,flanders,income,50,0,1,1
-40,10,1,0,15,10,0,0,1,5,1e-05,gaussian,krum,income,50,0,0,0
-40,10,1,0,15,10,0,0,1,10,1e-05,gaussian,krum,income,50,0,0,0
-40,10,1,0,30,10,0,0,1,5,1e-05,gaussian,krum,income,50,0,0,0
-40,10,1,0,30,10,0,0,1,10,1e-05,gaussian,krum,income,50,0,0,0
-40,10,1,0,15,10,0,0,1,5,1e-05,fang,krum,income,50,0,0,0
-40,10,1,0,15,10,0,0,1,10,1e-05,fang,krum,income,50,0,0,0
-40,10,1,0,30,10,0,0,1,5,1e-05,fang,krum,income,50,0,0,0
-40,10,1,0,30,10,0,0,1,10,1e-05,fang,krum,income,50,0,0,0
-40,10,1,0,15,10,0,0,1,5,1e-05,lie,krum,income,50,0,0,0
-40,10,1,0,15,10,0,0,1,10,1e-05,lie,krum,income,50,0,0,0
-40,10,1,0,30,10,0,0,1,5,1e-05,lie,krum,income,50,0,0,0
-40,10,1,0,30,10,0,0,1,10,1e-05,lie,krum,income,50,0,0,0
-40,10,1,0,15,10,0,0,1,5,1e-05,no attack,krum,income,50,0,0,0
-40,10,1,0,15,10,0,0,1,10,1e-05,no attack,krum,income,50,0,0,0
-40,10,1,0,30,10,0,0,1,5,1e-05,no attack,krum,income,50,0,0,0
-40,10,1,0,30,10,0,0,1,10,1e-05,no attack,krum,income,50,0,0,0
-40,10,1,0,15,10,0,0,1,5,1e-05,minmax,krum,income,50,0,0,0
-40,10,1,0,15,10,0,0,1,10,1e-05,minmax,krum,income,50,0,0,0
-40,10,1,0,30,10,0,0,1,5,1e-05,minmax,krum,income,50,0,0,0
-40,10,1,0,30,10,0,0,1,10,1e-05,minmax,krum,income,50,0,0,0
-40,10,1,0,15,10,0,0,1,5,1e-05,gaussian,flanders,house,50,0,1,1
-40,10,1,0,15,10,0,0,1,10,1e-05,gaussian,flanders,house,50,0,1,1
-40,10,1,0,30,10,0,0,1,5,1e-05,gaussian,flanders,house,50,0,1,1
-40,10,1,0,30,10,0,0,1,10,1e-05,gaussian,flanders,house,50,0,1,1
-40,10,1,0,15,10,0,0,1,5,1e-05,fang,flanders,house,50,0,1,1
-40,10,1,0,15,10,0,0,1,10,1e-05,fang,flanders,house,50,0,1,1
-40,10,1,0,30,10,0,0,1,5,1e-05,fang,flanders,house,50,0,1,1
-40,10,1,0,30,10,0,0,1,10,1e-05,fang,flanders,house,50,0,1,1
-40,10,1,0,15,10,0,0,1,5,1e-05,lie,flanders,house,50,0,1,1
-40,10,1,0,15,10,0,0,1,10,1e-05,lie,flanders,house,50,0,1,1
-40,10,1,0,30,10,0,0,1,5,1e-05,lie,flanders,house,50,0,1,1
-40,10,1,0,30,10,0,0,1,10,1e-05,lie,flanders,house,50,0,1,1
-40,10,1,0,15,10,0,0,1,5,1e-05,no attack,flanders,house,50,0,1,1
-40,10,1,0,15,10,0,0,1,10,1e-05,no attack,flanders,house,50,0,1,1
-40,10,1,0,30,10,0,0,1,5,1e-05,no attack,flanders,house,50,0,1,1
-40,10,1,0,30,10,0,0,1,10,1e-05,no attack,flanders,house,50,0,1,1
-40,10,1,0,15,10,0,0,1,5,1e-05,minmax,flanders,house,50,0,1,1
-40,10,1,0,15,10,0,0,1,10,1e-05,minmax,flanders,house,50,0,1,1
-40,10,1,0,30,10,0,0,1,5,1e-05,minmax,flanders,house,50,0,1,1
-40,10,1,0,30,10,0,0,1,10,1e-05,minmax,flanders,house,50,0,1,1
-40,10,1,0,15,10,0,0,1,5,1e-05,gaussian,krum,house,50,0,0,0
-40,10,1,0,15,10,0,0,1,10,1e-05,gaussian,krum,house,50,0,0,0
-40,10,1,0,30,10,0,0,1,5,1e-05,gaussian,krum,house,50,0,0,0
-40,10,1,0,30,10,0,0,1,10,1e-05,gaussian,krum,house,50,0,0,0
-40,10,1,0,15,10,0,0,1,5,1e-05,fang,krum,house,50,0,0,0
-40,10,1,0,15,10,0,0,1,10,1e-05,fang,krum,house,50,0,0,0
-40,10,1,0,30,10,0,0,1,5,1e-05,fang,krum,house,50,0,0,0
-40,10,1,0,30,10,0,0,1,10,1e-05,fang,krum,house,50,0,0,0
-40,10,1,0,15,10,0,0,1,5,1e-05,lie,krum,house,50,0,0,0
-40,10,1,0,15,10,0,0,1,10,1e-05,lie,krum,house,50,0,0,0
-40,10,1,0,30,10,0,0,1,5,1e-05,lie,krum,house,50,0,0,0
-40,10,1,0,30,10,0,0,1,10,1e-05,lie,krum,house,50,0,0,0
-40,10,1,0,15,10,0,0,1,5,1e-05,no attack,krum,house,50,0,0,0
-40,10,1,0,15,10,0,0,1,10,1e-05,no attack,krum,house,50,0,0,0
-40,10,1,0,30,10,0,0,1,5,1e-05,no attack,krum,house,50,0,0,0
-40,10,1,0,30,10,0,0,1,10,1e-05,no attack,krum,house,50,0,0,0
-40,10,1,0,15,10,0,0,1,5,1e-05,minmax,krum,house,50,0,0,0
-40,10,1,0,15,10,0,0,1,10,1e-05,minmax,krum,house,50,0,0,0
-40,10,1,0,30,10,0,0,1,5,1e-05,minmax,krum,house,50,0,0,0
-40,10,1,0,30,10,0,0,1,10,1e-05,minmax,krum,house,50,0,0,0
+80,10,1,0,3,10,0,10,80,1,1e-05,gaussian,flanders,income,100,0,1,1
+40,50,1,0,5,50,0,10,30,10,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,5,50,0,10,30,20,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,5,50,0,10,30,30,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,10,50,0,10,30,5,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,10,50,0,10,30,10,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,10,50,0,10,30,20,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,10,50,0,10,30,30,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,20,50,0,10,30,5,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,20,50,0,10,30,10,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,20,50,0,10,30,20,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,20,50,0,10,30,30,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,30,50,0,10,30,5,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,30,50,0,10,30,10,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,30,50,0,10,30,20,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,30,50,0,10,30,30,1e-05,gaussian,flanders,income,50,0,0.1,0.1
+40,50,1,0,5,50,0,10,30,5,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,5,50,0,10,30,10,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,5,50,0,10,30,20,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,5,50,0,10,30,30,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,10,50,0,10,30,5,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,10,50,0,10,30,10,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,10,50,0,10,30,20,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,10,50,0,10,30,30,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,20,50,0,10,30,5,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,20,50,0,10,30,10,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,20,50,0,10,30,20,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,20,50,0,10,30,30,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,30,50,0,10,30,5,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,30,50,0,10,30,10,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,30,50,0,10,30,20,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,30,50,0,10,30,30,1e-05,gaussian,flanders,income,50,0,1,1
+40,50,1,0,5,50,0,10,30,5,1e-05,gaussian,krum,income,50,0,0,0
+40,50,1,0,10,50,0,10,30,5,1e-05,gaussian,krum,income,50,0,0,0
+40,50,1,0,20,50,0,10,30,5,1e-05,gaussian,krum,income,50,0,0,0
+40,50,1,0,30,50,0,10,30,5,1e-05,gaussian,krum,income,50,0,0,0
