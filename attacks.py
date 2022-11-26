@@ -172,6 +172,7 @@ def minmax_attack(
     agr_func = kwargs.get("strategy_name", None)
     threshold = kwargs.get("threshold", 1e-5)
     lambda_init = kwargs.get("old_lambda", 5.0)
+    #lambda_init = 5.0
     malicious_num = kwargs.get("malicious_num", 0)
 
     results = ordered_results.copy()
@@ -189,7 +190,7 @@ def minmax_attack(
             norm = 0
             for i in range(len(params_avg)):
                 norm += np.linalg.norm(params_avg[i])
-            perturbation_vect = [params_avg[i] / norm for i in range(len(params_avg))]
+            perturbation_vect = [-params_avg[i] / norm for i in range(len(params_avg))]
         else:
             # Apply std perturbation
             perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
@@ -203,13 +204,13 @@ def minmax_attack(
 
 
     # Compute lambda (that is gamma in the paper)
-    lambda_succ = 0
+    lambda_succ = lambda_init + 1
     l = lambda_init
-    step = lambda_init
+    step = lambda_init * 0.5
     while abs(lambda_succ - l) > threshold and step > threshold and malicious_num > 0:
         # Compute malicious gradients
-        perturbation_vect = [l * perturbation_vect[i] for i in range(len(perturbation_vect))]
-        corrupted_params = [params_avg[i] - perturbation_vect[i] for i in range(len(params_avg))]
+        pv = [l * perturbation_vect[i] for i in range(len(perturbation_vect))]
+        corrupted_params = [params_avg[i] + pv[i] for i in range(len(params_avg))]
 
         # Set corrupted clients' updates to corrupted_params
         params_c = [corrupted_params if states[i] else params[i] for i in range(len(params))]
@@ -229,18 +230,25 @@ def minmax_attack(
         # Take the maximum distance between any two benign clients
         max_dist_b = np.max(M_b)
 
-        # Compute lambda
+        #print("max m ", max_dist_m)
+        #print("max_dist_b ", max_dist_b)
+        #print("lambda ",l)
+        #print("step ", step)
+        #print("lambda diff ", abs(lambda_succ - l))
+
+        # Compute lambda (best scaling coefficient)
         if max_dist_m < max_dist_b:
-            # Lambda (gamma in the paper) is good. Save and try to increase it.
+            # Lambda (gamma in the paper) is good. Save and try to increase it
             lambda_succ = l
-            l += step * 0.5
+            l = l + step * 0.5
         else:
-            # Lambda is to big, must be reduced to increse the chanches to be selected.
-            l -= step * 0.5
+            # Lambda is to big, must be reduced to increse the chanches to be selected
+            l = l - step * 0.5
         step *= 0.5
     print("lambda: ", l)
-    print("lambda_succ: ", lambda_succ)
     print("step ", step)
+    print("lambda_succ: ", lambda_succ)
+
     # Compute the final malicious update
     perturbation_vect = [lambda_succ * perturbation_vect[i] for i in range(len(perturbation_vect))]
     corrupted_params = [params_avg[i] + perturbation_vect[i] for i in range(len(params_avg))]
