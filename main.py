@@ -177,7 +177,7 @@ def house_evaluate(
     config["auc"] = mape
     save_results(loss, arsq, config=config)
 
-    return loss, {"accuracy": arsq, "auc": mape}
+    return loss, {"Adj-R2": arsq, "MAPE": mape}
 
 def circles_evaluate(
     server_round: int, parameters: fl.common.NDArrays, config: Dict[str, Scalar]
