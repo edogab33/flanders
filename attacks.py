@@ -201,6 +201,7 @@ def minmax_attack(
             # TODO: check that experimentally std is the best as default
             perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
 
+
     # Compute lambda (that is gamma in the paper)
     lambda_succ = 0
     l = lambda_init
@@ -229,16 +230,19 @@ def minmax_attack(
         max_dist_b = np.max(M_b)
 
         # Compute lambda
-        if max_dist_m <= max_dist_b:
+        if max_dist_m < max_dist_b:
+            # Lambda (gamma in the paper) is good. Save and try to increase it.
             lambda_succ = l
             l += step * 0.5
         else:
+            # Lambda is to big, must be reduced to increse the chanches to be selected.
             l -= step * 0.5
         step *= 0.5
     print("lambda: ", l)
+    print("lambda_succ: ", lambda_succ)
     print("step ", step)
     # Compute the final malicious update
-    perturbation_vect = [l * perturbation_vect[i] for i in range(len(perturbation_vect))]
+    perturbation_vect = [lambda_succ * perturbation_vect[i] for i in range(len(perturbation_vect))]
     corrupted_params = [params_avg[i] + perturbation_vect[i] for i in range(len(params_avg))]
     corrupted_params = ndarrays_to_parameters(corrupted_params)
     for proxy, fitres in ordered_results:
