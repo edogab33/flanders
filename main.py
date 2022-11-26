@@ -70,7 +70,7 @@ from flwr.common import (
 )
 
 from sklearn.linear_model import LogisticRegression, LinearRegression, Ridge, Lasso, ElasticNet
-from sklearn.metrics import accuracy_score, log_loss, roc_auc_score, mean_squared_error, mean_absolute_percentage_error
+from sklearn.metrics import accuracy_score, log_loss, roc_auc_score, mean_squared_error, mean_absolute_percentage_error, r2_score
 
 
 parser = argparse.ArgumentParser(description="Flower Simulation with PyTorch")
@@ -168,12 +168,14 @@ def house_evaluate(
     x_test = x_test[0]
     y_test = y_test[0]
     y_pred = model.predict(x_test)
-    loss = np.sqrt(mean_squared_error(y_test, y_pred))
+    loss = mean_squared_error(y_test, y_pred)
     mape = mean_absolute_percentage_error(y_test, y_pred)
+    rsq = r2_score(y_test, y_pred)
+    arsq = 1 - (1-rsq) * (len(y_test)-1)/(len(y_test)-x_test.shape[1]-1)
     config["id"] = args.exp_num
     config["round"] = server_round
     config["auc"] = mape
-    save_results(loss, mape, config=config)
+    save_results(loss, arsq, config=config)
 
     return loss, {"auc": mape}
 
