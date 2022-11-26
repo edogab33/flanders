@@ -14,3 +14,4 @@ load_tensors.py
 results
 .DS_Store
 __pycache__
+out.log
