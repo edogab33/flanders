@@ -182,7 +182,9 @@ def minmax_attack(
     # Decide what perturbation to use according to the
     # results presented in the paper.
     if dataset_name == "mnist":
-        # Apply sign perturbation
+        # Apply std perturbation
+        # In the paper authors state that sign function is the best
+        # but in my experience std perturbation works way better
         perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
     elif dataset_name == "cifar":
         if agr_func == "krum":
@@ -195,12 +197,8 @@ def minmax_attack(
             # Apply std perturbation
             perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
     else:
-        if agr_func == "fltrust":
-            perturbation_vect = [-np.sign(params_avg[i]) for i in range(len(params_avg))]
-        else:
-            # Apply std perturbation
-            # TODO: check that experimentally std is the best as default
-            perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
+        # Apply std perturbation
+        perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
 
 
     # Compute lambda (that is gamma in the paper)
