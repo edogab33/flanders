@@ -183,7 +183,7 @@ def minmax_attack(
     # results presented in the paper.
     if dataset_name == "mnist":
         # Apply sign perturbation
-        perturbation_vect = [-np.sign(params_avg[i]) for i in range(len(params_avg))]
+        perturbation_vect = [-np.std(layer, axis=0) for layer in zip(*params)]
     elif dataset_name == "cifar":
         if agr_func == "krum":
             # Apply unit vector perturbation
@@ -242,7 +242,7 @@ def minmax_attack(
             lambda_succ = l
             l = l + step * 0.5
         else:
-            # Lambda is to big, must be reduced to increse the chanches to be selected
+            # Lambda is to big, must be reduced to increse the chanches of being selected
             l = l - step * 0.5
         step *= 0.5
     print("lambda: ", l)
