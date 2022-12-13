@@ -134,7 +134,7 @@ class FLTrust(RobustStrategy):
             client_func = ToyClient
         elif dataset_name == "mnist":
             client_func = MnistClient
-            self.learning_rate = 3e-4
+            self.learning_rate = 2e-3
         elif dataset_name == "cifar":
             client_func = CifarClient
             self.learning_rate = 2e-4

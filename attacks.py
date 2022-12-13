@@ -77,7 +77,7 @@ def fang_attack(
     """
     Implemetation of Local Model Poisoning Attacks to Byzantine-Robust Federated Learning, Fang et al. (2020)
     Specifically designed for Krum, but they claim it works for other aggregation functions as well.
-    Omniscent version.
+    Full-knowledge version (attackers knows the local models of all clients).
 
     Input:
         ordered_results - list of tuples (client_proxy, fit_result) ordered by client id
@@ -162,7 +162,8 @@ def minmax_attack(
         **kwargs
     ) -> List[Tuple[ClientProxy, FitRes]]:
     """
-    Implementation of Min-Max agnostic attack.
+    Implementation of Min-Max attack (full-knowledge, perturbation function chosen according to our 
+    experimental results).
     
     From: 
     "Manipulating the Byzantine: Optimizing Model Poisoning Attacks and Defenses for Federated Learning"
