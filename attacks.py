@@ -91,7 +91,7 @@ def fang_attack(
     """
 
     d = kwargs.get("d", 1)
-    w_re = kwargs.get("w_re", None)
+    w_re = kwargs.get("w_re", None)                                 # the received global model
     old_lambda = kwargs.get("old_lambda", 0.0)
     threshold = kwargs.get("threshold", 0.0)
     malicious_selected = kwargs.get("malicious_selected", False)
@@ -99,6 +99,7 @@ def fang_attack(
     n = len(ordered_results)                                        # number of clients
     c = sum(val == True for val in states.values())                 # number of corrupted clients
 
+    # lambda initialization
     if old_lambda == 0:
         benign = [
             (parameters_to_ndarrays(fitres.parameters), fitres.num_examples)
@@ -132,6 +133,7 @@ def fang_attack(
 
         l = min_dist + max_dist                                         # lambda
     else:
+        # lambda halving search
         l = old_lambda
         if old_lambda > threshold and malicious_selected == False:
             l = old_lambda * 0.5

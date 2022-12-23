@@ -137,7 +137,7 @@ class FLTrust(RobustStrategy):
             self.learning_rate = 2e-3
         elif dataset_name == "cifar":
             client_func = CifarClient
-            self.learning_rate = 2e-4
+            self.learning_rate = 2e-3
         elif dataset_name == "income":
             client_func = IncomeClient
         elif dataset_name == "house":
