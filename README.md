@@ -35,4 +35,4 @@ To run the code is advised to create a conda environment and install all the dep
 [...]
 
 # Authors
-Dimitri Belli, Edoardo Gabrielli, Gabriele Tolomei
+Dimitri Belli, Edoardo Gabrielli, Vittorio Miori, Gabriele Tolomei
