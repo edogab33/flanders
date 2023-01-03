@@ -110,11 +110,12 @@ def fang_attack(
             for _, fitres in ordered_results
         ]
         # Compute the smallest distance that Krum would choose
-        #distances = np.array(_krum(all, c))
         _, _, _, distances = krum(all, c, 1)
         print("Distances: ", distances)
+
         idx_benign = [int(cid) for cid in states.keys() if states[cid]==False]
         print("Benign clients idx: ", idx_benign)
+        
         min_dist = np.min(np.array(distances)[idx_benign]) / ((n - 2*c - 1)*np.sqrt(d))
         print("min_dist", min_dist)
 
@@ -128,6 +129,7 @@ def fang_attack(
             dist_wre[i] = norm_sums**2
 
         max_dist = np.max(dist_wre) / np.sqrt(d)
+
         print("dist_wre", dist_wre)
         print("max dist: ", max_dist)
 
@@ -137,6 +139,7 @@ def fang_attack(
         l = old_lambda
         if old_lambda > threshold and malicious_selected == False:
             l = old_lambda * 0.5
+
     print("lambda: ", l)
 
     # Compute sign vector s
@@ -175,7 +178,6 @@ def minmax_attack(
     agr_func = kwargs.get("strategy_name", None)
     threshold = kwargs.get("threshold", 1e-5)
     lambda_init = kwargs.get("old_lambda", 5.0)
-    #lambda_init = 5.0
     malicious_num = kwargs.get("malicious_num", 0)
 
     results = ordered_results.copy()
@@ -230,12 +232,6 @@ def minmax_attack(
 
         # Take the maximum distance between any two benign clients
         max_dist_b = np.max(M_b)
-
-        #print("max m ", max_dist_m)
-        #print("max_dist_b ", max_dist_b)
-        #print("lambda ",l)
-        #print("step ", step)
-        #print("lambda diff ", abs(lambda_succ - l))
 
         # Compute lambda (best scaling coefficient)
         if max_dist_m < max_dist_b:

@@ -296,7 +296,7 @@ if __name__ == "__main__":
         magnitude=magnitude,
         warmup_rounds=warmup_rounds,                        # Used only in GlobalFlanders
         to_keep=to_keep,                                    # Used in Flanders, MultiKrum, TrimmedMean
-        threshold=threshold,                                # 1e-5 for fang attack and minmax attacks. Used also in Flanders
+        threshold=threshold,                                # 1e-5 for fang and minmax attacks
         min_available_clients=pool_size,                    # All clients should be available
         on_fit_config_fn=fit_config,
         evaluate_fn=evaluate_fn,                            # centralised evaluation of global model
