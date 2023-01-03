@@ -314,7 +314,7 @@ if __name__ == "__main__":
         # Cifar-10 dataset
         train_path, testset = get_cifar_10()
         fed_dir = do_fl_partitioning(
-            train_path, pool_size=pool_size, alpha=1000, num_classes=10, val_ratio=0.1, seed=SEED
+            train_path, pool_size=pool_size, alpha=0.5, num_classes=10, val_ratio=0.1, seed=SEED
         )
     elif dataset_name == "income":
         # Income dataset
