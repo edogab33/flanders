@@ -295,7 +295,7 @@ if __name__ == "__main__":
         min_evaluate_clients=min_evaluate_clients,
         magnitude=magnitude,
         warmup_rounds=warmup_rounds,                        # Used only in GlobalFlanders
-        to_keep=to_keep,                                    # Used in Flanders, MultiKrum, TrimmedMean
+        to_keep=to_keep,                                    # Used in Flanders, MultiKrum, TrimmedMean (in Bulyan it is forced to 1)
         threshold=threshold,                                # 1e-5 for fang and minmax attacks
         min_available_clients=pool_size,                    # All clients should be available
         on_fit_config_fn=fit_config,

@@ -112,7 +112,8 @@ class Bulyan(RobustStrategy):
         """Aggregate fit results using median on weights."""
 
         results, others, clients_state = super().init_fit(server_round, results, failures)
-
+        self.to_keep = 1
+        
         # Convert results
         weights_results = [
             (parameters_to_ndarrays(fit_res.parameters), fit_res.metrics["cid"])
@@ -128,7 +129,7 @@ class Bulyan(RobustStrategy):
             beta = 1
         print("beta: ", beta)
 
-        S = {}                                                                      # S must be Dict[int, Tuple[NDArrays, int]]
+        S = {}                                                                      # S must be Dict[int, Tuple[NDArrays, int]] (selection set)
         tracker = np.arange(len(weights_results))                                   # List of idx to keep track of the order of clients
         for _ in range(theta):
             _, idx, _, _ = krum(weights_results, self.m[-1], self.to_keep)

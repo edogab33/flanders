@@ -149,7 +149,7 @@ class TrimmedMean(RobustStrategy):
         print("Clients: ")
         print(clients_state)
 
-        # Compute the mean of the k closest parameters
+        # Compute the average of the k closest parameters
         parameters_aggregated = ndarrays_to_parameters(aggregate(closest_w))
 
         # Aggregate custom metrics if aggregation fn was provided
