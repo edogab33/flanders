@@ -188,7 +188,9 @@ class GlobalFlanders(RobustStrategy):
         return parameters_aggregated, metrics_aggregated
 
 def mar(X, pred_step, alpha=1, beta=1, maxiter=100, window=0):
-   
+    '''
+    Code provided by: https://towardsdatascience.com/matrix-autoregressive-model-for-multidimensional-time-series-forecasting-6a4d7dce5143
+    '''
     m, n, T = X.shape
     start = 0
     if window > 0:

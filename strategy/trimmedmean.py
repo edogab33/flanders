@@ -120,7 +120,7 @@ class TrimmedMean(RobustStrategy):
             for _, fit_res in results
         ]
 
-        # Compute median of the parameters
+        # Compute median vector model
         w_median = compute_median_vect(weights_results)
         
         # Take the k closest parameters around w_median
