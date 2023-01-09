@@ -23,7 +23,7 @@ This repository is part of the work done for FLANDERS (read the abstract below) 
 ## Abstract
 In this work, we propose FLANDERS, a novel federated learning (FL) aggregation scheme robust to Byzantine attacks.
 FLANDERS considers the local model updates sent by clients at each FL round as a matrix-valued time series. Then, it identifies malicious clients as outliers of this time series by comparing actual observations with those estimated by a matrix autoregressive forecasting model. 
-Experiments conducted on several datasets under different FL settings demonstrate that FLANDERS can mitigate more significantly than state-of-the-art baselines the detrimental effect of Byzantine attacks on the predictive accuracy of the global model without sacrificing its convergence time.
+Experiments conducted on several datasets under different FL settings demonstrate that FLANDERS can mitigate more significantly than state-of-the-art baselines the detrimental effect of Byzantine attacks on the predictive accuracy of the global model.
 
 # Run
 
